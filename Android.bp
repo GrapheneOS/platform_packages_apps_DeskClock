@@ -40,7 +40,10 @@ android_app {
         "src/**/*.kt",
         "gen/**/*.java",
     ],
-    exclude_srcs: ["src/**/alarmclock/*.java"],
+    exclude_srcs: [
+        "src/**/alarmclock/*.java",
+        "src/**/deskclock/controller/*.java",
+    ],
     product_specific: true,
     static_libs: [
         "androidx.annotation_annotation",
