@@ -93,7 +93,11 @@ class DigitalAppWidgetCityViewsFactory(context: Context, intent: Intent) : Remot
         val homeClockOffset = if (mShowHomeClock) -1 else 0
         val leftIndex = position * 2 + homeClockOffset
         val rightIndex = leftIndex + 1
-        val left = if (leftIndex == -1) mHomeCity else if (leftIndex < mCities!!.size) mCities!![leftIndex] else null
+        val left = when {
+            leftIndex == -1 -> mHomeCity
+            leftIndex < mCities!!.size -> mCities!![leftIndex]
+            else -> null
+        }
         val right = if (rightIndex < mCities!!.size) mCities!![rightIndex] else null
         val rv = RemoteViews(mContext.getPackageName(), R.layout.world_clock_remote_list_item)
 
