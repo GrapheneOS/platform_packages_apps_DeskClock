@@ -41,7 +41,8 @@ android_app {
     exclude_srcs: [
         "src/**/alarmclock/*.java",
         "src/**/deskclock/controller/*.java",
-        "src/**/deskclock/events/*.java"
+        "src/**/deskclock/events/*.java",
+        "src/**/deskclock/settings/*.java"
     ],
     product_specific: true,
     static_libs: [
