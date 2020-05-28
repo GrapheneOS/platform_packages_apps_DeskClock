@@ -14,21 +14,25 @@
  * limitations under the License.
  */
 
-package com.android.deskclock.events;
+package com.android.deskclock.events
 
-import android.content.Context;
-import androidx.annotation.StringRes;
+import android.content.Context
+import androidx.annotation.StringRes
 
-import com.android.deskclock.LogUtils;
+import com.android.deskclock.LogUtils
 
 class LogEventTracker(val context: Context) : EventTracker {
 
-    override fun sendEvent(@StringRes category: Int, @StringRes action: Int, @StringRes label: Int) {
+    override fun sendEvent(
+        @StringRes category: Int,
+        @StringRes action: Int,
+        @StringRes label: Int
+    ) {
         if (label == 0) {
-            LOGGER.d("[%s] [%s]", safeGetString(category), safeGetString(action));
+            LOGGER.d("[%s] [%s]", safeGetString(category), safeGetString(action))
         } else {
             LOGGER.d("[%s] [%s] [%s]", safeGetString(category), safeGetString(action),
-                    safeGetString(label));
+                    safeGetString(label))
         }
     }
 

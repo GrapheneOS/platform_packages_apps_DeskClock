@@ -147,7 +147,12 @@ class DigitalAppWidgetProvider : AppWidgetProvider() {
     /**
      * Called when the app widget changes sizes.
      */
-    override fun onAppWidgetOptionsChanged(context: Context, wm: AppWidgetManager?, widgetId: Int, options: Bundle) {
+    override fun onAppWidgetOptionsChanged(
+        context: Context,
+        wm: AppWidgetManager?,
+        widgetId: Int,
+        options: Bundle
+    ) {
         super.onAppWidgetOptionsChanged(context, wm, widgetId, options)
 
         // Scale the fonts of the clock to fit inside the new size
@@ -180,7 +185,8 @@ class DigitalAppWidgetProvider : AppWidgetProvider() {
         val nextDay = Utils.getNextDay(Date(), zones)
 
         // Schedule the next day-change callback; at least one city is displayed.
-        val pi: PendingIntent = PendingIntent.getBroadcast(context, 0, DAY_CHANGE_INTENT, FLAG_UPDATE_CURRENT)
+        val pi: PendingIntent =
+                PendingIntent.getBroadcast(context, 0, DAY_CHANGE_INTENT, FLAG_UPDATE_CURRENT)
         getAlarmManager(context).setExact(AlarmManager.RTC, nextDay.time, pi)
     }
 
@@ -188,7 +194,8 @@ class DigitalAppWidgetProvider : AppWidgetProvider() {
      * Remove the existing day-change callback.
      */
     private fun removeDayChangeCallback(context: Context) {
-        val pi: PendingIntent? = PendingIntent.getBroadcast(context, 0, DAY_CHANGE_INTENT, FLAG_NO_CREATE)
+        val pi: PendingIntent? =
+                PendingIntent.getBroadcast(context, 0, DAY_CHANGE_INTENT, FLAG_NO_CREATE)
         if (pi != null) {
             getAlarmManager(context).cancel(pi)
             pi.cancel()
@@ -199,7 +206,11 @@ class DigitalAppWidgetProvider : AppWidgetProvider() {
      * This class stores the target size of the widget as well as the measured size using a given
      * clock font size. All other fonts and icons are scaled proportional to the clock font.
      */
-    private class Sizes(val mTargetWidthPx: Int, val mTargetHeightPx: Int, val largestClockFontSizePx: Int) {
+    private class Sizes(
+        val mTargetWidthPx: Int,
+        val mTargetHeightPx: Int,
+        val largestClockFontSizePx: Int
+    ) {
         val smallestClockFontSizePx = 1
         var mIconBitmap: Bitmap? = null
 
@@ -265,7 +276,6 @@ class DigitalAppWidgetProvider : AppWidgetProvider() {
                 builder.append(String.format(Locale.ENGLISH, format, *args))
             }
         }
-
     }
 
     companion object {
@@ -285,8 +295,12 @@ class DigitalAppWidgetProvider : AppWidgetProvider() {
          * Compute optimal font and icon sizes offscreen for both portrait and landscape orientations
          * using the last known widget size and apply them to the widget.
          */
-        private fun relayoutWidget(context: Context, wm: AppWidgetManager, widgetId: Int,
-                                   options: Bundle) {
+        private fun relayoutWidget(
+            context: Context,
+            wm: AppWidgetManager,
+            widgetId: Int,
+            options: Bundle
+        ) {
             val portrait: RemoteViews = relayoutWidget(context, wm, widgetId, options, true)
             val landscape: RemoteViews = relayoutWidget(context, wm, widgetId, options, false)
             val widget = RemoteViews(landscape, portrait)
@@ -297,8 +311,13 @@ class DigitalAppWidgetProvider : AppWidgetProvider() {
         /**
          * Compute optimal font and icon sizes offscreen for the given orientation.
          */
-        private fun relayoutWidget(context: Context, wm: AppWidgetManager, widgetId: Int,
-                                   options: Bundle?, portrait: Boolean): RemoteViews {
+        private fun relayoutWidget(
+            context: Context,
+            wm: AppWidgetManager,
+            widgetId: Int,
+            options: Bundle?,
+            portrait: Boolean
+        ): RemoteViews {
             // Create a remote view for the digital clock.
             val packageName: String = context.getPackageName()
             val rv = RemoteViews(packageName, R.layout.digital_widget)
@@ -336,7 +355,8 @@ class DigitalAppWidgetProvider : AppWidgetProvider() {
             val maxHeightPx = (density * options.getInt(OPTION_APPWIDGET_MAX_HEIGHT)).toInt()
             val targetWidthPx = if (portrait) minWidthPx else maxWidthPx
             val targetHeightPx = if (portrait) maxHeightPx else minHeightPx
-            val largestClockFontSizePx: Int = resources.getDimensionPixelSize(R.dimen.widget_max_clock_font_size)
+            val largestClockFontSizePx: Int =
+                    resources.getDimensionPixelSize(R.dimen.widget_max_clock_font_size)
 
             // Create a size template that describes the widget bounds.
             val template = Sizes(targetWidthPx, targetHeightPx, largestClockFontSizePx)
@@ -353,7 +373,8 @@ class DigitalAppWidgetProvider : AppWidgetProvider() {
             rv.setTextViewTextSize(R.id.nextAlarm, COMPLEX_UNIT_PX, sizes.mFontSizePx.toFloat())
             rv.setTextViewTextSize(R.id.clock, COMPLEX_UNIT_PX, sizes.mClockFontSizePx.toFloat())
 
-            val smallestWorldCityListSizePx: Int = resources.getDimensionPixelSize(R.dimen.widget_min_world_city_list_size)
+            val smallestWorldCityListSizePx: Int =
+                    resources.getDimensionPixelSize(R.dimen.widget_min_world_city_list_size)
             if (sizes.listHeight <= smallestWorldCityListSizePx) {
                 // Insufficient space; hide the world city list.
                 rv.setViewVisibility(R.id.world_city_list, GONE)
@@ -383,7 +404,8 @@ class DigitalAppWidgetProvider : AppWidgetProvider() {
         private fun optimizeSizes(context: Context, template: Sizes, nextAlarmTime: String): Sizes {
             // Inflate a test layout to compute sizes at different font sizes.
             val inflater: LayoutInflater = LayoutInflater.from(context)
-            @SuppressLint("InflateParams") val sizer: View = inflater.inflate(R.layout.digital_widget_sizer, null /* root */)
+            @SuppressLint("InflateParams") val sizer: View =
+                    inflater.inflate(R.layout.digital_widget_sizer, null /* root */)
 
             // Configure the date to display the current date string.
             val dateFormat: CharSequence = getDateFormat(context)
@@ -459,7 +481,8 @@ class DigitalAppWidgetProvider : AppWidgetProvider() {
             date.setTextSize(COMPLEX_UNIT_PX, measuredSizes.mFontSizePx.toFloat())
             nextAlarm.setTextSize(COMPLEX_UNIT_PX, measuredSizes.mFontSizePx.toFloat())
             nextAlarmIcon.setTextSize(COMPLEX_UNIT_PX, measuredSizes.mIconFontSizePx.toFloat())
-            nextAlarmIcon.setPadding(measuredSizes.mIconPaddingPx, 0, measuredSizes.mIconPaddingPx, 0)
+            nextAlarmIcon
+                    .setPadding(measuredSizes.mIconPaddingPx, 0, measuredSizes.mIconPaddingPx, 0)
 
             // Measure and layout the sizer.
             val widthSize: Int = View.MeasureSpec.getSize(measuredSizes.mTargetWidthPx)
@@ -487,7 +510,11 @@ class DigitalAppWidgetProvider : AppWidgetProvider() {
          * @return "11:59" or "23:59" in the current locale
          */
         private fun getLongestTimeString(clock: TextClock): CharSequence {
-            val format: CharSequence = if (clock.is24HourModeEnabled()) clock.getFormat24Hour() else clock.getFormat12Hour()
+            val format: CharSequence = if (clock.is24HourModeEnabled()) {
+                clock.getFormat24Hour()
+            } else {
+                clock.getFormat12Hour()
+            }
             val longestPMTime = Calendar.getInstance()
             longestPMTime[0, 0, 0, 23] = 59
             return DateFormat.format(format, longestPMTime)

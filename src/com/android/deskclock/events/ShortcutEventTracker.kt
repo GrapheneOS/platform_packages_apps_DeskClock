@@ -28,7 +28,8 @@ import com.android.deskclock.uidata.UiDataModel
 
 @TargetApi(Build.VERSION_CODES.N_MR1)
 class ShortcutEventTracker(context: Context) : EventTracker {
-    private val mShortcutManager: ShortcutManager = context.getSystemService(ShortcutManager::class.java)
+    private val mShortcutManager: ShortcutManager =
+            context.getSystemService(ShortcutManager::class.java)
     private val shortcuts: MutableSet<String> = ArraySet(5)
 
     init {
@@ -40,7 +41,11 @@ class ShortcutEventTracker(context: Context) : EventTracker {
         shortcuts.add(uidm.getShortcutId(R.string.category_screensaver, R.string.action_show))
     }
 
-    override fun sendEvent(@StringRes category: Int, @StringRes action: Int, @StringRes label: Int) {
+    override fun sendEvent(
+        @StringRes category: Int,
+        @StringRes action: Int,
+        @StringRes label: Int
+    ) {
         val shortcutId = UiDataModel.getUiDataModel().getShortcutId(category, action)
         if (shortcuts.contains(shortcutId)) {
             mShortcutManager.reportShortcutUsed(shortcutId)
