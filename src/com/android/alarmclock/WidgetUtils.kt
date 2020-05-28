@@ -28,9 +28,9 @@ object WidgetUtils {
     fun getScaleRatio(context: Context, options: Bundle?, id: Int, cityCount: Int): Float {
         var options: Bundle? = options
         if (options == null) {
-            val widgetManager: AppWidgetManager = AppWidgetManager.getInstance(context)
-                    ?: // no manager , do no scaling
-                    return 1f
+            val widgetManager: AppWidgetManager =
+                    AppWidgetManager.getInstance(context) // no manager , do no scaling
+                    ?: return 1f
             options = widgetManager.getAppWidgetOptions(id)
         }
         options?.let {
@@ -41,7 +41,8 @@ object WidgetUtils {
             }
             val res: Resources = context.getResources()
             val density: Float = res.getDisplayMetrics().density
-            var ratio: Float = density * minWidth / res.getDimension(R.dimen.min_digital_widget_width)
+            var ratio: Float =
+                    density * minWidth / res.getDimension(R.dimen.min_digital_widget_width)
             ratio = Math.min(ratio, getHeightScaleRatio(context, it))
             ratio *= .83f
 

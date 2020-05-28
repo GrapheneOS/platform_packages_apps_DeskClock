@@ -105,7 +105,11 @@ internal class ShortcutController(val context: Context) {
     }
 
     private fun createStopwatchShortcut(): ShortcutInfo {
-        @StringRes val action: Int = if (DataModel.getDataModel().stopwatch.isRunning) R.string.action_pause else R.string.action_start
+        @StringRes val action: Int = if (DataModel.getDataModel().stopwatch.isRunning) {
+            R.string.action_pause
+        } else {
+            R.string.action_start
+        }
         val shortcutId = UiDataModel.getUiDataModel()
                 .getShortcutId(R.string.category_stopwatch, action)
         val shortcut: ShortcutInfo.Builder = ShortcutInfo.Builder(context, shortcutId)
