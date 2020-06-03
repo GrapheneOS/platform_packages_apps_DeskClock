@@ -44,6 +44,7 @@ android_app {
         "src/**/alarmclock/*.java",
         "src/**/deskclock/controller/*.java",
         "src/**/deskclock/events/*.java",
+        "src/**/deskclock/provider/*.java",
         "src/**/deskclock/settings/*.java",
         "src/**/deskclock/stopwatch/*.java"
     ],
