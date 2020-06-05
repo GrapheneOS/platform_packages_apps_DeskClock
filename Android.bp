@@ -42,6 +42,10 @@ android_app {
     ],
     exclude_srcs: [
         "src/**/alarmclock/*.java",
+        "src/**/deskclock/alarms/AlarmTimeClickHandler.java",
+        "src/**/deskclock/alarms/AlarmUpdateHandler.java",
+        "src/**/deskclock/alarms/ScrollHandler.java",
+        "src/**/deskclock/alarms/TimePickerDialogFragment.java",
         "src/**/deskclock/actionbarmenu/*.java",
         "src/**/deskclock/alarms/dataadapter/*.java",
         "src/**/deskclock/controller/*.java",
