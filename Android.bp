@@ -44,6 +44,8 @@ android_app {
         "src/**/alarmclock/*.java",
         "src/**/deskclock/alarms/AlarmActivity.java",
         "src/**/deskclock/alarms/AlarmKlaxon.java",
+        "src/**/deskclock/alarms/AlarmNotifications.java",
+        "src/**/deskclock/alarms/AlarmService.java",
         "src/**/deskclock/alarms/AlarmTimeClickHandler.java",
         "src/**/deskclock/alarms/AlarmUpdateHandler.java",
         "src/**/deskclock/alarms/ScrollHandler.java",
