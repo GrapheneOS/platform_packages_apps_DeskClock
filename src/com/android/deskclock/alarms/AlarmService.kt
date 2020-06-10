@@ -70,7 +70,7 @@ class AlarmService : Service() {
     private fun startAlarm(instance: AlarmInstance) {
         LogUtils.v("AlarmService.start with instance: " + instance.mId)
         if (mCurrentAlarm != null) {
-            AlarmStateManager.setMissedState(this, mCurrentAlarm)
+            AlarmStateManager.setMissedState(this, mCurrentAlarm!!)
             stopCurrentAlarm()
         }
 
@@ -103,7 +103,7 @@ class AlarmService : Service() {
     }
 
     private val mActionsReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent) {
+        override fun onReceive(context: Context, intent: Intent) {
             val action: String? = intent.getAction()
             LogUtils.i("AlarmService received intent %s", action)
             if (mCurrentAlarm == null ||
@@ -122,12 +122,12 @@ class AlarmService : Service() {
                     // Set the alarm state to snoozed.
                     // If this broadcast receiver is handling the snooze intent then AlarmActivity
                     // must not be showing, so always show snooze toast.
-                    AlarmStateManager.setSnoozeState(context, mCurrentAlarm, true /* showToast */)
+                    AlarmStateManager.setSnoozeState(context, mCurrentAlarm!!, true /* showToast */)
                     Events.sendAlarmEvent(R.string.action_snooze, R.string.label_intent)
                 }
                 ALARM_DISMISS_ACTION -> {
                     // Set the alarm state to dismissed.
-                    AlarmStateManager.deleteInstanceAndUpdateParent(context, mCurrentAlarm)
+                    AlarmStateManager.deleteInstanceAndUpdateParent(context, mCurrentAlarm!!)
                     Events.sendAlarmEvent(R.string.action_dismiss, R.string.label_intent)
                 }
             }
@@ -216,7 +216,7 @@ class AlarmService : Service() {
 
             if (state != TelephonyManager.CALL_STATE_IDLE && state != mPhoneCallState) {
                 startService(AlarmStateManager.createStateChangeIntent(this@AlarmService,
-                        "AlarmService", mCurrentAlarm, InstancesColumns.MISSED_STATE))
+                        "AlarmService", mCurrentAlarm!!, InstancesColumns.MISSED_STATE))
             }
         }
     }

@@ -476,7 +476,7 @@ class AlarmActivity : BaseActivity(), View.OnClickListener, View.OnTouchListener
         getAlertAnimator(mSnoozeButton, R.string.alarm_alert_snoozed_text, infoText,
                 accessibilityText, colorAccent, colorAccent).start()
 
-        AlarmStateManager.setSnoozeState(this, mAlarmInstance, false /* showToast */)
+        AlarmStateManager.setSnoozeState(this, mAlarmInstance!!, false /* showToast */)
 
         Events.sendAlarmEvent(R.string.action_snooze, R.string.label_deskclock)
 
@@ -497,7 +497,7 @@ class AlarmActivity : BaseActivity(), View.OnClickListener, View.OnTouchListener
                 getString(R.string.alarm_alert_off_text) /* accessibilityText */,
                 Color.WHITE, mCurrentHourColor).start()
 
-        AlarmStateManager.deleteInstanceAndUpdateParent(this, mAlarmInstance)
+        AlarmStateManager.deleteInstanceAndUpdateParent(this, mAlarmInstance!!)
 
         Events.sendAlarmEvent(R.string.action_dismiss, R.string.label_deskclock)
 

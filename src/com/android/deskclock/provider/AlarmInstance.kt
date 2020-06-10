@@ -450,7 +450,7 @@ class AlarmInstance : InstancesColumns {
             cr: ContentResolver,
             selection: String?,
             vararg selectionArgs: String?
-        ): List<AlarmInstance> {
+        ): MutableList<AlarmInstance> {
             val result: MutableList<AlarmInstance> = LinkedList()
             val cursor: Cursor? =
                     cr.query(InstancesColumns.CONTENT_URI, QUERY_COLUMNS,
@@ -510,7 +510,7 @@ class AlarmInstance : InstancesColumns {
 
         @JvmStatic
         fun deleteOtherInstances(
-            context: Context?,
+            context: Context,
             contentResolver: ContentResolver,
             alarmId: Long,
             instanceId: Long
