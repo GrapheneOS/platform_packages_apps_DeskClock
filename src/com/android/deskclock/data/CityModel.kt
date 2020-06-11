@@ -184,10 +184,9 @@ internal class CityModel(
      * @return a comparator used to locate index positions
      */
     val cityIndexComparator: Comparator<City>
-        get() = when (val citySort = settingsModel.citySort) {
+        get() = when (settingsModel.citySort) {
             CitySort.NAME -> NameIndexComparator()
             CitySort.UTC_OFFSET -> UtcOffsetIndexComparator()
-            null -> throw IllegalStateException("unexpected city sort: $citySort")
         }
 
     /**
@@ -217,10 +216,9 @@ internal class CityModel(
         }
 
     private val citySortComparator: Comparator<City>
-        get() = when (val citySort = settingsModel.citySort) {
+        get() = when (settingsModel.citySort) {
             CitySort.NAME -> NameComparator()
             CitySort.UTC_OFFSET -> UtcOffsetComparator()
-            null -> throw IllegalStateException("unexpected city sort: $citySort")
         }
 
     private fun fireCitiesChanged(oldCities: List<City>?, newCities: List<City>?) {
