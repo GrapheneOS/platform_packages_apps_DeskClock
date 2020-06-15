@@ -57,7 +57,7 @@ internal object TimerDAO {
      * @return the timers from permanent storage
      */
     @JvmStatic
-    fun getTimers(prefs: SharedPreferences): List<Timer> {
+    fun getTimers(prefs: SharedPreferences): MutableList<Timer> {
         // Read the set of timer ids.
         val timerIds: Set<String> = prefs.getStringSet(TIMER_IDS, emptySet<String>())!!
         val timers: MutableList<Timer> = ArrayList(timerIds.size)
