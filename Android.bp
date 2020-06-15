@@ -67,6 +67,8 @@ android_app {
         "src/**/deskclock/data/Timer.java",
         "src/**/deskclock/data/TimerDAO.java",
         "src/**/deskclock/data/TimerListener.java",
+        "src/**/deskclock/data/TimerModel.java",
+        "src/**/deskclock/data/TimerNotificationBuilder.java",
         "src/**/deskclock/data/TimerStringFormatter.java",
         "src/**/deskclock/data/TimeZones.java",
         "src/**/deskclock/events/*.java",
