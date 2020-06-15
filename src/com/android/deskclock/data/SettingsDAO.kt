@@ -336,7 +336,7 @@ internal object SettingsDAO {
             tzNames[i] = descriptor.mTimeZoneName
         }
 
-        return TimeZones(tzIds, tzNames)
+        return TimeZones(tzIds.requireNoNulls(), tzNames.requireNoNulls())
     }
 
     private fun getClockStyle(context: Context, prefs: SharedPreferences, key: String): ClockStyle {
