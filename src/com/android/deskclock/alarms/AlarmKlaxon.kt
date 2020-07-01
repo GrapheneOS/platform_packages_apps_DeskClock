@@ -56,7 +56,7 @@ internal object AlarmKlaxon {
         LogUtils.v("AlarmKlaxon.start()")
 
         if (!AlarmSettingColumns.NO_RINGTONE_URI.equals(instance.mRingtone)) {
-            val crescendoDuration = DataModel.getDataModel().alarmCrescendoDuration
+            val crescendoDuration = DataModel.dataModel.alarmCrescendoDuration
             getAsyncRingtonePlayer(context)!!.play(instance.mRingtone, crescendoDuration)
         }
 

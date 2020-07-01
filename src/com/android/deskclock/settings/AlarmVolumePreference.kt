@@ -90,7 +90,7 @@ class AlarmVolumePreference(context: Context?, attrs: AttributeSet?) : Preferenc
                 if (!mPreviewPlaying && seekBar.getProgress() != 0) {
                     // If we are not currently playing and progress is set to non-zero, start.
                     RingtonePreviewKlaxon
-                            .start(context, DataModel.getDataModel().defaultAlarmRingtoneUri)
+                            .start(context, DataModel.dataModel.defaultAlarmRingtoneUri)
                     mPreviewPlaying = true
                     seekBar.postDelayed(Runnable {
                         RingtonePreviewKlaxon.stop(context)
