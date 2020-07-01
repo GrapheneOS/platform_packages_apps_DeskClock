@@ -109,7 +109,7 @@ class StopwatchCircleView(context: Context, attrs: AttributeSet?) : View(context
         val laps = laps
 
         // If a reference lap does not exist or should not be drawn, draw a simple white circle.
-        if (laps.isEmpty() || !DataModel.getDataModel().canAddMoreLaps()) {
+        if (laps.isEmpty() || !DataModel.dataModel.canAddMoreLaps()) {
             // Draw a complete white circle; no red arc required.
             canvas.drawCircle(xCenter.toFloat(), yCenter.toFloat(), radius, mPaint)
 
@@ -164,8 +164,8 @@ class StopwatchCircleView(context: Context, attrs: AttributeSet?) : View(context
     }
 
     private val stopwatch: Stopwatch
-        get() = DataModel.getDataModel().stopwatch
+        get() = DataModel.dataModel.stopwatch
 
     private val laps: List<Lap>
-        get() = DataModel.getDataModel().laps
+        get() = DataModel.dataModel.laps
 }

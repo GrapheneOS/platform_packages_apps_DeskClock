@@ -190,7 +190,7 @@ class AlarmStateManager : BroadcastReceiver() {
 
         private val currentTime: Calendar
             get() = (if (sCurrentTimeFactory == null) {
-                DataModel.getDataModel().calendar
+                DataModel.dataModel.calendar
             } else {
                 sCurrentTimeFactory!!.currentTime
             })
@@ -363,7 +363,7 @@ class AlarmStateManager : BroadcastReceiver() {
                     AlarmInstance.createIntent(context, AlarmService::class.java, instance.mId)
             intent.setAction(CHANGE_STATE_ACTION)
             intent.addCategory(tag)
-            intent.putExtra(ALARM_GLOBAL_ID_EXTRA, DataModel.getDataModel().globalIntentId)
+            intent.putExtra(ALARM_GLOBAL_ID_EXTRA, DataModel.dataModel.globalIntentId)
             if (state != null) {
                 intent.putExtra(ALARM_STATE_EXTRA, state.toInt())
             }
@@ -536,7 +536,7 @@ class AlarmStateManager : BroadcastReceiver() {
             AlarmService.stopAlarm(context, instance)
 
             // Calculate the new snooze alarm time
-            val snoozeMinutes = DataModel.getDataModel().snoozeLength
+            val snoozeMinutes = DataModel.dataModel.snoozeLength
             val newAlarmTime = Calendar.getInstance()
             newAlarmTime.add(Calendar.MINUTE, snoozeMinutes)
 
@@ -945,7 +945,7 @@ class AlarmStateManager : BroadcastReceiver() {
                     return
                 }
 
-                val globalId = DataModel.getDataModel().globalIntentId
+                val globalId = DataModel.dataModel.globalIntentId
                 val intentId: Int = intent.getIntExtra(ALARM_GLOBAL_ID_EXTRA, -1)
                 val alarmState: Int = intent.getIntExtra(ALARM_STATE_EXTRA, -1)
                 if (intentId != globalId) {

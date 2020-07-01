@@ -201,7 +201,7 @@ class AlarmInstance : InstancesColumns {
      */
     val timeout: Calendar?
         get() {
-            val timeoutMinutes = DataModel.getDataModel().alarmTimeout
+            val timeoutMinutes = DataModel.dataModel.alarmTimeout
 
             // Alarm silence has been set to "None"
             if (timeoutMinutes < 0) {

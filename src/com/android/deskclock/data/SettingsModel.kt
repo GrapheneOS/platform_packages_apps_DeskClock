@@ -60,7 +60,7 @@ internal class SettingsModel(
     val homeTimeZone: TimeZone
         get() = SettingsDAO.getHomeTimeZone(mContext, mPrefs, TimeZone.getDefault())
 
-    val clockStyle: DataModel.ClockStyle?
+    val clockStyle: DataModel.ClockStyle
         get() = SettingsDAO.getClockStyle(mContext, mPrefs)
 
     var displayClockSeconds: Boolean
@@ -69,7 +69,7 @@ internal class SettingsModel(
             SettingsDAO.setDisplayClockSeconds(mPrefs, shouldDisplaySeconds)
         }
 
-    val screensaverClockStyle: DataModel.ClockStyle?
+    val screensaverClockStyle: DataModel.ClockStyle
         get() = SettingsDAO.getScreensaverClockStyle(mContext, mPrefs)
 
     val screensaverNightModeOn: Boolean

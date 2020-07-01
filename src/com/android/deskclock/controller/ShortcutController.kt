@@ -51,7 +51,7 @@ internal class ShortcutController(val context: Context) {
 
     init {
         Controller.getController().addEventTracker(ShortcutEventTracker(context))
-        DataModel.getDataModel().addStopwatchListener(StopwatchWatcher())
+        DataModel.dataModel.addStopwatchListener(StopwatchWatcher())
     }
 
     fun updateShortcuts() {
@@ -105,7 +105,7 @@ internal class ShortcutController(val context: Context) {
     }
 
     private fun createStopwatchShortcut(): ShortcutInfo {
-        @StringRes val action: Int = if (DataModel.getDataModel().stopwatch.isRunning) {
+        @StringRes val action: Int = if (DataModel.dataModel.stopwatch.isRunning) {
             R.string.action_pause
         } else {
             R.string.action_start
@@ -117,7 +117,7 @@ internal class ShortcutController(val context: Context) {
                 .setActivity(mComponentName)
                 .setRank(2)
         val intent: Intent
-        if (DataModel.getDataModel().stopwatch.isRunning) {
+        if (DataModel.dataModel.stopwatch.isRunning) {
             intent = Intent(StopwatchService.ACTION_PAUSE_STOPWATCH)
                     .putExtra(Events.EXTRA_EVENT_LABEL, R.string.label_shortcut)
             shortcut.setShortLabel(context.getString(R.string.shortcut_pause_stopwatch_short))

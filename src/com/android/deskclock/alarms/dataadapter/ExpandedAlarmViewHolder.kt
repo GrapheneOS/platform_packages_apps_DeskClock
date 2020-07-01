@@ -73,7 +73,7 @@ class ExpandedAlarmViewHolder private constructor(itemView: View, private val mH
 
         // Build button for each day.
         val inflater: LayoutInflater = LayoutInflater.from(context)
-        val weekdays = DataModel.getDataModel().weekdayOrder.calendarDays
+        val weekdays = DataModel.dataModel.weekdayOrder.calendarDays
         for (i in 0..6) {
             val dayButtonFrame: View = inflater.inflate(R.layout.day_button, repeatDays,
                     false /* attachToRoot */)
@@ -153,7 +153,7 @@ class ExpandedAlarmViewHolder private constructor(itemView: View, private val mH
     }
 
     private fun bindRingtone(context: Context, alarm: Alarm) {
-        val title = DataModel.getDataModel().getRingtoneTitle(alarm.alert)
+        val title = DataModel.dataModel.getRingtoneTitle(alarm.alert!!)
         ringtone.text = title
 
         val description: String = context.getString(R.string.ringtone_description)
@@ -166,7 +166,7 @@ class ExpandedAlarmViewHolder private constructor(itemView: View, private val mH
     }
 
     private fun bindDaysOfWeekButtons(alarm: Alarm, context: Context) {
-        val weekdays = DataModel.getDataModel().weekdayOrder.calendarDays
+        val weekdays = DataModel.dataModel.weekdayOrder.calendarDays
         for (i in weekdays.indices) {
             val dayButton: CompoundButton? = dayButtons[i]
             dayButton?.let {
