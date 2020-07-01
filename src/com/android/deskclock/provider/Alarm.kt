@@ -84,7 +84,7 @@ class Alarm : Parcelable, AlarmsColumns {
         vibrate = true
         daysOfWeek = Weekdays.NONE
         label = ""
-        alert = DataModel.getDataModel().defaultAlarmRingtoneUri
+        alert = DataModel.dataModel.defaultAlarmRingtoneUri
         deleteAfterUse = false
     }
 
@@ -381,7 +381,7 @@ class Alarm : Parcelable, AlarmsColumns {
                 override fun loadInBackground(): Cursor {
                     // Prime the ringtone title cache for later access. Most alarms will refer to
                     // system ringtones.
-                    DataModel.getDataModel().loadRingtoneTitles()
+                    DataModel.dataModel.loadRingtoneTitles()
                     return super.loadInBackground()
                 }
             }

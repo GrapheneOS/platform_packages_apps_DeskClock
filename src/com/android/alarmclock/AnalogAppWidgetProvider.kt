@@ -39,7 +39,7 @@ class AnalogAppWidgetProvider : AppWidgetProvider() {
         // Send events for newly created/deleted widgets.
         val provider = ComponentName(context, javaClass)
         val widgetCount: Int = wm.getAppWidgetIds(provider).size
-        val dm = DataModel.getDataModel()
+        val dm = DataModel.dataModel
         dm.updateWidgetCount(javaClass, widgetCount, R.string.category_analog_widget)
     }
 

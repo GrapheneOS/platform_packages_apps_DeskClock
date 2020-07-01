@@ -95,7 +95,7 @@ class CollapsedAlarmViewHolder private constructor(itemView: View) : AlarmItemVi
 
     private fun bindRepeatText(context: Context, alarm: Alarm) {
         if (alarm.daysOfWeek.isRepeating) {
-            val weekdayOrder = DataModel.getDataModel().weekdayOrder
+            val weekdayOrder = DataModel.dataModel.weekdayOrder
             val daysOfWeekText = alarm.daysOfWeek.toString(context, weekdayOrder)
             daysOfWeek.text = daysOfWeekText
 
