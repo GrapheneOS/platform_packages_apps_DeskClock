@@ -129,7 +129,7 @@ class AlarmTimeClickHandler(
         val now = Calendar.getInstance()
         val oldNextAlarmTime = alarm.getNextAlarmTime(now)
 
-        val weekday = DataModel.getDataModel().weekdayOrder.calendarDays[index]
+        val weekday = DataModel.dataModel.weekdayOrder.calendarDays[index]
         alarm.daysOfWeek = alarm.daysOfWeek.setBit(weekday, checked)
 
         // if the change altered the next scheduled alarm time, tell the user

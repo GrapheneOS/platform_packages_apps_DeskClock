@@ -148,7 +148,7 @@ class DigitalAppWidgetCityViewsFactory(context: Context, intent: Intent) : Remot
     override fun onDataSetChanged() {
         // Fetch the data on the main Looper.
         val refreshRunnable = RefreshRunnable()
-        DataModel.getDataModel().run(refreshRunnable)
+        DataModel.dataModel.run(refreshRunnable)
 
         // Store the data in local variables.
         mHomeCity = refreshRunnable.mHomeCity
@@ -201,9 +201,9 @@ class DigitalAppWidgetCityViewsFactory(context: Context, intent: Intent) : Remot
         var mShowHomeClock = false
 
         override fun run() {
-            mHomeCity = DataModel.getDataModel().homeCity
-            mCities = ArrayList(DataModel.getDataModel().selectedCities)
-            mShowHomeClock = DataModel.getDataModel().showHomeClock
+            mHomeCity = DataModel.dataModel.homeCity
+            mCities = ArrayList(DataModel.dataModel.selectedCities)
+            mShowHomeClock = DataModel.dataModel.showHomeClock
         }
     }
 

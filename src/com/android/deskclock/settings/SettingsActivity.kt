@@ -139,7 +139,7 @@ class SettingsActivity : BaseActivity() {
                     pref.setSummary(simpleMenuPreference.getEntries().get(i))
                 }
                 KEY_CLOCK_DISPLAY_SECONDS -> {
-                    DataModel.getDataModel().displayClockSeconds = newValue as Boolean
+                    DataModel.dataModel.displayClockSeconds = newValue as Boolean
                 }
                 KEY_AUTO_SILENCE -> {
                     val delay = newValue as String
@@ -152,9 +152,9 @@ class SettingsActivity : BaseActivity() {
                 }
                 KEY_TIMER_VIBRATE -> {
                     val timerVibratePref: TwoStatePreference = pref as TwoStatePreference
-                    DataModel.getDataModel().timerVibrate = timerVibratePref.isChecked()
+                    DataModel.dataModel.timerVibrate = timerVibratePref.isChecked()
                 }
-                KEY_TIMER_RINGTONE -> pref.setSummary(DataModel.getDataModel().timerRingtoneTitle)
+                KEY_TIMER_RINGTONE -> pref.setSummary(DataModel.dataModel.timerRingtoneTitle)
             }
 
             // Set result so DeskClock knows to refresh itself
@@ -209,7 +209,7 @@ class SettingsActivity : BaseActivity() {
          * Reconstruct the timezone list.
          */
         private fun loadTimeZoneList() {
-            val timezones = DataModel.getDataModel().timeZones
+            val timezones = DataModel.dataModel.timeZones
             val homeTimezonePref: ListPreference? = findPreference(KEY_HOME_TZ)
             homeTimezonePref?.let {
                 it.setEntryValues(timezones.timeZoneIds)
@@ -260,7 +260,7 @@ class SettingsActivity : BaseActivity() {
 
             val weekStartPref: SimpleMenuPreference? = findPreference(KEY_WEEK_START)
             // Set the default value programmatically
-            val weekdayOrder = DataModel.getDataModel().weekdayOrder
+            val weekdayOrder = DataModel.dataModel.weekdayOrder
             val firstDay = weekdayOrder.calendarDays[0]
             val value = firstDay.toString()
             weekStartPref?.let {
@@ -273,7 +273,7 @@ class SettingsActivity : BaseActivity() {
             val timerRingtonePref: Preference? = findPreference(KEY_TIMER_RINGTONE)
             timerRingtonePref?.let {
                 it.setOnPreferenceClickListener(this)
-                it.setSummary(DataModel.getDataModel().timerRingtoneTitle)
+                it.setSummary(DataModel.dataModel.timerRingtoneTitle)
             }
         }
 
