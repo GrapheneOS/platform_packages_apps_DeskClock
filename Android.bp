@@ -55,6 +55,9 @@ android_app {
         "src/**/deskclock/ringtone/HeaderHolder.java",
         "src/**/deskclock/ringtone/HeaderViewHolder.java",
         "src/**/deskclock/ringtone/RingtoneHolder.java",
+        "src/**/deskclock/ringtone/RingtoneLoader.java",
+        "src/**/deskclock/ringtone/RingtoneViewHolder.java",
+        "src/**/deskclock/ringtone/SystemRingtoneHolder.java",
         "src/**/deskclock/settings/*.java",
         "src/**/deskclock/stopwatch/*.java"
     ],
