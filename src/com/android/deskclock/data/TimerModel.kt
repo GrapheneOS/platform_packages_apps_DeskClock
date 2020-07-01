@@ -385,7 +385,7 @@ internal class TimerModel(
     /**
      * @return the title of the ringtone that is played for all timers
      */
-    val timerRingtoneTitle: String?
+    val timerRingtoneTitle: String
         get() {
             if (mTimerRingtoneTitle == null) {
                 mTimerRingtoneTitle = if (isTimerRingtoneSilent) {
@@ -403,7 +403,7 @@ internal class TimerModel(
                 }
             }
 
-            return mTimerRingtoneTitle
+            return mTimerRingtoneTitle!!
         }
 
     /**

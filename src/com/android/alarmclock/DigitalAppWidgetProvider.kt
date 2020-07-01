@@ -125,7 +125,7 @@ class DigitalAppWidgetProvider : AppWidgetProvider() {
             }
         }
 
-        val dm = DataModel.getDataModel()
+        val dm = DataModel.dataModel
         dm.updateWidgetCount(javaClass, widgetIds.size, R.string.category_digital_widget)
 
         if (widgetIds.size > 0) {
@@ -164,7 +164,7 @@ class DigitalAppWidgetProvider : AppWidgetProvider() {
      * Add the day-change callback if it is needed (selected cities exist).
      */
     private fun updateDayChangeCallback(context: Context) {
-        val dm = DataModel.getDataModel()
+        val dm = DataModel.dataModel
         val selectedCities = dm.selectedCities
         val showHomeClock = dm.showHomeClock
         if (selectedCities.isEmpty() && !showHomeClock) {

@@ -146,7 +146,7 @@ class AlarmActivity : BaseActivity(), View.OnClickListener, View.OnTouchListener
         LOGGER.i("Displaying alarm for instance: %s", mAlarmInstance)
 
         // Get the volume/camera button behavior setting
-        mVolumeBehavior = DataModel.getDataModel().alarmVolumeButtonBehavior
+        mVolumeBehavior = DataModel.dataModel.alarmVolumeButtonBehavior
 
         // TODO(b/157255731) Replace deprecated LayoutParams flags on Android versions above O
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
@@ -467,7 +467,7 @@ class AlarmActivity : BaseActivity(), View.OnClickListener, View.OnTouchListener
         val colorAccent = ThemeUtils.resolveColor(this, R.attr.colorAccent)
         setAnimatedFractions(1.0f /* snoozeFraction */, 0.0f /* dismissFraction */)
 
-        val snoozeMinutes = DataModel.getDataModel().snoozeLength
+        val snoozeMinutes = DataModel.dataModel.snoozeLength
         val infoText: String = getResources().getQuantityString(
                 R.plurals.alarm_alert_snooze_duration, snoozeMinutes, snoozeMinutes)
         val accessibilityText: String = getResources().getQuantityString(

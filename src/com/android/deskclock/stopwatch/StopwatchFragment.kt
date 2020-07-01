@@ -144,7 +144,7 @@ class StopwatchFragment : DeskClockFragment(UiDataModel.Tab.STOPWATCH) {
         mStopwatchTextController = StopwatchTextController(mMainTimeText, mHundredthsTimeText)
         mStopwatchWrapper = v.findViewById(R.id.stopwatch_time_wrapper)
 
-        DataModel.getDataModel().addStopwatchListener(mStopwatchWatcher)
+        DataModel.dataModel.addStopwatchListener(mStopwatchWatcher)
 
         mStopwatchWrapper.setOnClickListener(TimeClickListener())
         if (mTime != null) {
@@ -173,11 +173,11 @@ class StopwatchFragment : DeskClockFragment(UiDataModel.Tab.STOPWATCH) {
         if (intent != null) {
             val action: String? = intent.getAction()
             if (StopwatchService.Companion.ACTION_START_STOPWATCH == action) {
-                DataModel.getDataModel().startStopwatch()
+                DataModel.dataModel.startStopwatch()
                 // Consume the intent
                 activity.setIntent(null)
             } else if (StopwatchService.Companion.ACTION_PAUSE_STOPWATCH == action) {
-                DataModel.getDataModel().pauseStopwatch()
+                DataModel.dataModel.pauseStopwatch()
                 // Consume the intent
                 activity.setIntent(null)
             }
@@ -209,7 +209,7 @@ class StopwatchFragment : DeskClockFragment(UiDataModel.Tab.STOPWATCH) {
     override fun onDestroyView() {
         super.onDestroyView()
 
-        DataModel.getDataModel().removeStopwatchListener(mStopwatchWatcher)
+        DataModel.dataModel.removeStopwatchListener(mStopwatchWatcher)
     }
 
     override fun onFabClick(fab: ImageView) {
@@ -306,7 +306,7 @@ class StopwatchFragment : DeskClockFragment(UiDataModel.Tab.STOPWATCH) {
      */
     private fun doStart() {
         Events.sendStopwatchEvent(R.string.action_start, R.string.label_deskclock)
-        DataModel.getDataModel().startStopwatch()
+        DataModel.dataModel.startStopwatch()
     }
 
     /**
@@ -314,7 +314,7 @@ class StopwatchFragment : DeskClockFragment(UiDataModel.Tab.STOPWATCH) {
      */
     private fun doPause() {
         Events.sendStopwatchEvent(R.string.action_pause, R.string.label_deskclock)
-        DataModel.getDataModel().pauseStopwatch()
+        DataModel.dataModel.pauseStopwatch()
     }
 
     /**
@@ -323,7 +323,7 @@ class StopwatchFragment : DeskClockFragment(UiDataModel.Tab.STOPWATCH) {
     private fun doReset() {
         val priorState = stopwatch.state
         Events.sendStopwatchEvent(R.string.action_reset, R.string.label_deskclock)
-        DataModel.getDataModel().resetStopwatch()
+        DataModel.dataModel.resetStopwatch()
         mMainTimeText.setAlpha(1f)
         mHundredthsTimeText.setAlpha(1f)
         if (priorState == Stopwatch.State.RUNNING) {
@@ -421,7 +421,7 @@ class StopwatchFragment : DeskClockFragment(UiDataModel.Tab.STOPWATCH) {
     }
 
     private fun adjustWakeLock() {
-        val appInForeground = DataModel.getDataModel().isApplicationInForeground
+        val appInForeground = DataModel.dataModel.isApplicationInForeground
         if (stopwatch.isRunning && isTabSelected && appInForeground) {
             getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         } else {
@@ -445,9 +445,9 @@ class StopwatchFragment : DeskClockFragment(UiDataModel.Tab.STOPWATCH) {
     }
 
     private val stopwatch: Stopwatch
-        get() = DataModel.getDataModel().stopwatch
+        get() = DataModel.dataModel.stopwatch
 
-    private fun canRecordMoreLaps(): Boolean = DataModel.getDataModel().canAddMoreLaps()
+    private fun canRecordMoreLaps(): Boolean = DataModel.dataModel.canAddMoreLaps()
 
     /**
      * Post the first runnable to update times within the UI. It will reschedule itself as needed.
@@ -561,12 +561,12 @@ class StopwatchFragment : DeskClockFragment(UiDataModel.Tab.STOPWATCH) {
             if (after.isReset) {
                 // Ensure the drop shadow is hidden when the stopwatch is reset.
                 setTabScrolledToTop(true)
-                if (DataModel.getDataModel().isApplicationInForeground) {
+                if (DataModel.dataModel.isApplicationInForeground) {
                     updateUI(FabContainer.BUTTONS_IMMEDIATE)
                 }
                 return
             }
-            if (DataModel.getDataModel().isApplicationInForeground) {
+            if (DataModel.dataModel.isApplicationInForeground) {
                 updateUI(FabContainer.FAB_MORPH or FabContainer.BUTTONS_IMMEDIATE)
             }
         }
@@ -582,9 +582,9 @@ class StopwatchFragment : DeskClockFragment(UiDataModel.Tab.STOPWATCH) {
 
         override fun onClick(view: View?) {
             if (stopwatch.isRunning) {
-                DataModel.getDataModel().pauseStopwatch()
+                DataModel.dataModel.pauseStopwatch()
             } else {
-                DataModel.getDataModel().startStopwatch()
+                DataModel.dataModel.startStopwatch()
             }
         }
     }
