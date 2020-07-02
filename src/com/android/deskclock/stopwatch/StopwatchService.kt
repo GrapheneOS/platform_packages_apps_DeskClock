@@ -52,19 +52,19 @@ class StopwatchService : Service() {
             }
             ACTION_START_STOPWATCH -> {
                 Events.sendStopwatchEvent(R.string.action_start, label)
-                DataModel.getDataModel().startStopwatch()
+                DataModel.dataModel.startStopwatch()
             }
             ACTION_PAUSE_STOPWATCH -> {
                 Events.sendStopwatchEvent(R.string.action_pause, label)
-                DataModel.getDataModel().pauseStopwatch()
+                DataModel.dataModel.pauseStopwatch()
             }
             ACTION_RESET_STOPWATCH -> {
                 Events.sendStopwatchEvent(R.string.action_reset, label)
-                DataModel.getDataModel().resetStopwatch()
+                DataModel.dataModel.resetStopwatch()
             }
             ACTION_LAP_STOPWATCH -> {
                 Events.sendStopwatchEvent(R.string.action_lap, label)
-                DataModel.getDataModel().addLap()
+                DataModel.dataModel.addLap()
             }
         }
 

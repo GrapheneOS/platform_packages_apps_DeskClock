@@ -87,7 +87,7 @@ internal class StopwatchNotificationBuilder {
             actions.add(Action.Builder(icon1, title1, intent1).build())
 
             // Right button: Add Lap
-            if (DataModel.getDataModel().canAddMoreLaps()) {
+            if (DataModel.dataModel.canAddMoreLaps()) {
                 val lap: Intent = Intent(context, StopwatchService::class.java)
                         .setAction(StopwatchService.ACTION_LAP_STOPWATCH)
                         .putExtra(Events.EXTRA_EVENT_LABEL, eventLabel)
@@ -99,7 +99,7 @@ internal class StopwatchNotificationBuilder {
             }
 
             // Show the current lap number if any laps have been recorded.
-            val lapCount = DataModel.getDataModel().laps.size
+            val lapCount = DataModel.dataModel.laps.size
             if (lapCount > 0) {
                 val lapNumber = lapCount + 1
                 val lap: String = res.getString(R.string.sw_notification_lap_number, lapNumber)

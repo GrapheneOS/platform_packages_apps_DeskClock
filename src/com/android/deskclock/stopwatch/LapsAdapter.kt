@@ -87,7 +87,7 @@ internal class LapsAdapter(context: Context) : RecyclerView.Adapter<LapItemHolde
         } else {
             // For the current lap, compute times relative to the stopwatch.
             totalTime = stopwatch.totalTime
-            lapTime = DataModel.getDataModel().getCurrentLapTime(totalTime)
+            lapTime = DataModel.dataModel.getCurrentLapTime(totalTime)
             lapNumber = laps.size + 1
         }
 
@@ -119,7 +119,7 @@ internal class LapsAdapter(context: Context) : RecyclerView.Adapter<LapItemHolde
         val currentLapView: View? = rv.getChildAt(0)
         if (currentLapView != null) {
             // Compute the lap time using the total time.
-            val lapTime = DataModel.getDataModel().getCurrentLapTime(totalTime)
+            val lapTime = DataModel.dataModel.getCurrentLapTime(totalTime)
             val holder = rv.getChildViewHolder(currentLapView) as LapItemHolder
             holder.lapTime.setText(formatLapTime(lapTime, false))
             holder.accumulatedTime.setText(formatAccumulatedTime(totalTime, false))
@@ -132,7 +132,7 @@ internal class LapsAdapter(context: Context) : RecyclerView.Adapter<LapItemHolde
      * @return a newly cleared lap
      */
     fun addLap(): Lap? {
-        val lap = DataModel.getDataModel().addLap()
+        val lap = DataModel.dataModel.addLap()
 
         if (itemCount == 10) {
             // 10 total laps indicates all items switch from 1 to 2 digit lap numbers.
@@ -195,7 +195,7 @@ internal class LapsAdapter(context: Context) : RecyclerView.Adapter<LapItemHolde
                 // Append the final lap
                 builder.append(laps.size + 1)
                 builder.append(separator)
-                val lapTime = DataModel.getDataModel().getCurrentLapTime(totalTime)
+                val lapTime = DataModel.dataModel.getCurrentLapTime(totalTime)
                 builder.append(formatTime(lapTime, lapTime, " "))
                 builder.append("\n")
             }
@@ -224,7 +224,7 @@ internal class LapsAdapter(context: Context) : RecyclerView.Adapter<LapItemHolde
      */
     private fun formatLapTime(lapTime: Long, isBinding: Boolean): String {
         // The longest lap dictates the way the given lapTime must be formatted.
-        val longestLapTime = max(DataModel.getDataModel().longestLapTime, lapTime)
+        val longestLapTime = max(DataModel.dataModel.longestLapTime, lapTime)
         val formattedTime = formatTime(longestLapTime, lapTime, LRM_SPACE)
 
         // If the newly formatted lap time has altered the format, refresh all laps.
@@ -259,10 +259,10 @@ internal class LapsAdapter(context: Context) : RecyclerView.Adapter<LapItemHolde
     }
 
     private val stopwatch: Stopwatch
-        get() = DataModel.getDataModel().stopwatch
+        get() = DataModel.dataModel.stopwatch
 
     private val laps: List<Lap>
-        get() = DataModel.getDataModel().laps
+        get() = DataModel.dataModel.laps
 
     /**
      * Cache the child views of each lap item view.

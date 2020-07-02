@@ -416,7 +416,7 @@ public final class ClockFragment extends DeskClockFragment {
         }
 
         private List<City> getCities() {
-            return DataModel.getDataModel().getSelectedCities();
+            return (List<City>) DataModel.getDataModel().getSelectedCities();
         }
 
         private void refreshAlarm() {
