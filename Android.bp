@@ -49,6 +49,12 @@ android_app {
         "src/**/deskclock/data/*.java",
         "src/**/deskclock/events/*.java",
         "src/**/deskclock/provider/*.java",
+        "src/**/deskclock/ringtone/AddCustomRingtoneHolder.java",
+        "src/**/deskclock/ringtone/AddCustomRingtoneViewHolder.java",
+        "src/**/deskclock/ringtone/CustomRingtoneHolder.java",
+        "src/**/deskclock/ringtone/HeaderHolder.java",
+        "src/**/deskclock/ringtone/HeaderViewHolder.java",
+        "src/**/deskclock/ringtone/RingtoneHolder.java",
         "src/**/deskclock/settings/*.java",
         "src/**/deskclock/stopwatch/*.java"
     ],
