@@ -37,7 +37,7 @@ internal class RingtoneLoader(
     context: Context?,
     private val mDefaultRingtoneUri: Uri,
     private val mDefaultRingtoneTitle: String
-) : AsyncTaskLoader<java.util.List<ItemHolder<Uri>>>(context) {
+) : AsyncTaskLoader<List<ItemHolder<Uri>>>(context) {
     private var mCustomRingtones: List<CustomRingtone>? = null
 
     override fun onStartLoading() {
@@ -47,7 +47,7 @@ internal class RingtoneLoader(
         forceLoad()
     }
 
-    override fun loadInBackground(): java.util.List<ItemHolder<Uri>> {
+    override fun loadInBackground(): List<ItemHolder<Uri>> {
         // Prime the ringtone title cache for later access.
         DataModel.dataModel.loadRingtoneTitles()
         DataModel.dataModel.loadRingtonePermissions()
@@ -94,7 +94,7 @@ internal class RingtoneLoader(
             itemHolders.add(SystemRingtoneHolder(ringtoneUri, null))
         }
 
-        return itemHolders as java.util.List<ItemHolder<Uri>>
+        return itemHolders
     }
 
     override fun onReset() {
