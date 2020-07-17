@@ -162,7 +162,7 @@ class AlarmTimeClickHandler(
         mAlarmUpdateHandler.showPredismissToast(alarmInstance)
     }
 
-    fun onRingtoneClicked(context: Context, alarm: Alarm?) {
+    fun onRingtoneClicked(context: Context, alarm: Alarm) {
         mSelectedAlarm = alarm
         Events.sendAlarmEvent(R.string.action_set_ringtone, R.string.label_deskclock)
 
