@@ -51,7 +51,10 @@ android_app {
         "src/**/deskclock/provider/*.java",
         "src/**/deskclock/ringtone/*.java",
         "src/**/deskclock/settings/*.java",
-        "src/**/deskclock/stopwatch/*.java"
+        "src/**/deskclock/stopwatch/*.java",
+        "src/**/deskclock/timer/TimerReceiver.java",
+        "src/**/deskclock/timer/TimerService.java",
+        "src/**/deskclock/timer/TimerSetupView.java",
     ],
     product_specific: true,
     static_libs: [

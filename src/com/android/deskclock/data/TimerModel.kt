@@ -205,7 +205,7 @@ internal class TimerModel(
      * @param service used to start foreground notifications related to expired timers
      * @param timer the timer to be expired
      */
-    fun expireTimer(service: Service, timer: Timer) {
+    fun expireTimer(service: Service?, timer: Timer) {
         if (mService == null) {
             // If this is the first expired timer, retain the service that will be used to start
             // the heads-up notification in the foreground.
