@@ -31,6 +31,7 @@ import android.os.Looper
 import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import android.provider.Settings.ACTION_SOUND_SETTINGS
 import android.view.View
+import androidx.annotation.Keep
 import androidx.annotation.StringRes
 
 import com.android.deskclock.Predicate
@@ -485,7 +486,7 @@ class DataModel private constructor() {
             if (service != null) {
                 expireTimer(service, started)
             } else {
-                mContext!!.startService(TimerService.createTimerExpiredIntent(mContext, started))
+                mContext!!.startService(TimerService.createTimerExpiredIntent(mContext!!, started))
             }
         }
     }
@@ -502,7 +503,7 @@ class DataModel private constructor() {
      * @param service used to start foreground notifications for expired timers
      * @param timer the timer to be expired
      */
-    fun expireTimer(service: Service, timer: Timer) {
+    fun expireTimer(service: Service?, timer: Timer) {
         Utils.enforceMainLooper()
         mTimerModel?.expireTimer(service, timer)
     }
@@ -511,6 +512,7 @@ class DataModel private constructor() {
      * @param timer the timer to be reset
      * @return the reset `timer`
      */
+    @Keep
     fun resetTimer(timer: Timer): Timer? {
         Utils.enforceMainLooper()
         return mTimerModel?.resetTimer(timer, false /* allowDelete */, 0 /* eventLabelId */)
@@ -596,7 +598,7 @@ class DataModel private constructor() {
         val updated = timer.setRemainingTime(remainingTime)
         mTimerModel?.updateTimer(updated)
         if (timer.isRunning && timer.remainingTime <= 0) {
-            mContext?.startService(TimerService.createTimerExpiredIntent(mContext, updated))
+            mContext?.startService(TimerService.createTimerExpiredIntent(mContext!!, updated))
         }
     }
 
