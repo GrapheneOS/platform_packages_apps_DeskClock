@@ -52,6 +52,7 @@ android_app {
         "src/**/deskclock/ringtone/*.java",
         "src/**/deskclock/settings/*.java",
         "src/**/deskclock/stopwatch/*.java",
+        "src/**/deskclock/timer/ExpiredTimersActivity.java",
         "src/**/deskclock/timer/TimerCircleView.java",
         "src/**/deskclock/timer/TimerItem.java",
         "src/**/deskclock/timer/TimerItemFragment.java",
