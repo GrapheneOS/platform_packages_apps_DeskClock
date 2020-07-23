@@ -135,7 +135,7 @@ public final class ClockFragment extends DeskClockFragment {
         }
 
         // Schedule a runnable to update the date every quarter hour.
-        UiDataModel.getUiDataModel().addQuarterHourCallback(mQuarterHourUpdater, 100);
+        UiDataModel.getUiDataModel().addQuarterHourCallback(mQuarterHourUpdater);
 
         return fragmentView;
     }
