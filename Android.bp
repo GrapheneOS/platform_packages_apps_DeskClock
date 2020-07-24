@@ -53,12 +53,7 @@ android_app {
         "src/**/deskclock/settings/*.java",
         "src/**/deskclock/stopwatch/*.java",
         "src/**/deskclock/timer/*.java",
-        "src/**/deskclock/uidata/FormattedStringModel.java",
-        "src/**/deskclock/uidata/PeriodicCallbackModel.java",
-        "src/**/deskclock/uidata/TabDAO.java",
-        "src/**/deskclock/uidata/TabListener.java",
-        "src/**/deskclock/uidata/TabModel.java",
-        "src/**/deskclock/uidata/TabScrollListener.java",
+        "src/**/deskclock/uidata/*.java",
     ],
     product_specific: true,
     static_libs: [
