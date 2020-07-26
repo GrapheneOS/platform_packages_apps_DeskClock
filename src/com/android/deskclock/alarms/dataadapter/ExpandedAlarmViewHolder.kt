@@ -80,8 +80,8 @@ class ExpandedAlarmViewHolder private constructor(itemView: View, private val mH
             val dayButton: CompoundButton =
                     dayButtonFrame.findViewById(R.id.day_button_box) as CompoundButton
             val weekday = weekdays[i]
-            dayButton.text = UiDataModel.getUiDataModel().getShortWeekday(weekday)
-            dayButton.setContentDescription(UiDataModel.getUiDataModel().getLongWeekday(weekday))
+            dayButton.text = UiDataModel.uiDataModel.getShortWeekday(weekday)
+            dayButton.setContentDescription(UiDataModel.uiDataModel.getLongWeekday(weekday))
             repeatDays.addView(dayButtonFrame)
             dayButtons[i] = dayButton
         }
