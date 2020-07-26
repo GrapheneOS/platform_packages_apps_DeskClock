@@ -423,7 +423,7 @@ class DigitalAppWidgetProvider : AppWidgetProvider() {
                 nextAlarm.setText(nextAlarmTime)
                 nextAlarm.setVisibility(VISIBLE)
                 nextAlarmIcon.setVisibility(VISIBLE)
-                nextAlarmIcon.setTypeface(UiDataModel.getUiDataModel().alarmIconTypeface)
+                nextAlarmIcon.setTypeface(UiDataModel.uiDataModel.alarmIconTypeface)
             }
 
             // Measure the widget at the largest possible size.

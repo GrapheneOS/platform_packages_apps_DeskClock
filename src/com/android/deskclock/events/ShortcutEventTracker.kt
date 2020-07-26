@@ -33,7 +33,7 @@ class ShortcutEventTracker(context: Context) : EventTracker {
     private val shortcuts: MutableSet<String> = ArraySet(5)
 
     init {
-        val uidm = UiDataModel.getUiDataModel()
+        val uidm = UiDataModel.uiDataModel
         shortcuts.add(uidm.getShortcutId(R.string.category_alarm, R.string.action_create))
         shortcuts.add(uidm.getShortcutId(R.string.category_timer, R.string.action_create))
         shortcuts.add(uidm.getShortcutId(R.string.category_stopwatch, R.string.action_pause))
@@ -46,7 +46,7 @@ class ShortcutEventTracker(context: Context) : EventTracker {
         @StringRes action: Int,
         @StringRes label: Int
     ) {
-        val shortcutId = UiDataModel.getUiDataModel().getShortcutId(category, action)
+        val shortcutId = UiDataModel.uiDataModel.getShortcutId(category, action)
         if (shortcuts.contains(shortcutId)) {
             mShortcutManager.reportShortcutUsed(shortcutId)
         }
