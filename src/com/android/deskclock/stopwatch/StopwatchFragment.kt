@@ -190,7 +190,7 @@ class StopwatchFragment : DeskClockFragment(UiDataModel.Tab.STOPWATCH) {
         updateUI(FabContainer.FAB_AND_BUTTONS_IMMEDIATE)
 
         // Start watching for page changes away from this fragment.
-        UiDataModel.getUiDataModel().addTabListener(mTabWatcher)
+        UiDataModel.uiDataModel.addTabListener(mTabWatcher)
     }
 
     override fun onStop() {
@@ -200,7 +200,7 @@ class StopwatchFragment : DeskClockFragment(UiDataModel.Tab.STOPWATCH) {
         stopUpdatingTime()
 
         // Stop watching for page changes away from this fragment.
-        UiDataModel.getUiDataModel().removeTabListener(mTabWatcher)
+        UiDataModel.uiDataModel.removeTabListener(mTabWatcher)
 
         // Release the wake lock if it is currently held.
         releaseWakeLock()

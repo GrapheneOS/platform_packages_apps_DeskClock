@@ -78,7 +78,7 @@ class TimerService : Service() {
                     Events.sendTimerEvent(R.string.action_show, label)
 
                     // Change to the timers tab.
-                    UiDataModel.getUiDataModel().selectedTab = UiDataModel.Tab.TIMERS
+                    UiDataModel.uiDataModel.selectedTab = UiDataModel.Tab.TIMERS
 
                     // Open DeskClock which is now positioned on the timers tab and show the timer
                     // in question.

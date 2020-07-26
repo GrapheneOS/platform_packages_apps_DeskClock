@@ -108,7 +108,7 @@ class TimerSetupView @JvmOverloads constructor(
         ViewCompat.setBackgroundTintMode(mDividerView, PorterDuff.Mode.SRC)
 
         // Initialize the digit buttons.
-        val uidm = UiDataModel.getUiDataModel()
+        val uidm = UiDataModel.uiDataModel
         for (digitView in mDigitViews) {
             val digit = getDigitForId(digitView.id)
             digitView.text = uidm.getFormattedNumber(digit, 1)
@@ -181,7 +181,7 @@ class TimerSetupView @JvmOverloads constructor(
         val minutes = mInput[3] * 10 + mInput[2]
         val hours = mInput[5] * 10 + mInput[4]
 
-        val uidm = UiDataModel.getUiDataModel()
+        val uidm = UiDataModel.uiDataModel
         mTimeView.text = TextUtils.expandTemplate(mTimeTemplate,
                 uidm.getFormattedNumber(hours, 2),
                 uidm.getFormattedNumber(minutes, 2),
@@ -226,7 +226,7 @@ class TimerSetupView @JvmOverloads constructor(
         // Update TalkBack to read the number being deleted.
         mDeleteView.contentDescription = context.getString(
                 R.string.timer_descriptive_delete,
-                UiDataModel.getUiDataModel().getFormattedNumber(digit))
+                UiDataModel.uiDataModel.getFormattedNumber(digit))
 
         // Update the fab, delete, and divider when we have valid input.
         if (mInputPointer == 0) {
@@ -250,7 +250,7 @@ class TimerSetupView @JvmOverloads constructor(
         if (mInputPointer >= 0) {
             mDeleteView.contentDescription = context.getString(
                     R.string.timer_descriptive_delete,
-                    UiDataModel.getUiDataModel().getFormattedNumber(mInput[0]))
+                    UiDataModel.uiDataModel.getFormattedNumber(mInput[0]))
         } else {
             mDeleteView.contentDescription = context.getString(R.string.timer_delete)
         }

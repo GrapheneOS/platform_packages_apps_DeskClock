@@ -445,7 +445,7 @@ class TimerFragment : DeskClockFragment(UiDataModel.Tab.TIMERS) {
      * @param timerToRemove the timer to be removed during the animation
      */
     private fun animateTimerRemove(timerToRemove: Timer) {
-        val duration = UiDataModel.getUiDataModel().shortAnimationDuration
+        val duration = UiDataModel.uiDataModel.shortAnimationDuration
 
         val fadeOut: Animator = ObjectAnimator.ofFloat(mViewPager, View.ALPHA, 1f, 0f)
         fadeOut.duration = duration
@@ -490,7 +490,7 @@ class TimerFragment : DeskClockFragment(UiDataModel.Tab.TIMERS) {
         // Avoid double-taps by enabling/disabling the set of buttons active on the new view.
         updateFab(FabContainer.BUTTONS_DISABLE)
 
-        val animationDuration = UiDataModel.getUiDataModel().longAnimationDuration
+        val animationDuration = UiDataModel.uiDataModel.longAnimationDuration
 
         val viewTreeObserver = toView!!.viewTreeObserver
         viewTreeObserver.addOnPreDrawListener(object : OnPreDrawListener {
