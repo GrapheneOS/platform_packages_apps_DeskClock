@@ -326,33 +326,33 @@ internal class LapsAdapter(context: Context) : RecyclerView.Adapter<LapItemHolde
             // The display of hours and minutes varies based on maxTime.
             when {
                 maxTime < TEN_MINUTES -> {
-                    sTimeBuilder.append(UiDataModel.getUiDataModel().getFormattedNumber(minutes, 1))
+                    sTimeBuilder.append(UiDataModel.uiDataModel.getFormattedNumber(minutes, 1))
                 }
                 maxTime < HOUR -> {
-                    sTimeBuilder.append(UiDataModel.getUiDataModel().getFormattedNumber(minutes, 2))
+                    sTimeBuilder.append(UiDataModel.uiDataModel.getFormattedNumber(minutes, 2))
                 }
                 maxTime < TEN_HOURS -> {
-                    sTimeBuilder.append(UiDataModel.getUiDataModel().getFormattedNumber(hours, 1))
+                    sTimeBuilder.append(UiDataModel.uiDataModel.getFormattedNumber(hours, 1))
                     sTimeBuilder.append(separator)
-                    sTimeBuilder.append(UiDataModel.getUiDataModel().getFormattedNumber(minutes, 2))
+                    sTimeBuilder.append(UiDataModel.uiDataModel.getFormattedNumber(minutes, 2))
                 }
                 maxTime < HUNDRED_HOURS -> {
-                    sTimeBuilder.append(UiDataModel.getUiDataModel().getFormattedNumber(hours, 2))
+                    sTimeBuilder.append(UiDataModel.uiDataModel.getFormattedNumber(hours, 2))
                     sTimeBuilder.append(separator)
-                    sTimeBuilder.append(UiDataModel.getUiDataModel().getFormattedNumber(minutes, 2))
+                    sTimeBuilder.append(UiDataModel.uiDataModel.getFormattedNumber(minutes, 2))
                 }
                 else -> {
-                    sTimeBuilder.append(UiDataModel.getUiDataModel().getFormattedNumber(hours, 3))
+                    sTimeBuilder.append(UiDataModel.uiDataModel.getFormattedNumber(hours, 3))
                     sTimeBuilder.append(separator)
-                    sTimeBuilder.append(UiDataModel.getUiDataModel().getFormattedNumber(minutes, 2))
+                    sTimeBuilder.append(UiDataModel.uiDataModel.getFormattedNumber(minutes, 2))
                 }
             }
 
             // The display of seconds and hundredths-of-a-second is constant.
             sTimeBuilder.append(separator)
-            sTimeBuilder.append(UiDataModel.getUiDataModel().getFormattedNumber(seconds, 2))
+            sTimeBuilder.append(UiDataModel.uiDataModel.getFormattedNumber(seconds, 2))
             sTimeBuilder.append(decimalSeparator)
-            sTimeBuilder.append(UiDataModel.getUiDataModel().getFormattedNumber(hundredths, 2))
+            sTimeBuilder.append(UiDataModel.uiDataModel.getFormattedNumber(hundredths, 2))
 
             return sTimeBuilder.toString()
         }
