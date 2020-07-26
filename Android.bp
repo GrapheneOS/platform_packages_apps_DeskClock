@@ -32,7 +32,10 @@ android_app {
     name: "DeskClockKotlin",
     resource_dirs: ["res"],
     sdk_version: "current",
-    overrides: ["AlarmClock"],
+    overrides: [
+        "AlarmClock",
+        "DeskClock",
+    ],
     srcs: [
         "src/**/*.java",
         "src/**/*.kt",
