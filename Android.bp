@@ -58,6 +58,7 @@ android_app {
         "src/**/deskclock/timer/*.java",
         "src/**/deskclock/uidata/*.java",
         "src/**/deskclock/widget/selector/*.java",
+        "src/**/deskclock/widget/toast/*.java",
     ],
     product_specific: true,
     static_libs: [
