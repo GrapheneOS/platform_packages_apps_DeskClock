@@ -38,10 +38,10 @@ class NightModeMenuItemController(private val context: Context) : MenuItemContro
                 .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
     }
 
-    override fun onPrepareOptionsItem(item: MenuItem?) {
+    override fun onPrepareOptionsItem(item: MenuItem) {
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
         context.startActivity(Intent(context, ScreensaverActivity::class.java)
                 .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 .putExtra(Events.EXTRA_EVENT_LABEL, R.string.label_deskclock))
