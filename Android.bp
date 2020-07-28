@@ -55,6 +55,11 @@ android_app {
         "src/**/deskclock/stopwatch/*.java",
         "src/**/deskclock/timer/*.java",
         "src/**/deskclock/uidata/*.java",
+        "src/**/deskclock/widget/selector/*.java",
+        "src/**/deskclock/widget/toast/*.java",
+        "src/**/deskclock/widget/AutoSizingTextClock.java",
+        "src/**/deskclock/widget/AutoSizingTextView.java",
+        "src/**/deskclock/widget/CircleView.java",
     ],
     product_specific: true,
     static_libs: [
