@@ -61,6 +61,8 @@ android_app {
         "src/**/deskclock/widget/toast/*.java",
         "src/**/deskclock/widget/*.java",
         "src/**/deskclock/worldclock/*.java",
+        "src/**/deskclock/AlarmAlertWakeLock.java",
+        "src/**/deskclock/AlarmClockFragment.java",
     ],
     product_specific: true,
     static_libs: [
