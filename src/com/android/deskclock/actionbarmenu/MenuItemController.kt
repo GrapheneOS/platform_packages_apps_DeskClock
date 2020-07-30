@@ -38,7 +38,7 @@ interface MenuItemController {
      *
      * @param item the [MenuItem] created by the controller
      */
-    fun onPrepareOptionsItem(item: MenuItem?)
+    fun onPrepareOptionsItem(item: MenuItem)
 
     /**
      * Attempts to handle the click action.
@@ -46,5 +46,5 @@ interface MenuItemController {
      * @param item the [MenuItem] that was selected
      * @return `true` if the action is handled by this controller
      */
-    fun onOptionsItemSelected(item: MenuItem?): Boolean
+    fun onOptionsItemSelected(item: MenuItem): Boolean
 }

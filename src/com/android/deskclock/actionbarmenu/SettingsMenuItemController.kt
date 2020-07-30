@@ -37,10 +37,10 @@ class SettingsMenuItemController(private val activity: Activity) : MenuItemContr
                 .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
     }
 
-    override fun onPrepareOptionsItem(item: MenuItem?) {
+    override fun onPrepareOptionsItem(item: MenuItem) {
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val settingIntent = Intent(activity, SettingsActivity::class.java)
         activity.startActivityForResult(settingIntent, REQUEST_CHANGE_SETTINGS)
         return true

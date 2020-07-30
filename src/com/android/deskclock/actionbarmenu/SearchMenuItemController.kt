@@ -77,10 +77,10 @@ class SearchMenuItemController(
         }
     }
 
-    override fun onPrepareOptionsItem(item: MenuItem?) {
+    override fun onPrepareOptionsItem(item: MenuItem) {
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
         // The search view is handled by {@link #mSearchListener}. Skip handling here.
         return false
     }
