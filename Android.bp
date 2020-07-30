@@ -58,6 +58,7 @@ android_app {
         "src/**/deskclock/widget/selector/*.java",
         "src/**/deskclock/widget/toast/*.java",
         "src/**/deskclock/widget/*.java",
+        "src/**/deskclock/worldclock/*.java",
     ],
     product_specific: true,
     static_libs: [
