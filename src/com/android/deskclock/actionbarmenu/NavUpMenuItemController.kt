@@ -32,10 +32,10 @@ class NavUpMenuItemController(private val activity: Activity) : MenuItemControll
         // "Home" option is automatically created by the Toolbar.
     }
 
-    override fun onPrepareOptionsItem(item: MenuItem?) {
+    override fun onPrepareOptionsItem(item: MenuItem) {
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
         activity.finish()
         return true
     }
