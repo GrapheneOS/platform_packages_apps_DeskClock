@@ -84,7 +84,7 @@ abstract class AlarmItemViewHolder(itemView: View)
             preemptiveDismissButton.visibility = View.VISIBLE
             val dismissText: String = if (alarm.instanceState == InstancesColumns.SNOOZE_STATE) {
                 context.getString(R.string.alarm_alert_snooze_until,
-                        AlarmUtils.getAlarmText(context, alarmInstance, false))
+                        AlarmUtils.getAlarmText(context, alarmInstance!!, false))
             } else {
                 context.getString(R.string.alarm_alert_dismiss_text)
             }
