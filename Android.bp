@@ -61,6 +61,10 @@ android_app {
         "src/**/deskclock/worldclock/*.java",
         "src/**/deskclock/AlarmAlertWakeLock.java",
         "src/**/deskclock/AlarmClockFragment.java",
+        "src/**/deskclock/AlarmInitReceiver.java",
+        "src/**/deskclock/AlarmRecyclerView.java",
+        "src/**/deskclock/AlarmSelectionActivity.java",
+        "src/**/deskclock/AlarmUtils.java",
     ],
     product_specific: true,
     static_libs: [
