@@ -69,6 +69,8 @@ android_app {
         "src/**/deskclock/AlarmUtils.java",
         "src/**/deskclock/AnalogClock.java",
         "src/**/deskclock/AnimatorUtils.java",
+        "src/**/deskclock/AsyncHandler.java",
+        "src/**/deskclock/AsyncRingtonePlayer.java",
     ],
     product_specific: true,
     static_libs: [
