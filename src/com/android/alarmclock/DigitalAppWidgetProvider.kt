@@ -334,7 +334,7 @@ class DigitalAppWidgetProvider : AppWidgetProvider() {
             rv.setCharSequence(R.id.date, "setFormat12Hour", dateFormat)
             rv.setCharSequence(R.id.date, "setFormat24Hour", dateFormat)
 
-            val nextAlarmTime = Utils.getNextAlarm(context)
+            val nextAlarmTime: String? = Utils.getNextAlarm(context)
             if (TextUtils.isEmpty(nextAlarmTime)) {
                 rv.setViewVisibility(R.id.nextAlarm, GONE)
                 rv.setViewVisibility(R.id.nextAlarmIcon, GONE)
@@ -398,10 +398,14 @@ class DigitalAppWidgetProvider : AppWidgetProvider() {
         }
 
         /**
-         * Inflate an offscreen copy of the widget views. Binary search through the range of sizes until
-         * the optimal sizes that fit within the widget bounds are located.
+         * Inflate an offscreen copy of the widget views. Binary search through the range of sizes
+         * until the optimal sizes that fit within the widget bounds are located.
          */
-        private fun optimizeSizes(context: Context, template: Sizes, nextAlarmTime: String): Sizes {
+        private fun optimizeSizes(
+            context: Context,
+            template: Sizes,
+            nextAlarmTime: String?
+        ): Sizes {
             // Inflate a test layout to compute sizes at different font sizes.
             val inflater: LayoutInflater = LayoutInflater.from(context)
             @SuppressLint("InflateParams") val sizer: View =
