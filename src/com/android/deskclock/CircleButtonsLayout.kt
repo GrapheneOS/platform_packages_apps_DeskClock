@@ -1,12 +1,30 @@
-package com.android.deskclock;
+/*
+ * Copyright (C) 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-import android.content.Context;
-import android.content.res.Resources;
-import android.util.AttributeSet;
-import android.view.View;
-import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.TextView;
+package com.android.deskclock
+
+import android.content.Context
+import android.util.AttributeSet
+import android.view.View
+import android.widget.Button
+import android.widget.FrameLayout
+import android.widget.TextView
+
+import kotlin.math.min
+import kotlin.math.sqrt
 
 /**
  * This class adjusts the locations of child buttons and text of this view group by adjusting the
@@ -14,64 +32,57 @@ import android.widget.TextView;
  * stop button and label text are located within the circle with the stop button near the bottom and
  * the label text near the top. The maximum text size for the label text view is also calculated.
  */
-public class CircleButtonsLayout extends FrameLayout {
+class CircleButtonsLayout @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null
+) : FrameLayout(context, attrs) {
+    private val mDiamOffset: Float
+    private var mCircleView: View? = null
+    private var mResetAddButton: Button? = null
+    private var mLabel: TextView? = null
 
-    private float mDiamOffset;
-    private View mCircleView;
-    private Button mResetAddButton;
-    private TextView mLabel;
-
-    @SuppressWarnings("unused")
-    public CircleButtonsLayout(Context context) {
-        this(context, null);
+    init {
+        val res = getContext().resources
+        val strokeSize = res.getDimension(R.dimen.circletimer_circle_size)
+        val dotStrokeSize = res.getDimension(R.dimen.circletimer_dot_size)
+        val markerStrokeSize = res.getDimension(R.dimen.circletimer_marker_size)
+        mDiamOffset = Utils.calculateRadiusOffset(strokeSize, dotStrokeSize, markerStrokeSize) * 2
     }
 
-    public CircleButtonsLayout(Context context, AttributeSet attrs) {
-        super(context, attrs);
-
-        final Resources res = getContext().getResources();
-        final float strokeSize = res.getDimension(R.dimen.circletimer_circle_size);
-        final float dotStrokeSize = res.getDimension(R.dimen.circletimer_dot_size);
-        final float markerStrokeSize = res.getDimension(R.dimen.circletimer_marker_size);
-        mDiamOffset = Utils.calculateRadiusOffset(strokeSize, dotStrokeSize, markerStrokeSize) * 2;
-    }
-
-    @Override
-    public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+    public override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         // We must call onMeasure both before and after re-measuring our views because the circle
         // may not always be drawn here yet. The first onMeasure will force the circle to be drawn,
         // and the second will force our re-measurements to take effect.
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        remeasureViews();
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+        remeasureViews()
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
     }
 
-    protected void remeasureViews() {
+    private fun remeasureViews() {
         if (mLabel == null) {
-            mCircleView = findViewById(R.id.timer_time);
-            mLabel = (TextView) findViewById(R.id.timer_label);
-            mResetAddButton = (Button) findViewById(R.id.reset_add);
+            mCircleView = findViewById(R.id.timer_time)
+            mLabel = findViewById<View>(R.id.timer_label) as TextView
+            mResetAddButton = findViewById<View>(R.id.reset_add) as Button
         }
 
-        final int frameWidth = mCircleView.getMeasuredWidth();
-        final int frameHeight = mCircleView.getMeasuredHeight();
-        final int minBound = Math.min(frameWidth, frameHeight);
-        final int circleDiam = (int) (minBound - mDiamOffset);
+        val frameWidth = mCircleView!!.measuredWidth
+        val frameHeight = mCircleView!!.measuredHeight
+        val minBound = min(frameWidth, frameHeight)
+        val circleDiam = (minBound - mDiamOffset).toInt()
 
-        if (mResetAddButton != null) {
-            final MarginLayoutParams resetAddParams = (MarginLayoutParams) mResetAddButton
-                    .getLayoutParams();
-            resetAddParams.bottomMargin = circleDiam / 6;
+        mResetAddButton?.let {
+            val resetAddParams = it.layoutParams as MarginLayoutParams
+            resetAddParams.bottomMargin = circleDiam / 6
             if (minBound == frameWidth) {
-                resetAddParams.bottomMargin += (frameHeight - frameWidth) / 2;
+                resetAddParams.bottomMargin += (frameHeight - frameWidth) / 2
             }
         }
 
-        if (mLabel != null) {
-            MarginLayoutParams labelParams = (MarginLayoutParams) mLabel.getLayoutParams();
-            labelParams.topMargin = circleDiam/6;
+        mLabel?.let {
+            val labelParams = it.layoutParams as MarginLayoutParams
+            labelParams.topMargin = circleDiam / 6
             if (minBound == frameWidth) {
-                labelParams.topMargin += (frameHeight-frameWidth)/2;
+                labelParams.topMargin += (frameHeight - frameWidth) / 2
             }
             /* The following formula has been simplified based on the following:
              * Our goal is to calculate the maximum width for the label frame.
@@ -125,13 +136,13 @@ public class CircleButtonsLayout extends FrameLayout {
              *     => w = 2 * sqrt((r + y)*(r - y))
              */
             // Radius of the circle.
-            int r = circleDiam / 2;
+            val r = circleDiam / 2
             // Y value of the top of the label, calculated from the center of the circle.
-            int y = frameHeight / 2 - labelParams.topMargin;
+            val y = frameHeight / 2 - labelParams.topMargin
             // New maximum width of the label.
-            double w = 2 * Math.sqrt((r + y) * (r - y));
+            val w = 2 * sqrt((r + y) * (r - y).toDouble())
 
-            mLabel.setMaxWidth((int) w);
+            it.maxWidth = w.toInt()
         }
     }
 }
