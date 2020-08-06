@@ -617,7 +617,7 @@ public class TimerFragmentTest {
         assertEquals(View.GONE, timerSetupView.getVisibility());
 
         final Intent intent = TimerFragment.createTimerSetupIntent(fragment.getContext());
-        rule.getActivity().onNewIntent(intent);
+        rule.getActivity().setIntent(intent);
         restartFragment();
 
         assertEquals(View.GONE, timersView.getVisibility());
@@ -632,7 +632,7 @@ public class TimerFragmentTest {
         assertEquals(View.GONE, timerSetupView.getVisibility());
 
         final Intent intent = TimerFragment.createTimerSetupIntent(fragment.getContext());
-        rule.getActivity().onNewIntent(intent);
+        rule.getActivity().setIntent(intent);
         restartFragment();
 
         assertEquals(View.GONE, timersView.getVisibility());
@@ -654,7 +654,7 @@ public class TimerFragmentTest {
                 new Intent(ApplicationProvider.getApplicationContext(), TimerService.class)
                         .setAction(TimerService.ACTION_SHOW_TIMER)
                         .putExtra(TimerService.EXTRA_TIMER_ID, 0);
-        rule.getActivity().onNewIntent(intent);
+        rule.getActivity().setIntent(intent);
         restartFragment();
 
         assertEquals(View.VISIBLE, timersView.getVisibility());
