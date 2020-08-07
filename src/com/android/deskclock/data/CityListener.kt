@@ -20,5 +20,5 @@ package com.android.deskclock.data
  * The interface through which interested parties are notified of changes to the world cities list.
  */
 interface CityListener {
-    fun citiesChanged(oldCities: List<City>?, newCities: List<City>?)
+    fun citiesChanged(oldCities: List<City>, newCities: List<City>)
 }
