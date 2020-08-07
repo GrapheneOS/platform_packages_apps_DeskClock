@@ -221,7 +221,7 @@ internal class CityModel(
             CitySort.UTC_OFFSET -> UtcOffsetComparator()
         }
 
-    private fun fireCitiesChanged(oldCities: List<City>?, newCities: List<City>?) {
+    private fun fireCitiesChanged(oldCities: List<City>, newCities: List<City>) {
         context.sendBroadcast(Intent(DataModel.ACTION_WORLD_CITIES_CHANGED))
         for (cityListener in mCityListeners) {
             cityListener.citiesChanged(oldCities, newCities)
