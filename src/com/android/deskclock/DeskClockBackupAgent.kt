@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,56 +14,62 @@
  * limitations under the License.
  */
 
-package com.android.deskclock;
+package com.android.deskclock
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.app.backup.BackupAgent;
-import android.app.backup.BackupDataInput;
-import android.app.backup.BackupDataOutput;
-import android.content.ContentResolver;
-import android.content.Context;
-import android.content.Intent;
-import android.os.ParcelFileDescriptor;
-import android.os.SystemClock;
-import androidx.annotation.NonNull;
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.app.backup.BackupAgent
+import android.app.backup.BackupDataInput
+import android.app.backup.BackupDataOutput
+import android.content.Context
+import android.content.Intent
+import android.os.ParcelFileDescriptor
+import android.os.SystemClock
 
-import com.android.deskclock.alarms.AlarmStateManager;
-import com.android.deskclock.data.DataModel;
-import com.android.deskclock.provider.Alarm;
-import com.android.deskclock.provider.AlarmInstance;
+import com.android.deskclock.alarms.AlarmStateManager
+import com.android.deskclock.data.DataModel
+import com.android.deskclock.provider.Alarm
+import com.android.deskclock.provider.AlarmInstance
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Calendar;
-import java.util.List;
+import java.io.File
+import java.io.IOException
+import java.util.Calendar
 
-public class DeskClockBackupAgent extends BackupAgent {
+class DeskClockBackupAgent : BackupAgent() {
+    @Throws(IOException::class)
+    override fun onBackup(
+        oldState: ParcelFileDescriptor,
+        data: BackupDataOutput,
+        newState: ParcelFileDescriptor
+    ) {
+    }
 
-    private static final LogUtils.Logger LOGGER = new LogUtils.Logger("DeskClockBackupAgent");
+    @Throws(IOException::class)
+    override fun onRestore(
+        data: BackupDataInput,
+        appVersionCode: Int,
+        newState: ParcelFileDescriptor
+    ) {
+    }
 
-    public static final String ACTION_COMPLETE_RESTORE =
-            "com.android.deskclock.action.COMPLETE_RESTORE";
-
-    @Override
-    public void onBackup(ParcelFileDescriptor oldState, BackupDataOutput data,
-            ParcelFileDescriptor newState) throws IOException { }
-
-    @Override
-    public void onRestore(BackupDataInput data, int appVersionCode,
-            ParcelFileDescriptor newState) throws IOException { }
-
-    @Override
-    public void onRestoreFile(@NonNull ParcelFileDescriptor data, long size, File destination,
-            int type, long mode, long mtime) throws IOException {
+    @Throws(IOException::class)
+    override fun onRestoreFile(
+        data: ParcelFileDescriptor,
+        size: Long,
+        destination: File,
+        type: Int,
+        mode: Long,
+        mtime: Long
+    ) {
         // The preference file on the backup device may not be the same on the restore device.
         // Massage the file name here before writing it.
-        if (destination.getName().endsWith("_preferences.xml")) {
-            final String prefFileName = getPackageName() + "_preferences.xml";
-            destination = new File(destination.getParentFile(), prefFileName);
+        var variableDestination = destination
+        if (variableDestination.name.endsWith("_preferences.xml")) {
+            val prefFileName = packageName + "_preferences.xml"
+            variableDestination = File(variableDestination.parentFile, prefFileName)
         }
 
-        super.onRestoreFile(data, size, destination, type, mode, mtime);
+        super.onRestoreFile(data, size, variableDestination, type, mode, mtime)
     }
 
     /**
@@ -75,72 +81,78 @@ public class DeskClockBackupAgent extends BackupAgent {
      * booted (i.e. the restore occurred as part of the setup wizard). If the device is booted, an
      * ACTION_COMPLETE_RESTORE broadcast is scheduled 10 seconds in the future to give
      * backup/restore enough time to kill the Clock process. Both of these future callbacks result
-     * in the execution of {@link #processRestoredData(Context)}.
+     * in the execution of [.processRestoredData].
      */
-    @Override
-    public void onRestoreFinished() {
+    override fun onRestoreFinished() {
         if (Utils.isNOrLater()) {
             // TODO: migrate restored database and preferences over into
             // the device-encrypted storage area
         }
 
         // Indicate a data restore has been completed.
-        DataModel.getDataModel().setRestoreBackupFinished(true);
+        DataModel.dataModel.isRestoreBackupFinished = true
 
         // Create an Intent to send into DeskClock indicating restore is complete.
-        final PendingIntent restoreIntent = PendingIntent.getBroadcast(this, 0,
-                new Intent(ACTION_COMPLETE_RESTORE).setClass(this, AlarmInitReceiver.class),
-                PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_CANCEL_CURRENT);
+        val restoreIntent = PendingIntent.getBroadcast(this, 0,
+                Intent(ACTION_COMPLETE_RESTORE).setClass(this, AlarmInitReceiver::class.java),
+                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_CANCEL_CURRENT)
 
         // Deliver the Intent 10 seconds from now.
-        final long triggerAtMillis = SystemClock.elapsedRealtime() + 10000;
+        val triggerAtMillis = SystemClock.elapsedRealtime() + 10000
 
         // Schedule the Intent delivery in AlarmManager.
-        final AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtMillis, restoreIntent);
+        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtMillis, restoreIntent)
 
-        LOGGER.i("Waiting for %s to complete the data restore", ACTION_COMPLETE_RESTORE);
+        LOGGER.i("Waiting for %s to complete the data restore", ACTION_COMPLETE_RESTORE)
     }
 
-    /**
-     * @param context a context to access resources and services
-     * @return {@code true} if restore data was processed; {@code false} otherwise.
-     */
-    public static boolean processRestoredData(Context context) {
-        // If data was not recently restored, there is nothing to do.
-        if (!DataModel.getDataModel().isRestoreBackupFinished()) {
-            return false;
-        }
+    companion object {
+        private val LOGGER = LogUtils.Logger("DeskClockBackupAgent")
 
-        LOGGER.i("processRestoredData() started");
+        const val ACTION_COMPLETE_RESTORE = "com.android.deskclock.action.COMPLETE_RESTORE"
 
-        // Now that alarms have been restored, schedule new instances in AlarmManager.
-        final ContentResolver contentResolver = context.getContentResolver();
-        final List<Alarm> alarms = Alarm.getAlarms(contentResolver, null);
-
-        final Calendar now = Calendar.getInstance();
-        for (Alarm alarm : alarms) {
-            // Remove any instances that may currently exist for the alarm;
-            // these aren't relevant on the restore device and we'll recreate them below.
-            AlarmStateManager.deleteAllInstances(context, alarm.id);
-
-            if (alarm.enabled) {
-                // Create the next alarm instance to schedule.
-                AlarmInstance alarmInstance = alarm.createInstanceAfter(now);
-
-                // Add the next alarm instance to the database.
-                alarmInstance = AlarmInstance.addInstance(contentResolver, alarmInstance);
-
-                // Schedule the next alarm instance in AlarmManager.
-                AlarmStateManager.registerInstance(context, alarmInstance, true);
-                LOGGER.i("DeskClockBackupAgent scheduled alarm instance: %s", alarmInstance);
+        /**
+         * @param context a context to access resources and services
+         * @return `true` if restore data was processed; `false` otherwise.
+         */
+        @JvmStatic
+        fun processRestoredData(context: Context): Boolean {
+            // If data was not recently restored, there is nothing to do.
+            if (!DataModel.dataModel.isRestoreBackupFinished) {
+                return false
             }
+
+            LOGGER.i("processRestoredData() started")
+
+            // Now that alarms have been restored, schedule new instances in AlarmManager.
+            val contentResolver = context.contentResolver
+            val alarms = Alarm.getAlarms(contentResolver, null)
+
+            val now = Calendar.getInstance()
+            for (alarm in alarms) {
+                // Remove any instances that may currently exist for the alarm;
+                // these aren't relevant on the restore device and we'll recreate them below.
+                AlarmStateManager.deleteAllInstances(context, alarm.id)
+
+                if (alarm.enabled) {
+                    // Create the next alarm instance to schedule.
+                    var alarmInstance = alarm.createInstanceAfter(now)
+
+                    // Add the next alarm instance to the database.
+                    alarmInstance = AlarmInstance.addInstance(contentResolver, alarmInstance)
+
+                    // Schedule the next alarm instance in AlarmManager.
+                    AlarmStateManager.registerInstance(context, alarmInstance, true)
+                    LOGGER.i("DeskClockBackupAgent scheduled alarm instance: %s", alarmInstance)
+                }
+            }
+
+            // Remove the preference to avoid executing this logic multiple times.
+            DataModel.dataModel.isRestoreBackupFinished = false
+
+            LOGGER.i("processRestoredData() completed")
+            return true
         }
-
-        // Remove the preference to avoid executing this logic multiple times.
-        DataModel.getDataModel().setRestoreBackupFinished(false);
-
-        LOGGER.i("processRestoredData() completed");
-        return true;
     }
 }

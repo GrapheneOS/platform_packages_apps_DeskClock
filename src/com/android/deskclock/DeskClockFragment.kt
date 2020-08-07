@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,72 +14,64 @@
  * limitations under the License.
  */
 
-package com.android.deskclock;
+package com.android.deskclock
 
-import android.app.Fragment;
-import androidx.annotation.ColorInt;
-import androidx.annotation.NonNull;
-import android.view.KeyEvent;
-import android.widget.Button;
-import android.widget.ImageView;
+import android.app.Fragment
+import android.view.KeyEvent
+import android.widget.Button
+import android.widget.ImageView
+import androidx.annotation.ColorInt
 
-import com.android.deskclock.uidata.UiDataModel;
-import com.android.deskclock.uidata.UiDataModel.Tab;
+import com.android.deskclock.FabContainer.UpdateFabFlag
+import com.android.deskclock.uidata.UiDataModel
 
-public abstract class DeskClockFragment extends Fragment implements FabContainer, FabController {
+// TODO(b/157255731) Replace deprecated Fragment usage with AndroidX equivalent
+abstract class DeskClockFragment(
+    /** The tab associated with this fragment.  */
+    private val mTab: UiDataModel.Tab
+) : Fragment(), FabContainer, FabController {
 
-    /** The tab associated with this fragment. */
-    private final Tab mTab;
+    /** The container that houses the fab and its left and right buttons.  */
+    private var mFabContainer: FabContainer? = null
 
-    /** The container that houses the fab and its left and right buttons. */
-    private FabContainer mFabContainer;
-
-    public DeskClockFragment(Tab tab) {
-        mTab = tab;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
+    override fun onResume() {
+        super.onResume()
 
         // Update the fab and buttons in case their state changed while the fragment was paused.
-        if (isTabSelected()) {
-            updateFab(FAB_AND_BUTTONS_IMMEDIATE);
+        if (isTabSelected) {
+            updateFab(FabContainer.FAB_AND_BUTTONS_IMMEDIATE)
         }
     }
 
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
+    open fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
         // By default return false so event continues to propagate
-        return false;
+        return false
     }
 
-    @Override
-    public void onLeftButtonClick(@NonNull Button left) {
+    override fun onLeftButtonClick(left: Button) {
         // Do nothing here, only in derived classes
     }
 
-    @Override
-    public void onRightButtonClick(@NonNull Button right) {
+    override fun onRightButtonClick(right: Button) {
         // Do nothing here, only in derived classes
     }
 
-    @Override
-    public void onMorphFab(@NonNull ImageView fab) {
+    override fun onMorphFab(fab: ImageView) {
         // Do nothing here, only in derived classes
     }
 
     /**
      * @param color the newly installed app window color
      */
-    protected void onAppColorChanged(@ColorInt int color) {
+    protected open fun onAppColorChanged(@ColorInt color: Int) {
         // Do nothing here, only in derived classes
     }
 
     /**
      * @param fabContainer the container that houses the fab and its left and right buttons
      */
-    public final void setFabContainer(FabContainer fabContainer) {
-        mFabContainer = fabContainer;
+    fun setFabContainer(fabContainer: FabContainer?) {
+        mFabContainer = fabContainer
     }
 
     /**
@@ -87,33 +79,29 @@ public abstract class DeskClockFragment extends Fragment implements FabContainer
      *
      * @param updateTypes the manner in which the fab container should be updated
      */
-    @Override
-    public final void updateFab(@UpdateFabFlag int updateTypes) {
-        if (mFabContainer != null) {
-            mFabContainer.updateFab(updateTypes);
-        }
+    override fun updateFab(@UpdateFabFlag updateTypes: Int) {
+        mFabContainer?.updateFab(updateTypes)
     }
 
     /**
-     * @return {@code true} iff the currently selected tab displays this fragment
+     * @return `true` iff the currently selected tab displays this fragment
      */
-    public final boolean isTabSelected() {
-        return UiDataModel.getUiDataModel().getSelectedTab() == mTab;
-    }
+    val isTabSelected: Boolean
+        get() = UiDataModel.uiDataModel.selectedTab == mTab
 
     /**
      * Select the tab that displays this fragment.
      */
-    public final void selectTab() {
-        UiDataModel.getUiDataModel().setSelectedTab(mTab);
+    fun selectTab() {
+        UiDataModel.uiDataModel.selectedTab = mTab
     }
 
     /**
-     * Updates the scrolling state in the {@link UiDataModel} for this tab.
+     * Updates the scrolling state in the [UiDataModel] for this tab.
      *
-     * @param scrolledToTop {@code true} iff the vertical scroll position of this tab is at the top
+     * @param scrolledToTop `true` iff the vertical scroll position of this tab is at the top
      */
-    public final void setTabScrolledToTop(boolean scrolledToTop) {
-        UiDataModel.getUiDataModel().setTabScrolledToTop(mTab, scrolledToTop);
+    fun setTabScrolledToTop(scrolledToTop: Boolean) {
+        UiDataModel.uiDataModel.setTabScrolledToTop(mTab, scrolledToTop)
     }
 }
