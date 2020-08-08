@@ -71,6 +71,8 @@ android_app {
         "src/**/deskclock/AsyncRingtonePlayer.java",
         "src/**/deskclock/BaseActivity.java",
         "src/**/deskclock/CircleButtonsLayout.java",
+        "src/**/deskclock/ClockFragment.java",
+        "src/**/deskclock/DeskClock.java",
     ],
     product_specific: true,
     static_libs: [
