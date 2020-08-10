@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
-package com.android.deskclock;
+package com.android.deskclock
 
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
-import androidx.legacy.app.FragmentCompat;
-import androidx.viewpager.widget.PagerAdapter;
-import android.util.ArrayMap;
-import android.view.View;
-import android.view.ViewGroup;
+import android.app.Fragment
+import android.app.FragmentManager
+import android.app.FragmentTransaction
+import android.util.ArrayMap
+import android.view.View
+import android.view.ViewGroup
+import androidx.legacy.app.FragmentCompat
+import androidx.viewpager.widget.PagerAdapter
 
-import com.android.deskclock.uidata.UiDataModel;
-
-import java.util.Map;
+import com.android.deskclock.uidata.UiDataModel
 
 /**
  * This adapter produces the DeskClockFragments that are the content of the DeskClock tabs. The
@@ -36,133 +34,112 @@ import java.util.Map;
  * with the manager using position-independent tags, which is an important departure from
  * FragmentPagerAdapter.
  */
-final class FragmentTabPagerAdapter extends PagerAdapter {
+// TODO(b/157255731) Replace deprecated Fragment related calls with AndroidX equivalents
+internal class FragmentTabPagerAdapter(private val mDeskClock: DeskClock) : PagerAdapter() {
 
-    private final DeskClock mDeskClock;
+    /** The manager into which fragments are added.  */
+    private val mFragmentManager: FragmentManager = mDeskClock.fragmentManager
 
-    /** The manager into which fragments are added. */
-    private final FragmentManager mFragmentManager;
+    /** A fragment cache that can be accessed before [.instantiateItem] is called.  */
+    private val mFragmentCache: MutableMap<UiDataModel.Tab, DeskClockFragment?> =
+            ArrayMap(getCount())
 
-    /** A fragment cache that can be accessed before {@link #instantiateItem} is called. */
-    private final Map<UiDataModel.Tab, DeskClockFragment> mFragmentCache;
+    /** The active fragment transaction if one exists.  */
+    private var mCurrentTransaction: FragmentTransaction? = null
 
-    /** The active fragment transaction if one exists. */
-    private FragmentTransaction mCurrentTransaction;
+    /** The current fragment displayed to the user.  */
+    private var mCurrentPrimaryItem: Fragment? = null
 
-    /** The current fragment displayed to the user. */
-    private Fragment mCurrentPrimaryItem;
-
-    FragmentTabPagerAdapter(DeskClock deskClock) {
-        mDeskClock = deskClock;
-        mFragmentCache = new ArrayMap<>(getCount());
-        mFragmentManager = deskClock.getFragmentManager();
-    }
-
-    @Override
-    public int getCount() {
-        return UiDataModel.getUiDataModel().getTabCount();
-    }
+    override fun getCount(): Int = UiDataModel.uiDataModel.tabCount
 
     /**
      * @param position the left-to-right index of the fragment to be returned
-     * @return the fragment displayed at the given {@code position}
+     * @return the fragment displayed at the given `position`
      */
-    DeskClockFragment getDeskClockFragment(int position) {
+    fun getDeskClockFragment(position: Int): DeskClockFragment {
         // Fetch the tab the UiDataModel reports for the position.
-        final UiDataModel.Tab tab = UiDataModel.getUiDataModel().getTabAt(position);
+        val tab: UiDataModel.Tab = UiDataModel.uiDataModel.getTabAt(position)
 
         // First check the local cache for the fragment.
-        DeskClockFragment fragment = mFragmentCache.get(tab);
+        var fragment = mFragmentCache[tab]
         if (fragment != null) {
-            return fragment;
+            return fragment
         }
 
         // Next check the fragment manager; relevant when app is rebuilt after locale changes
         // because this adapter will be new and mFragmentCache will be empty, but the fragment
         // manager will retain the Fragments built on original application launch.
-        fragment = (DeskClockFragment) mFragmentManager.findFragmentByTag(tab.name());
+        fragment = mFragmentManager.findFragmentByTag(tab.name) as DeskClockFragment?
         if (fragment != null) {
-            fragment.setFabContainer(mDeskClock);
-            mFragmentCache.put(tab, fragment);
-            return fragment;
+            fragment.setFabContainer(mDeskClock)
+            mFragmentCache[tab] = fragment
+            return fragment
         }
 
         // Otherwise, build the fragment from scratch.
-        final String fragmentClassName = tab.getFragmentClassName();
-        fragment = (DeskClockFragment) Fragment.instantiate(mDeskClock, fragmentClassName);
-        fragment.setFabContainer(mDeskClock);
-        mFragmentCache.put(tab, fragment);
-        return fragment;
+        val fragmentClassName: String = tab.fragmentClassName
+        fragment = Fragment.instantiate(mDeskClock, fragmentClassName) as DeskClockFragment
+        fragment.setFabContainer(mDeskClock)
+        mFragmentCache[tab] = fragment
+        return fragment
     }
 
-    @Override
-    public void startUpdate(ViewGroup container) {
-        if (container.getId() == View.NO_ID) {
-            throw new IllegalStateException("ViewPager with adapter " + this + " has no id");
-        }
+    override fun startUpdate(container: ViewGroup) {
+        check(container.id != View.NO_ID) { "ViewPager with adapter $this has no id" }
     }
 
-    @Override
-    public Object instantiateItem(ViewGroup container, int position) {
+    override fun instantiateItem(container: ViewGroup, position: Int): Any {
         if (mCurrentTransaction == null) {
-            mCurrentTransaction = mFragmentManager.beginTransaction();
+            mCurrentTransaction = mFragmentManager.beginTransaction()
         }
 
         // Use the fragment located in the fragment manager if one exists.
-        final UiDataModel.Tab tab = UiDataModel.getUiDataModel().getTabAt(position);
-        Fragment fragment = mFragmentManager.findFragmentByTag(tab.name());
+        val tab: UiDataModel.Tab = UiDataModel.uiDataModel.getTabAt(position)
+        var fragment = mFragmentManager.findFragmentByTag(tab.name)
         if (fragment != null) {
-            mCurrentTransaction.attach(fragment);
+            mCurrentTransaction!!.attach(fragment)
         } else {
-            fragment = getDeskClockFragment(position);
-            mCurrentTransaction.add(container.getId(), fragment, tab.name());
+            fragment = getDeskClockFragment(position)
+            mCurrentTransaction!!.add(container.id, fragment, tab.name)
         }
 
-        if (fragment != mCurrentPrimaryItem) {
-            FragmentCompat.setMenuVisibility(fragment, false);
-            FragmentCompat.setUserVisibleHint(fragment, false);
+        if (fragment !== mCurrentPrimaryItem) {
+            FragmentCompat.setMenuVisibility(fragment, false)
+            FragmentCompat.setUserVisibleHint(fragment, false)
         }
 
-        return fragment;
+        return fragment
     }
 
-    @Override
-    public void destroyItem(ViewGroup container, int position, Object object) {
+    override fun destroyItem(container: ViewGroup, position: Int, any: Any) {
         if (mCurrentTransaction == null) {
-            mCurrentTransaction = mFragmentManager.beginTransaction();
+            mCurrentTransaction = mFragmentManager.beginTransaction()
         }
-        final DeskClockFragment fragment = (DeskClockFragment) object;
-        fragment.setFabContainer(null);
-        mCurrentTransaction.detach(fragment);
+        val fragment = any as DeskClockFragment
+        fragment.setFabContainer(null)
+        mCurrentTransaction!!.detach(fragment)
     }
 
-    @Override
-    public void setPrimaryItem(ViewGroup container, int position, Object object) {
-        final Fragment fragment = (Fragment) object;
-        if (fragment != mCurrentPrimaryItem) {
+    override fun setPrimaryItem(container: ViewGroup, position: Int, any: Any) {
+        val fragment = any as Fragment
+        if (fragment !== mCurrentPrimaryItem) {
             if (mCurrentPrimaryItem != null) {
-                FragmentCompat.setMenuVisibility(mCurrentPrimaryItem, false);
-                FragmentCompat.setUserVisibleHint(mCurrentPrimaryItem, false);
+                FragmentCompat.setMenuVisibility(mCurrentPrimaryItem, false)
+                FragmentCompat.setUserVisibleHint(mCurrentPrimaryItem, false)
             }
-            if (fragment != null) {
-                FragmentCompat.setMenuVisibility(fragment, true);
-                FragmentCompat.setUserVisibleHint(fragment, true);
-            }
-            mCurrentPrimaryItem = fragment;
+            FragmentCompat.setMenuVisibility(fragment, true)
+            FragmentCompat.setUserVisibleHint(fragment, true)
+            mCurrentPrimaryItem = fragment
         }
     }
 
-    @Override
-    public void finishUpdate(ViewGroup container) {
+    override fun finishUpdate(container: ViewGroup) {
         if (mCurrentTransaction != null) {
-            mCurrentTransaction.commitAllowingStateLoss();
-            mCurrentTransaction = null;
-            mFragmentManager.executePendingTransactions();
+            mCurrentTransaction!!.commitAllowingStateLoss()
+            mCurrentTransaction = null
+            mFragmentManager.executePendingTransactions()
         }
     }
 
-    @Override
-    public boolean isViewFromObject(View view, Object object) {
-        return ((Fragment) object).getView() == view;
-    }
+    override fun isViewFromObject(view: View, any: Any): Boolean = (any as Fragment).view === view
 }
