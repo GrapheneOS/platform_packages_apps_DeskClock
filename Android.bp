@@ -73,6 +73,9 @@ android_app {
         "src/**/deskclock/CircleButtonsLayout.java",
         "src/**/deskclock/ClockFragment.java",
         "src/**/deskclock/DeskClock.java",
+        "src/**/deskclock/DeskClockApplication.java",
+        "src/**/deskclock/DeskClockBackupAgent.java",
+        "src/**/deskclock/DeskClockFragment.java",
     ],
     product_specific: true,
     static_libs: [
