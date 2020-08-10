@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,23 @@
  * limitations under the License.
  */
 
-package com.android.deskclock;
+package com.android.deskclock
 
-import android.app.Activity;
-import android.content.ContentResolver;
-import android.content.Context;
-import android.content.Intent;
-import android.os.Looper;
-import android.provider.AlarmClock;
+import android.app.Activity
+import android.content.ContentResolver
+import android.content.Context
+import android.content.Intent
+import android.provider.AlarmClock
 
-import com.android.deskclock.alarms.AlarmStateManager;
-import com.android.deskclock.controller.Controller;
-import com.android.deskclock.provider.Alarm;
-import com.android.deskclock.provider.AlarmInstance;
+import com.android.deskclock.alarms.AlarmStateManager
+import com.android.deskclock.controller.Controller
+import com.android.deskclock.provider.Alarm
+import com.android.deskclock.provider.AlarmInstance
+import com.android.deskclock.provider.ClockContract.AlarmsColumns
+import com.android.deskclock.provider.ClockContract.InstancesColumns
 
-import java.text.DateFormatSymbols;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
+import java.text.DateFormatSymbols
+import java.util.Calendar
 
 /**
  * Returns a list of alarms that are specified by the intent
@@ -39,140 +38,128 @@ import java.util.List;
  * if there are more than 1 matching alarms and the SEARCH_MODE is not ALL
  * we show a picker UI dialog
  */
-class FetchMatchingAlarmsAction implements Runnable {
+internal class FetchMatchingAlarmsAction(
+    private val mContext: Context,
+    private val mAlarms: List<Alarm>,
+    private val mIntent: Intent,
+    private val mActivity: Activity
+) : Runnable {
+    private val mMatchingAlarms: MutableList<Alarm> = ArrayList()
 
-    private final Context mContext;
-    private final List<Alarm> mAlarms;
-    private final Intent mIntent;
-    private final List<Alarm> mMatchingAlarms = new ArrayList<>();
-    private final Activity mActivity;
+    override fun run() {
+        Utils.enforceNotMainLooper()
 
-    public FetchMatchingAlarmsAction(Context context, List<Alarm> alarms, Intent intent,
-                                     Activity activity) {
-        mContext = context;
-        // only enabled alarms are passed
-        mAlarms = alarms;
-        mIntent = intent;
-        mActivity = activity;
-    }
-
-    @Override
-    public void run() {
-        Utils.enforceNotMainLooper();
-
-        final String searchMode = mIntent.getStringExtra(AlarmClock.EXTRA_ALARM_SEARCH_MODE);
+        val searchMode = mIntent.getStringExtra(AlarmClock.EXTRA_ALARM_SEARCH_MODE)
         // if search mode isn't specified show all alarms in the UI picker
         if (searchMode == null) {
-            mMatchingAlarms.addAll(mAlarms);
-            return;
+            mMatchingAlarms.addAll(mAlarms)
+            return
         }
 
-        final ContentResolver cr = mContext.getContentResolver();
-        switch (searchMode) {
-            case AlarmClock.ALARM_SEARCH_MODE_TIME:
+        val cr = mContext.contentResolver
+        when (searchMode) {
+            AlarmClock.ALARM_SEARCH_MODE_TIME -> {
                 // at least one of these has to be specified in this search mode.
-                final int hour = mIntent.getIntExtra(AlarmClock.EXTRA_HOUR, -1);
+                val hour = mIntent.getIntExtra(AlarmClock.EXTRA_HOUR, -1)
                 // if minutes weren't specified default to 0
-                final int minutes = mIntent.getIntExtra(AlarmClock.EXTRA_MINUTES, 0);
-                final Boolean isPm = (Boolean) mIntent.getExtras().get(AlarmClock.EXTRA_IS_PM);
-                boolean badInput = isPm != null && hour > 12 && isPm;
-                badInput |= hour < 0 || hour > 23;
-                badInput |= minutes < 0 || minutes > 59;
+                val minutes = mIntent.getIntExtra(AlarmClock.EXTRA_MINUTES, 0)
+                val isPm = mIntent.extras!![AlarmClock.EXTRA_IS_PM] as Boolean?
+                var badInput = isPm != null && hour > 12 && isPm
+                badInput = badInput or (hour < 0 || hour > 23)
+                badInput = badInput or (minutes < 0 || minutes > 59)
 
                 if (badInput) {
-                    final String[] ampm = new DateFormatSymbols().getAmPmStrings();
-                    final String amPm = isPm == null ? "" : (isPm ? ampm[1] : ampm[0]);
-                    final String reason = mContext.getString(R.string.invalid_time, hour, minutes,
-                            amPm);
-                    notifyFailureAndLog(reason, mActivity);
-                    return;
+                    val ampm = DateFormatSymbols().amPmStrings
+                    val amPm = if (isPm == null) "" else (if (isPm) ampm[1] else ampm[0])
+                    val reason = mContext.getString(R.string.invalid_time, hour, minutes, amPm)
+                    notifyFailureAndLog(reason, mActivity)
+                    return
                 }
 
-                final int hour24 = Boolean.TRUE.equals(isPm) && hour < 12 ? (hour + 12) : hour;
+                val hour24 = if (java.lang.Boolean.TRUE == isPm && hour < 12) hour + 12 else hour
 
                 // there might me multiple alarms at the same time
-                for (Alarm alarm : mAlarms) {
+                for (alarm in mAlarms) {
                     if (alarm.hour == hour24 && alarm.minutes == minutes) {
-                        mMatchingAlarms.add(alarm);
+                        mMatchingAlarms.add(alarm)
                     }
                 }
                 if (mMatchingAlarms.isEmpty()) {
-                    final String reason = mContext.getString(R.string.no_alarm_at, hour24, minutes);
-                    notifyFailureAndLog(reason, mActivity);
-                    return;
+                    val reason = mContext.getString(R.string.no_alarm_at, hour24, minutes)
+                    notifyFailureAndLog(reason, mActivity)
+                    return
                 }
-                break;
-            case AlarmClock.ALARM_SEARCH_MODE_NEXT:
+            }
+            AlarmClock.ALARM_SEARCH_MODE_NEXT -> {
                 // Match currently firing alarms before scheduled alarms.
-                for (Alarm alarm : mAlarms) {
-                    final AlarmInstance alarmInstance =
-                            AlarmInstance.getNextUpcomingInstanceByAlarmId(cr, alarm.id);
-                    if (alarmInstance != null
-                            && alarmInstance.mAlarmState == AlarmInstance.FIRED_STATE) {
-                        mMatchingAlarms.add(alarm);
+                for (alarm in mAlarms) {
+                    val alarmInstance = AlarmInstance.getNextUpcomingInstanceByAlarmId(cr, alarm.id)
+                    if (alarmInstance != null &&
+                            alarmInstance.mAlarmState == InstancesColumns.FIRED_STATE) {
+                        mMatchingAlarms.add(alarm)
                     }
                 }
-                if (!mMatchingAlarms.isEmpty()) {
+                if (mMatchingAlarms.isNotEmpty()) {
                     // return the matched firing alarms
-                    return;
+                    return
                 }
-
-                final AlarmInstance nextAlarm = AlarmStateManager.getNextFiringAlarm(mContext);
+                val nextAlarm = AlarmStateManager.getNextFiringAlarm(mContext)
                 if (nextAlarm == null) {
-                    final String reason = mContext.getString(R.string.no_scheduled_alarms);
-                    notifyFailureAndLog(reason, mActivity);
-                    return;
+                    val reason = mContext.getString(R.string.no_scheduled_alarms)
+                    notifyFailureAndLog(reason, mActivity)
+                    return
                 }
 
                 // get time from nextAlarm and see if there are any other alarms matching this time
-                final Calendar nextTime = nextAlarm.getAlarmTime();
-                final List<Alarm> alarmsFiringAtSameTime = getAlarmsByHourMinutes(
-                        nextTime.get(Calendar.HOUR_OF_DAY), nextTime.get(Calendar.MINUTE), cr);
+                val nextTime: Calendar = nextAlarm.alarmTime
+                val alarmsFiringAtSameTime = getAlarmsByHourMinutes(
+                        nextTime[Calendar.HOUR_OF_DAY], nextTime[Calendar.MINUTE], cr)
                 // there might me multiple alarms firing next
-                mMatchingAlarms.addAll(alarmsFiringAtSameTime);
-                break;
-            case AlarmClock.ALARM_SEARCH_MODE_ALL:
-                mMatchingAlarms.addAll(mAlarms);
-                break;
-            case AlarmClock.ALARM_SEARCH_MODE_LABEL:
+                mMatchingAlarms.addAll(alarmsFiringAtSameTime)
+            }
+            AlarmClock.ALARM_SEARCH_MODE_ALL -> mMatchingAlarms.addAll(mAlarms)
+            AlarmClock.ALARM_SEARCH_MODE_LABEL -> {
                 // EXTRA_MESSAGE has to be set in this mode
-                final String label = mIntent.getStringExtra(AlarmClock.EXTRA_MESSAGE);
+                val label = mIntent.getStringExtra(AlarmClock.EXTRA_MESSAGE)
                 if (label == null) {
-                    final String reason = mContext.getString(R.string.no_label_specified);
-                    notifyFailureAndLog(reason, mActivity);
-                    return;
+                    val reason = mContext.getString(R.string.no_label_specified)
+                    notifyFailureAndLog(reason, mActivity)
+                    return
                 }
 
                 // there might me multiple alarms with this label
-                for (Alarm alarm : mAlarms) {
-                    if (alarm.label.contains(label)) {
-                        mMatchingAlarms.add(alarm);
+                for (alarm in mAlarms) {
+                    if (alarm.label!!.contains(label)) {
+                        mMatchingAlarms.add(alarm)
                     }
                 }
 
                 if (mMatchingAlarms.isEmpty()) {
-                    final String reason = mContext.getString(R.string.no_alarms_with_label);
-                    notifyFailureAndLog(reason, mActivity);
-                    return;
+                    val reason = mContext.getString(R.string.no_alarms_with_label)
+                    notifyFailureAndLog(reason, mActivity)
+                    return
                 }
-                break;
+            }
         }
     }
 
-    private List<Alarm> getAlarmsByHourMinutes(int hour24, int minutes, ContentResolver cr) {
+    private fun getAlarmsByHourMinutes(
+        hour24: Int,
+        minutes: Int,
+        cr: ContentResolver
+    ): List<Alarm> {
         // if we want to dismiss we should only add enabled alarms
-        final String selection = String.format("%s=? AND %s=? AND %s=?",
-                Alarm.HOUR, Alarm.MINUTES, Alarm.ENABLED);
-        final String[] args = { String.valueOf(hour24), String.valueOf(minutes), "1" };
-        return Alarm.getAlarms(cr, selection, args);
+        val selection = String.format("%s=? AND %s=? AND %s=?",
+                AlarmsColumns.HOUR, AlarmsColumns.MINUTES, AlarmsColumns.ENABLED)
+        val args = arrayOf(hour24.toString(), minutes.toString(), "1")
+        return Alarm.getAlarms(cr, selection, *args)
     }
 
-    public List<Alarm> getMatchingAlarms() {
-        return mMatchingAlarms;
-    }
+    val matchingAlarms: List<Alarm>
+        get() = mMatchingAlarms
 
-    private void notifyFailureAndLog(String reason, Activity activity) {
-        LogUtils.e(reason);
-        Controller.getController().notifyVoiceFailure(activity, reason);
+    private fun notifyFailureAndLog(reason: String, activity: Activity) {
+        LogUtils.e(reason)
+        Controller.getController().notifyVoiceFailure(activity, reason)
     }
 }
