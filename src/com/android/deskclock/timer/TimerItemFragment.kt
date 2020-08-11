@@ -97,7 +97,7 @@ class TimerItemFragment : Fragment() {
 
     private inner class EditLabelListener : View.OnClickListener {
         override fun onClick(v: View) {
-            val fragment = LabelDialogFragment.newInstance(timer)
+            val fragment = LabelDialogFragment.newInstance(timer!!)
             LabelDialogFragment.show(fragmentManager, fragment)
         }
     }
