@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,358 +14,344 @@
  * limitations under the License.
  */
 
-package com.android.deskclock;
+package com.android.deskclock
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
-import android.animation.PropertyValuesHolder;
-import androidx.annotation.NonNull;
-import androidx.collection.ArrayMap;
-import androidx.recyclerview.widget.RecyclerView.State;
-import androidx.recyclerview.widget.RecyclerView.ViewHolder;
-import androidx.recyclerview.widget.SimpleItemAnimator;
-import android.view.View;
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
+import android.animation.PropertyValuesHolder
+import android.view.View
+import androidx.collection.ArrayMap
+import androidx.recyclerview.widget.RecyclerView.State
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
+import androidx.recyclerview.widget.RecyclerView.ItemAnimator
+import androidx.recyclerview.widget.SimpleItemAnimator
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+class ItemAnimator : SimpleItemAnimator() {
+    private val mAddAnimatorsList: MutableList<Animator> = ArrayList()
+    private val mRemoveAnimatorsList: MutableList<Animator> = ArrayList()
+    private val mChangeAnimatorsList: MutableList<Animator> = ArrayList()
+    private val mMoveAnimatorsList: MutableList<Animator> = ArrayList()
 
-import static android.view.View.TRANSLATION_Y;
-import static android.view.View.TRANSLATION_X;
+    private val mAnimators: MutableMap<ViewHolder, Animator> = ArrayMap()
 
-public class ItemAnimator extends SimpleItemAnimator {
+    override fun animateRemove(holder: ViewHolder): Boolean {
+        endAnimation(holder)
 
-    private final List<Animator> mAddAnimatorsList = new ArrayList<>();
-    private final List<Animator> mRemoveAnimatorsList = new ArrayList<>();
-    private final List<Animator> mChangeAnimatorsList = new ArrayList<>();
-    private final List<Animator> mMoveAnimatorsList = new ArrayList<>();
+        val prevAlpha: Float = holder.itemView.getAlpha()
 
-    private final Map<ViewHolder, Animator> mAnimators = new ArrayMap<>();
-
-    @Override
-    public boolean animateRemove(final ViewHolder holder) {
-        endAnimation(holder);
-
-        final float prevAlpha = holder.itemView.getAlpha();
-
-        final Animator removeAnimator = ObjectAnimator.ofFloat(holder.itemView, View.ALPHA, 0f);
-        removeAnimator.setDuration(getRemoveDuration());
-        removeAnimator.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationStart(Animator animator) {
-                dispatchRemoveStarting(holder);
+        val removeAnimator: Animator? = ObjectAnimator.ofFloat(holder.itemView, View.ALPHA, 0f)
+        removeAnimator!!.duration = getRemoveDuration()
+        removeAnimator.addListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationStart(animator: Animator) {
+                dispatchRemoveStarting(holder)
             }
 
-            @Override
-            public void onAnimationEnd(Animator animator) {
-                animator.removeAllListeners();
-                mAnimators.remove(holder);
-                holder.itemView.setAlpha(prevAlpha);
-                dispatchRemoveFinished(holder);
+            override fun onAnimationEnd(animator: Animator) {
+                animator.removeAllListeners()
+                mAnimators.remove(holder)
+                holder.itemView.setAlpha(prevAlpha)
+                dispatchRemoveFinished(holder)
             }
-        });
-        mRemoveAnimatorsList.add(removeAnimator);
-        mAnimators.put(holder, removeAnimator);
-        return true;
+        })
+        mRemoveAnimatorsList.add(removeAnimator)
+        mAnimators[holder] = removeAnimator
+        return true
     }
 
-    @Override
-    public boolean animateAdd(final ViewHolder holder) {
-        endAnimation(holder);
+    override fun animateAdd(holder: ViewHolder): Boolean {
+        endAnimation(holder)
 
-        final float prevAlpha = holder.itemView.getAlpha();
-        holder.itemView.setAlpha(0f);
+        val prevAlpha: Float = holder.itemView.getAlpha()
+        holder.itemView.setAlpha(0f)
 
-        final Animator addAnimator = ObjectAnimator.ofFloat(holder.itemView, View.ALPHA, 1f)
-                .setDuration(getAddDuration());
-        addAnimator.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationStart(Animator animator) {
-                dispatchAddStarting(holder);
+        val addAnimator: Animator = ObjectAnimator.ofFloat(holder.itemView, View.ALPHA, 1f)
+                .setDuration(getAddDuration())
+        addAnimator.addListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationStart(animator: Animator) {
+                dispatchAddStarting(holder)
             }
 
-            @Override
-            public void onAnimationEnd(Animator animator) {
-                animator.removeAllListeners();
-                mAnimators.remove(holder);
-                holder.itemView.setAlpha(prevAlpha);
-                dispatchAddFinished(holder);
+            override fun onAnimationEnd(animator: Animator) {
+                animator.removeAllListeners()
+                mAnimators.remove(holder)
+                holder.itemView.setAlpha(prevAlpha)
+                dispatchAddFinished(holder)
             }
-        });
-        mAddAnimatorsList.add(addAnimator);
-        mAnimators.put(holder, addAnimator);
-        return true;
+        })
+        mAddAnimatorsList.add(addAnimator)
+        mAnimators[holder] = addAnimator
+        return true
     }
 
-    @Override
-    public boolean animateMove(final ViewHolder holder, int fromX, int fromY, int toX, int toY) {
-        endAnimation(holder);
+    override fun animateMove(
+        holder: ViewHolder,
+        fromX: Int,
+        fromY: Int,
+        toX: Int,
+        toY: Int
+    ): Boolean {
+        endAnimation(holder)
 
-        final int deltaX = toX - fromX;
-        final int deltaY = toY - fromY;
-        final long moveDuration = getMoveDuration();
+        val deltaX = toX - fromX
+        val deltaY = toY - fromY
+        val moveDuration: Long = getMoveDuration()
 
         if (deltaX == 0 && deltaY == 0) {
-            dispatchMoveFinished(holder);
-            return false;
+            dispatchMoveFinished(holder)
+            return false
         }
 
-        final View view = holder.itemView;
-        final float prevTranslationX = view.getTranslationX();
-        final float prevTranslationY = view.getTranslationY();
-        view.setTranslationX(-deltaX);
-        view.setTranslationY(-deltaY);
+        val view: View = holder.itemView
+        val prevTranslationX = view.translationX
+        val prevTranslationY = view.translationY
+        view.translationX = -deltaX.toFloat()
+        view.translationY = -deltaY.toFloat()
 
-        final ObjectAnimator moveAnimator;
+        val moveAnimator: ObjectAnimator?
         if (deltaX != 0 && deltaY != 0) {
-            final PropertyValuesHolder moveX = PropertyValuesHolder.ofFloat(TRANSLATION_X, 0f);
-            final PropertyValuesHolder moveY = PropertyValuesHolder.ofFloat(TRANSLATION_Y, 0f);
-            moveAnimator = ObjectAnimator.ofPropertyValuesHolder(holder.itemView, moveX, moveY);
+            val moveX = PropertyValuesHolder.ofFloat(View.TRANSLATION_X, 0f)
+            val moveY = PropertyValuesHolder.ofFloat(View.TRANSLATION_Y, 0f)
+            moveAnimator = ObjectAnimator.ofPropertyValuesHolder(holder.itemView, moveX, moveY)
         } else if (deltaX != 0) {
-            final PropertyValuesHolder moveX = PropertyValuesHolder.ofFloat(TRANSLATION_X, 0f);
-            moveAnimator = ObjectAnimator.ofPropertyValuesHolder(holder.itemView, moveX);
+            val moveX = PropertyValuesHolder.ofFloat(View.TRANSLATION_X, 0f)
+            moveAnimator = ObjectAnimator.ofPropertyValuesHolder(holder.itemView, moveX)
         } else {
-            final PropertyValuesHolder moveY = PropertyValuesHolder.ofFloat(TRANSLATION_Y, 0f);
-            moveAnimator = ObjectAnimator.ofPropertyValuesHolder(holder.itemView, moveY);
+            val moveY = PropertyValuesHolder.ofFloat(View.TRANSLATION_Y, 0f)
+            moveAnimator = ObjectAnimator.ofPropertyValuesHolder(holder.itemView, moveY)
         }
 
-        moveAnimator.setDuration(moveDuration);
-        moveAnimator.setInterpolator(AnimatorUtils.INTERPOLATOR_FAST_OUT_SLOW_IN);
-        moveAnimator.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationStart(Animator animator) {
-                dispatchMoveStarting(holder);
+        moveAnimator?.duration = moveDuration
+        moveAnimator.interpolator = AnimatorUtils.INTERPOLATOR_FAST_OUT_SLOW_IN
+        moveAnimator.addListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationStart(animator: Animator?) {
+                dispatchMoveStarting(holder)
             }
 
-            @Override
-            public void onAnimationEnd(Animator animator) {
-                animator.removeAllListeners();
-                mAnimators.remove(holder);
-                view.setTranslationX(prevTranslationX);
-                view.setTranslationY(prevTranslationY);
-                dispatchMoveFinished(holder);
+            override fun onAnimationEnd(animator: Animator?) {
+                animator?.removeAllListeners()
+                mAnimators.remove(holder)
+                view.translationX = prevTranslationX
+                view.translationY = prevTranslationY
+                dispatchMoveFinished(holder)
             }
-        });
-        mMoveAnimatorsList.add(moveAnimator);
-        mAnimators.put(holder, moveAnimator);
+        })
+        mMoveAnimatorsList.add(moveAnimator)
+        mAnimators[holder] = moveAnimator
 
-        return true;
+        return true
     }
 
-    @Override
-    public boolean animateChange(@NonNull final ViewHolder oldHolder,
-            @NonNull final ViewHolder newHolder, @NonNull ItemHolderInfo preInfo,
-            @NonNull ItemHolderInfo postInfo) {
-        endAnimation(oldHolder);
-        endAnimation(newHolder);
+    override fun animateChange(
+        oldHolder: ViewHolder,
+        newHolder: ViewHolder,
+        preInfo: ItemHolderInfo,
+        postInfo: ItemHolderInfo
+    ): Boolean {
+        endAnimation(oldHolder)
+        endAnimation(newHolder)
 
-        final long changeDuration = getChangeDuration();
-        List<Object> payloads = preInfo instanceof PayloadItemHolderInfo
-                ? ((PayloadItemHolderInfo) preInfo).getPayloads() : null;
+        val changeDuration: Long = getChangeDuration()
+        val payloads = if (preInfo is PayloadItemHolderInfo) preInfo.payloads else null
 
-        if (oldHolder == newHolder) {
-            final Animator animator = ((OnAnimateChangeListener) newHolder)
+        if (oldHolder === newHolder) {
+            val animator = (newHolder as OnAnimateChangeListener)
                     .onAnimateChange(payloads, preInfo.left, preInfo.top, preInfo.right,
-                            preInfo.bottom, changeDuration);
+                            preInfo.bottom, changeDuration)
             if (animator == null) {
-                dispatchChangeFinished(newHolder, false);
-                return false;
+                dispatchChangeFinished(newHolder, false)
+                return false
             }
-            animator.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationStart(Animator animator) {
-                    dispatchChangeStarting(newHolder, false);
+            animator.addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationStart(animator: Animator) {
+                    dispatchChangeStarting(newHolder, false)
                 }
 
-                @Override
-                public void onAnimationEnd(Animator animator) {
-                    animator.removeAllListeners();
-                    mAnimators.remove(newHolder);
-                    dispatchChangeFinished(newHolder, false);
+                override fun onAnimationEnd(animator: Animator) {
+                    animator.removeAllListeners()
+                    mAnimators.remove(newHolder)
+                    dispatchChangeFinished(newHolder, false)
                 }
-            });
-            mChangeAnimatorsList.add(animator);
-            mAnimators.put(newHolder, animator);
-            return true;
-        } else if (!(oldHolder instanceof OnAnimateChangeListener) ||
-                !(newHolder instanceof OnAnimateChangeListener)) {
+            })
+            mChangeAnimatorsList.add(animator)
+            mAnimators[newHolder] = animator
+            return true
+        } else if (oldHolder !is OnAnimateChangeListener ||
+                newHolder !is OnAnimateChangeListener) {
             // Both holders must implement OnAnimateChangeListener in order to animate.
-            dispatchChangeFinished(oldHolder, true);
-            dispatchChangeFinished(newHolder, true);
-            return false;
+            dispatchChangeFinished(oldHolder, true)
+            dispatchChangeFinished(newHolder, true)
+            return false
         }
 
-        final Animator oldChangeAnimator = ((OnAnimateChangeListener) oldHolder)
-                .onAnimateChange(oldHolder, newHolder, changeDuration);
+        val oldChangeAnimator = (oldHolder as OnAnimateChangeListener)
+                .onAnimateChange(oldHolder, newHolder, changeDuration)
         if (oldChangeAnimator != null) {
-            oldChangeAnimator.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationStart(Animator animator) {
-                    dispatchChangeStarting(oldHolder, true);
+            oldChangeAnimator.addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationStart(animator: Animator) {
+                    dispatchChangeStarting(oldHolder, true)
                 }
 
-                @Override
-                public void onAnimationEnd(Animator animator) {
-                    animator.removeAllListeners();
-                    mAnimators.remove(oldHolder);
-                    dispatchChangeFinished(oldHolder, true);
+                override fun onAnimationEnd(animator: Animator) {
+                    animator.removeAllListeners()
+                    mAnimators.remove(oldHolder)
+                    dispatchChangeFinished(oldHolder, true)
                 }
-            });
-            mAnimators.put(oldHolder, oldChangeAnimator);
-            mChangeAnimatorsList.add(oldChangeAnimator);
+            })
+            mAnimators[oldHolder] = oldChangeAnimator
+            mChangeAnimatorsList.add(oldChangeAnimator)
         } else {
-            dispatchChangeFinished(oldHolder, true);
+            dispatchChangeFinished(oldHolder, true)
         }
 
-        final Animator newChangeAnimator = ((OnAnimateChangeListener) newHolder)
-                .onAnimateChange(oldHolder, newHolder, changeDuration);
+        val newChangeAnimator = (newHolder as OnAnimateChangeListener)
+                .onAnimateChange(oldHolder, newHolder, changeDuration)
         if (newChangeAnimator != null) {
-            newChangeAnimator.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationStart(Animator animator) {
-                    dispatchChangeStarting(newHolder, false);
+            newChangeAnimator.addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationStart(animator: Animator) {
+                    dispatchChangeStarting(newHolder, false)
                 }
 
-                @Override
-                public void onAnimationEnd(Animator animator) {
-                    animator.removeAllListeners();
-                    mAnimators.remove(newHolder);
-                    dispatchChangeFinished(newHolder, false);
+                override fun onAnimationEnd(animator: Animator) {
+                    animator.removeAllListeners()
+                    mAnimators.remove(newHolder)
+                    dispatchChangeFinished(newHolder, false)
                 }
-            });
-            mAnimators.put(newHolder, newChangeAnimator);
-            mChangeAnimatorsList.add(newChangeAnimator);
+            })
+            mAnimators[newHolder] = newChangeAnimator
+            mChangeAnimatorsList.add(newChangeAnimator)
         } else {
-            dispatchChangeFinished(newHolder, false);
+            dispatchChangeFinished(newHolder, false)
         }
 
-        return true;
+        return true
     }
 
-    @Override
-    public boolean animateChange(ViewHolder oldHolder,
-            ViewHolder newHolder, int fromLeft, int fromTop, int toLeft, int toTop) {
+    override fun animateChange(
+        oldHolder: ViewHolder,
+        newHolder: ViewHolder,
+        fromLeft: Int,
+        fromTop: Int,
+        toLeft: Int,
+        toTop: Int
+    ): Boolean {
         /* Unused */
-        throw new IllegalStateException("This method should not be used");
+        throw IllegalStateException("This method should not be used")
     }
 
-    @Override
-    public void runPendingAnimations() {
-        final AnimatorSet removeAnimatorSet = new AnimatorSet();
-        removeAnimatorSet.playTogether(mRemoveAnimatorsList);
-        mRemoveAnimatorsList.clear();
+    override fun runPendingAnimations() {
+        val removeAnimatorSet = AnimatorSet()
+        removeAnimatorSet.playTogether(mRemoveAnimatorsList)
+        mRemoveAnimatorsList.clear()
 
-        final AnimatorSet addAnimatorSet = new AnimatorSet();
-        addAnimatorSet.playTogether(mAddAnimatorsList);
-        mAddAnimatorsList.clear();
+        val addAnimatorSet = AnimatorSet()
+        addAnimatorSet.playTogether(mAddAnimatorsList)
+        mAddAnimatorsList.clear()
 
-        final AnimatorSet changeAnimatorSet = new AnimatorSet();
-        changeAnimatorSet.playTogether(mChangeAnimatorsList);
-        mChangeAnimatorsList.clear();
+        val changeAnimatorSet = AnimatorSet()
+        changeAnimatorSet.playTogether(mChangeAnimatorsList)
+        mChangeAnimatorsList.clear()
 
-        final AnimatorSet moveAnimatorSet = new AnimatorSet();
-        moveAnimatorSet.playTogether(mMoveAnimatorsList);
-        mMoveAnimatorsList.clear();
+        val moveAnimatorSet = AnimatorSet()
+        moveAnimatorSet.playTogether(mMoveAnimatorsList)
+        mMoveAnimatorsList.clear()
 
-        final AnimatorSet pendingAnimatorSet = new AnimatorSet();
-        pendingAnimatorSet.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animator) {
-                animator.removeAllListeners();
-                dispatchFinishedWhenDone();
+        val pendingAnimatorSet = AnimatorSet()
+        pendingAnimatorSet.addListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animator: Animator) {
+                animator.removeAllListeners()
+                dispatchFinishedWhenDone()
             }
-        });
+        })
         // Required order: removes, then changes & moves simultaneously, then additions. There are
         // redundant edges because changes or moves may be empty, causing the removes to incorrectly
         // play immediately.
-        pendingAnimatorSet.play(removeAnimatorSet).before(changeAnimatorSet);
-        pendingAnimatorSet.play(removeAnimatorSet).before(moveAnimatorSet);
-        pendingAnimatorSet.play(changeAnimatorSet).with(moveAnimatorSet);
-        pendingAnimatorSet.play(addAnimatorSet).after(changeAnimatorSet);
-        pendingAnimatorSet.play(addAnimatorSet).after(moveAnimatorSet);
-        pendingAnimatorSet.start();
+        pendingAnimatorSet.play(removeAnimatorSet).before(changeAnimatorSet)
+        pendingAnimatorSet.play(removeAnimatorSet).before(moveAnimatorSet)
+        pendingAnimatorSet.play(changeAnimatorSet).with(moveAnimatorSet)
+        pendingAnimatorSet.play(addAnimatorSet).after(changeAnimatorSet)
+        pendingAnimatorSet.play(addAnimatorSet).after(moveAnimatorSet)
+        pendingAnimatorSet.start()
     }
 
-    @Override
-    public void endAnimation(ViewHolder holder) {
-        final Animator animator = mAnimators.get(holder);
+    override fun endAnimation(holder: ViewHolder) {
+        val animator = mAnimators[holder]
 
-        mAnimators.remove(holder);
-        mAddAnimatorsList.remove(animator);
-        mRemoveAnimatorsList.remove(animator);
-        mChangeAnimatorsList.remove(animator);
-        mMoveAnimatorsList.remove(animator);
+        mAnimators.remove(holder)
+        mAddAnimatorsList.remove(animator)
+        mRemoveAnimatorsList.remove(animator)
+        mChangeAnimatorsList.remove(animator)
+        mMoveAnimatorsList.remove(animator)
 
-        if (animator != null) {
-            animator.end();
+        animator?.end()
+        dispatchFinishedWhenDone()
+    }
+
+    override fun endAnimations() {
+        val animatorList: MutableList<Animator?> = ArrayList(mAnimators.values)
+        for (animator in animatorList) {
+            animator?.end()
         }
-
-        dispatchFinishedWhenDone();
+        dispatchFinishedWhenDone()
     }
 
-    @Override
-    public void endAnimations() {
-        final List<Animator> animatorList = new ArrayList<>(mAnimators.values());
-        for (Animator animator : animatorList) {
-            animator.end();
-        }
-        dispatchFinishedWhenDone();
-    }
+    override fun isRunning(): Boolean = mAnimators.isNotEmpty()
 
-    @Override
-    public boolean isRunning() {
-        return !mAnimators.isEmpty();
-    }
-
-    private void dispatchFinishedWhenDone() {
+    private fun dispatchFinishedWhenDone() {
         if (!isRunning()) {
-            dispatchAnimationsFinished();
+            dispatchAnimationsFinished()
         }
     }
 
-    @Override
-    public @NonNull ItemHolderInfo recordPreLayoutInformation(@NonNull State state,
-            @NonNull ViewHolder viewHolder, @AdapterChanges int changeFlags,
-            @NonNull List<Object> payloads) {
-        final ItemHolderInfo itemHolderInfo = super.recordPreLayoutInformation(state, viewHolder,
-                changeFlags, payloads);
-        if (itemHolderInfo instanceof PayloadItemHolderInfo) {
-            ((PayloadItemHolderInfo) itemHolderInfo).setPayloads(payloads);
+    override fun recordPreLayoutInformation(
+        state: State,
+        viewHolder: ViewHolder,
+        @AdapterChanges changeFlags: Int,
+        payloads: MutableList<Any>
+    ): ItemAnimator.ItemHolderInfo {
+        val itemHolderInfo: ItemHolderInfo =
+                super.recordPreLayoutInformation(state, viewHolder, changeFlags, payloads)
+        if (itemHolderInfo is PayloadItemHolderInfo) {
+            itemHolderInfo.payloads = payloads
         }
-        return itemHolderInfo;
+        return itemHolderInfo
     }
 
-    @Override
-    public ItemHolderInfo obtainHolderInfo() {
-        return new PayloadItemHolderInfo();
+    override fun obtainHolderInfo(): ItemAnimator.ItemHolderInfo {
+        return PayloadItemHolderInfo()
     }
 
-    @Override
-    public boolean canReuseUpdatedViewHolder(@NonNull ViewHolder viewHolder,
-            @NonNull List<Object> payloads) {
-        final boolean defaultReusePolicy = super.canReuseUpdatedViewHolder(viewHolder, payloads);
+    override fun canReuseUpdatedViewHolder(
+        viewHolder: ViewHolder,
+        payloads: MutableList<Any?>
+    ): Boolean {
+        val defaultReusePolicy: Boolean = super.canReuseUpdatedViewHolder(viewHolder, payloads)
         // Whenever we have a payload, this is an in-place animation.
-        return !payloads.isEmpty() || defaultReusePolicy;
+        return payloads.isNotEmpty() || defaultReusePolicy
     }
 
-    private static final class PayloadItemHolderInfo extends ItemHolderInfo {
-        private final List<Object> mPayloads = new ArrayList<>();
+    private class PayloadItemHolderInfo : ItemHolderInfo() {
+        private val mPayloads: MutableList<Any> = ArrayList()
 
-        void setPayloads(List<Object> payloads) {
-            mPayloads.clear();
-            mPayloads.addAll(payloads);
-        }
-
-        List<Object> getPayloads() {
-            return mPayloads;
-        }
+        var payloads: MutableList<Any>
+            get() = mPayloads
+            set(payloads) {
+                mPayloads.clear()
+                mPayloads.addAll(payloads)
+            }
     }
 
-    public interface OnAnimateChangeListener {
-        Animator onAnimateChange(ViewHolder oldHolder, ViewHolder newHolder, long duration);
-        Animator onAnimateChange(List<Object> payloads, int fromLeft, int fromTop, int fromRight,
-                int fromBottom, long duration);
+    interface OnAnimateChangeListener {
+        fun onAnimateChange(oldHolder: ViewHolder, newHolder: ViewHolder, duration: Long): Animator?
+
+        fun onAnimateChange(
+            payloads: List<Any>?,
+            fromLeft: Int,
+            fromTop: Int,
+            fromRight: Int,
+            fromBottom: Int,
+            duration: Long
+        ): Animator?
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,144 +14,128 @@
  * limitations under the License.
  */
 
-package com.android.deskclock;
+package com.android.deskclock
 
-import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
-import android.util.SparseArray;
-import android.view.View;
-import android.view.ViewGroup;
+import android.os.Bundle
+import android.util.SparseArray
+import android.view.View
+import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.NO_ID
 
-import java.util.ArrayList;
-import java.util.List;
+import com.android.deskclock.ItemAdapter.ItemHolder
+import com.android.deskclock.ItemAdapter.ItemViewHolder
 
-import static androidx.recyclerview.widget.RecyclerView.NO_ID;
+import kotlin.math.min
 
 /**
  * Base adapter class for displaying a collection of items. Provides functionality for handling
  * changing items, persistent item state, item click events, and re-usable item views.
  */
-public class ItemAdapter<T extends ItemAdapter.ItemHolder>
-        extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder> {
-
+class ItemAdapter<T : ItemHolder<*>> : RecyclerView.Adapter<ItemViewHolder<T>>() {
     /**
-     * Finds the position of the changed item holder and invokes {@link #notifyItemChanged(int)} or
-     * {@link #notifyItemChanged(int, Object)} if payloads are present (in order to do in-place
+     * Finds the position of the changed item holder and invokes [.notifyItemChanged] or
+     * [.notifyItemChanged] if payloads are present (in order to do in-place
      * change animations).
      */
-    private final OnItemChangedListener mItemChangedNotifier = new OnItemChangedListener() {
-        @Override
-        public void onItemChanged(ItemHolder<?> itemHolder) {
-            if (mOnItemChangedListener != null) {
-                mOnItemChangedListener.onItemChanged(itemHolder);
-            }
-            final int position = mItemHolders.indexOf(itemHolder);
+    private val mItemChangedNotifier: OnItemChangedListener = object : OnItemChangedListener {
+        override fun onItemChanged(itemHolder: ItemHolder<*>) {
+            mOnItemChangedListener?.onItemChanged(itemHolder)
+            val position = items!!.indexOf(itemHolder)
             if (position != RecyclerView.NO_POSITION) {
-                notifyItemChanged(position);
+                notifyItemChanged(position)
             }
         }
 
-        @Override
-        public void onItemChanged(ItemHolder<?> itemHolder, Object payload) {
-            if (mOnItemChangedListener != null) {
-                mOnItemChangedListener.onItemChanged(itemHolder, payload);
-            }
-            final int position = mItemHolders.indexOf(itemHolder);
+        override fun onItemChanged(itemHolder: ItemHolder<*>, payload: Any) {
+            mOnItemChangedListener?.onItemChanged(itemHolder, payload)
+            val position = items!!.indexOf(itemHolder)
             if (position != RecyclerView.NO_POSITION) {
-                notifyItemChanged(position, payload);
+                notifyItemChanged(position, payload)
             }
         }
-    };
+    }
 
     /**
-     * Invokes the {@link OnItemClickedListener} in {@link #mListenersByViewType} corresponding
-     * to {@link ItemViewHolder#getItemViewType()}
+     * Invokes the [OnItemClickedListener] in [.mListenersByViewType] corresponding
+     * to [ItemViewHolder.getItemViewType]
      */
-    private final OnItemClickedListener mOnItemClickedListener = new OnItemClickedListener() {
-        @Override
-        public void onItemClicked(ItemViewHolder<?> viewHolder, int id) {
-            final OnItemClickedListener listener =
-                    mListenersByViewType.get(viewHolder.getItemViewType());
-            if (listener != null) {
-                listener.onItemClicked(viewHolder, id);
-            }
+    private val mOnItemClickedListener: OnItemClickedListener = object : OnItemClickedListener {
+        override fun onItemClicked(viewHolder: ItemViewHolder<*>, id: Int) {
+            val listener = mListenersByViewType[viewHolder.getItemViewType()]
+            listener?.onItemClicked(viewHolder, id)
         }
-    };
+    }
 
     /**
      * Invoked when any item changes.
      */
-    private OnItemChangedListener mOnItemChangedListener;
+    private var mOnItemChangedListener: OnItemChangedListener? = null
 
     /**
-     * Factories for creating new {@link ItemViewHolder} entities.
+     * Factories for creating new [ItemViewHolder] entities.
      */
-    private final SparseArray<ItemViewHolder.Factory> mFactoriesByViewType = new SparseArray<>();
+    private val mFactoriesByViewType: SparseArray<ItemViewHolder.Factory> = SparseArray()
 
     /**
-     * Listeners to invoke in {@link #mOnItemClickedListener}.
+     * Listeners to invoke in [.mOnItemClickedListener].
      */
-    private final SparseArray<OnItemClickedListener> mListenersByViewType = new SparseArray<>();
+    private val mListenersByViewType: SparseArray<OnItemClickedListener?> = SparseArray()
 
     /**
      * List of current item holders represented by this adapter.
      */
-    private List<T> mItemHolders;
+    var items: MutableList<T>? = null
+        private set
 
     /**
-     * Convenience for calling {@link #setHasStableIds(boolean)} with {@code true}.
+     * Convenience for calling [.setHasStableIds] with `true`.
      *
      * @return this object, allowing calls to methods in this class to be chained
      */
-    public ItemAdapter setHasStableIds() {
-        setHasStableIds(true);
-        return this;
+    fun setHasStableIds(): ItemAdapter<T> {
+        setHasStableIds(true)
+        return this
     }
 
     /**
-     * Sets the {@link ItemViewHolder.Factory} and {@link OnItemClickedListener} used to create
-     * new item view holders in {@link #onCreateViewHolder(ViewGroup, int)}.
+     * Sets the [ItemViewHolder.Factory] and [OnItemClickedListener] used to create
+     * new item view holders in [.onCreateViewHolder].
      *
-     * @param factory   the {@link ItemViewHolder.Factory} used to create new item view holders
-     * @param listener  the {@link OnItemClickedListener} to be invoked by
-     *                  {@link #mItemChangedNotifier}
+     * @param factory the [ItemViewHolder.Factory] used to create new item view holders
+     * @param listener the [OnItemClickedListener] to be invoked by [.mItemChangedNotifier]
      * @param viewTypes the unique identifier for the view types to be created
      * @return this object, allowing calls to methods in this class to be chained
      */
-    public ItemAdapter withViewTypes(ItemViewHolder.Factory factory,
-            OnItemClickedListener listener, int... viewTypes) {
-        for (int viewType : viewTypes) {
-            mFactoriesByViewType.put(viewType, factory);
-            mListenersByViewType.put(viewType, listener);
+    fun withViewTypes(
+        factory: ItemViewHolder.Factory,
+        listener: OnItemClickedListener?,
+        vararg viewTypes: Int
+    ): ItemAdapter<T> {
+        for (viewType in viewTypes) {
+            mFactoriesByViewType.put(viewType, factory)
+            mListenersByViewType.put(viewType, listener)
         }
-        return this;
-    }
-
-    /**
-     * @return the current list of item holders represented by this adapter
-     */
-    public final List<T> getItems() {
-        return mItemHolders;
+        return this
     }
 
     /**
      * Sets the list of item holders to serve as the dataset for this adapter and invokes
-     * {@link #notifyDataSetChanged()} to update the UI.
-     * <p/>
-     * If {@link #hasStableIds()} returns {@code true}, then the instance state will preserved
-     * between new and old holders that have matching {@link ItemHolder#itemId} values.
+     * [.notifyDataSetChanged] to update the UI.
+     *
+     * If [.hasStableIds] returns `true`, then the instance state will preserved
+     * between new and old holders that have matching [itemId] values.
      *
      * @param itemHolders the new list of item holders
      * @return this object, allowing calls to methods in this class to be chained
      */
-    public ItemAdapter setItems(List<T> itemHolders) {
-        final List<T> oldItemHolders = mItemHolders;
-        if (oldItemHolders != itemHolders) {
+    fun setItems(itemHolders: List<T>?): ItemAdapter<T> {
+        val oldItemHolders = items
+        if (oldItemHolders !== itemHolders) {
             if (oldItemHolders != null) {
                 // remove the item change listener from the old item holders
-                for (T oldItemHolder : oldItemHolders) {
-                    oldItemHolder.removeOnItemChangedListener(mItemChangedNotifier);
+                for (oldItemHolder in oldItemHolders) {
+                    oldItemHolder.removeOnItemChangedListener(mItemChangedNotifier)
                 }
             }
 
@@ -159,19 +143,18 @@ public class ItemAdapter<T extends ItemAdapter.ItemHolder>
                 // transfer instance state from old to new item holders based on item id,
                 // we use a simple O(N^2) implementation since we assume the number of items is
                 // relatively small and generating a temporary map would be more expensive
-                final Bundle bundle = new Bundle();
-                for (ItemHolder newItemHolder : itemHolders) {
-                    for (ItemHolder oldItemHolder : oldItemHolders) {
-                        if (newItemHolder.itemId == oldItemHolder.itemId
-                                && newItemHolder != oldItemHolder) {
+                val bundle = Bundle()
+                for (newItemHolder in itemHolders) {
+                    for (oldItemHolder in oldItemHolders) {
+                        if (newItemHolder.itemId == oldItemHolder.itemId &&
+                                newItemHolder !== oldItemHolder) {
                             // clear any existing state from the bundle
-                            bundle.clear();
+                            bundle.clear()
 
                             // transfer instance state from old to new item holder
-                            oldItemHolder.onSaveInstanceState(bundle);
-                            newItemHolder.onRestoreInstanceState(bundle);
-
-                            break;
+                            oldItemHolder.onSaveInstanceState(bundle)
+                            newItemHolder.onRestoreInstanceState(bundle)
+                            break
                         }
                     }
                 }
@@ -179,156 +162,130 @@ public class ItemAdapter<T extends ItemAdapter.ItemHolder>
 
             if (itemHolders != null) {
                 // add the item change listener to the new item holders
-                for (ItemHolder newItemHolder : itemHolders) {
-                    newItemHolder.addOnItemChangedListener(mItemChangedNotifier);
+                for (newItemHolder in itemHolders) {
+                    newItemHolder.addOnItemChangedListener(mItemChangedNotifier)
                 }
             }
 
             // finally update the current list of item holders and inform the RV to update the UI
-            mItemHolders = itemHolders;
-            notifyDataSetChanged();
+            items = itemHolders?.toMutableList()
+            notifyDataSetChanged()
         }
 
-        return this;
+        return this
     }
 
     /**
      * Inserts the specified item holder at the specified position. Invokes
-     * {@link #notifyItemInserted} to update the UI.
+     * [.notifyItemInserted] to update the UI.
      *
-     * @param position   the index to which to add the item holder
+     * @param position the index to which to add the item holder
      * @param itemHolder the item holder to add
      * @return this object, allowing calls to methods in this class to be chained
      */
-    public ItemAdapter addItem(int position, @NonNull T itemHolder) {
-        itemHolder.addOnItemChangedListener(mItemChangedNotifier);
-        position = Math.min(position, mItemHolders.size());
-        mItemHolders.add(position, itemHolder);
-        notifyItemInserted(position);
-        return this;
+    fun addItem(position: Int, itemHolder: T): ItemAdapter<T> {
+        var variablePosition = position
+        itemHolder.addOnItemChangedListener(mItemChangedNotifier)
+        variablePosition = min(variablePosition, items!!.size)
+        items!!.add(variablePosition, itemHolder)
+        notifyItemInserted(variablePosition)
+        return this
     }
 
     /**
      * Removes the first occurrence of the specified element from this list, if it is present
      * (optional operation). If this list does not contain the element, it is unchanged. Invokes
-     * {@link #notifyItemRemoved} to update the UI.
+     * [.notifyItemRemoved] to update the UI.
      *
      * @param itemHolder the item holder to remove
      * @return this object, allowing calls to methods in this class to be chained
      */
-    public ItemAdapter removeItem(@NonNull T itemHolder) {
-        final int index = mItemHolders.indexOf(itemHolder);
+    fun removeItem(itemHolder: T): ItemAdapter<T> {
+        var variableItemHolder = itemHolder
+        val index = items!!.indexOf(variableItemHolder)
         if (index >= 0) {
-            itemHolder = mItemHolders.remove(index);
-            itemHolder.removeOnItemChangedListener(mItemChangedNotifier);
-            notifyItemRemoved(index);
+            variableItemHolder = items!!.removeAt(index)
+            variableItemHolder.removeOnItemChangedListener(mItemChangedNotifier)
+            notifyItemRemoved(index)
         }
-        return this;
+        return this
     }
 
     /**
      * Sets the listener to be invoked whenever any item changes.
      */
-    public void setOnItemChangedListener(OnItemChangedListener listener) {
-        mOnItemChangedListener = listener;
+    fun setOnItemChangedListener(listener: OnItemChangedListener) {
+        mOnItemChangedListener = listener
     }
 
-    @Override
-    public int getItemCount() {
-        return mItemHolders == null ? 0 : mItemHolders.size();
+    override fun getItemCount(): Int = items?.size ?: 0
+
+    override fun getItemId(position: Int): Long {
+        return if (hasStableIds()) items!![position].itemId else NO_ID
     }
 
-    @Override
-    public long getItemId(int position) {
-        return hasStableIds() ? mItemHolders.get(position).itemId : NO_ID;
-    }
-
-    public T findItemById(long id) {
-        for (T holder : mItemHolders) {
+    fun findItemById(id: Long): T? {
+        for (holder in items!!) {
             if (holder.itemId == id) {
-                return holder;
+                return holder
             }
         }
-        return null;
+        return null
     }
 
-    @Override
-    public int getItemViewType(int position) {
-        return mItemHolders.get(position).getItemViewType();
+    override fun getItemViewType(position: Int): Int {
+        return items!![position].getItemViewType()
     }
 
-    @Override
-    public ItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        final ItemViewHolder.Factory factory = mFactoriesByViewType.get(viewType);
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder<T> {
+        val factory = mFactoriesByViewType[viewType]
         if (factory != null) {
-            return factory.createViewHolder(parent, viewType);
+            return factory.createViewHolder(parent, viewType) as ItemViewHolder<T>
         }
-        throw new IllegalArgumentException("Unsupported view type: " + viewType);
+        throw IllegalArgumentException("Unsupported view type: $viewType")
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public void onBindViewHolder(ItemViewHolder viewHolder, int position) {
+    override fun onBindViewHolder(viewHolder: ItemViewHolder<T>, position: Int) {
         // suppress any unchecked warnings since it is up to the subclass to guarantee
         // compatibility of their view holders with the item holder at the corresponding position
-        viewHolder.bindItemView(mItemHolders.get(position));
-        viewHolder.setOnItemClickedListener(mOnItemClickedListener);
+        viewHolder.bindItemView(items!![position])
+        viewHolder.setOnItemClickedListener(mOnItemClickedListener)
     }
 
-    @Override
-    public void onViewRecycled(ItemViewHolder viewHolder) {
-        viewHolder.setOnItemClickedListener(null);
-        viewHolder.recycleItemView();
+    override fun onViewRecycled(viewHolder: ItemViewHolder<T>) {
+        viewHolder.setOnItemClickedListener(null)
+        viewHolder.recycleItemView()
     }
 
     /**
-     * Base class for wrapping an item for compatibility with an {@link ItemHolder}.
-     * <p/>
-     * An {@link ItemHolder} serves as bridge between the model and view layer; subclassers should
+     * Base class for wrapping an item for compatibility with an [ItemHolder].
+     *
+     * An [ItemHolder] serves as bridge between the model and view layer; subclassers should
      * implement properties that fall beyond the scope of their model layer but are necessary for
      * the view layer. Properties that should be persisted across dataset changes can be
-     * preserved via the {@link #onSaveInstanceState(Bundle)} and
-     * {@link #onRestoreInstanceState(Bundle)} methods.
-     * <p/>
-     * Note: An {@link ItemHolder} can be used by multiple {@link ItemHolder} and any state changes
+     * preserved via the [.onSaveInstanceState] and
+     * [.onRestoreInstanceState] methods.
+     *
+     * Note: An [ItemHolder] can be used by multiple [ItemHolder] and any state changes
      * should simultaneously be reflected in both UIs.  It is not thread-safe however and should
      * only be used on a single thread at a given time.
      *
      * @param <T> the item type wrapped by the holder
-     */
-    public static abstract class ItemHolder<T> {
-
-        /**
-         * The item held by this holder.
-         */
-        public final T item;
-
-        /**
-         * Globally unique id corresponding to the item.
-         */
-        public final long itemId;
-
-        /**
-         * Listeners to be invoked by {@link #notifyItemChanged()}.
-         */
-        private final List<OnItemChangedListener> mOnItemChangedListeners = new ArrayList<>();
-
-        /**
-         * Designated constructor.
-         *
-         * @param item   the {@link T} item to be held by this holder
-         * @param itemId the globally unique id corresponding to the item
-         */
-        public ItemHolder(T item, long itemId) {
-            this.item = item;
-            this.itemId = itemId;
-        }
+    </T> */
+    abstract class ItemHolder<T>(
+        /** The item held by this holder. */
+        val item: T,
+        /** Globally unique id corresponding to the item. */
+        val itemId: Long
+    ) {
+        /** Listeners to be invoked by [.notifyItemChanged]. */
+        private val mOnItemChangedListeners: MutableList<OnItemChangedListener> = ArrayList()
 
         /**
          * @return the unique identifier for the view that should be used to represent the item,
          * e.g. the layout resource id.
          */
-        public abstract int getItemViewType();
+        abstract fun getItemViewType(): Int
 
         /**
          * Adds the listener to the current list of registered listeners if it is not already
@@ -336,9 +293,9 @@ public class ItemAdapter<T extends ItemAdapter.ItemHolder>
          *
          * @param listener the listener to add
          */
-        public final void addOnItemChangedListener(OnItemChangedListener listener) {
+        fun addOnItemChangedListener(listener: OnItemChangedListener) {
             if (!mOnItemChangedListeners.contains(listener)) {
-                mOnItemChangedListeners.add(listener);
+                mOnItemChangedListeners.add(listener)
             }
         }
 
@@ -347,198 +304,179 @@ public class ItemAdapter<T extends ItemAdapter.ItemHolder>
          *
          * @param listener the listener to remove
          */
-        public final void removeOnItemChangedListener(OnItemChangedListener listener) {
-            mOnItemChangedListeners.remove(listener);
+        fun removeOnItemChangedListener(listener: OnItemChangedListener) {
+            mOnItemChangedListeners.remove(listener)
         }
 
         /**
-         * Invokes {@link OnItemChangedListener#onItemChanged(ItemHolder)} for all listeners added
-         * via {@link #addOnItemChangedListener(OnItemChangedListener)}.
+         * Invokes [OnItemChangedListener.onItemChanged] for all listeners added
+         * via [.addOnItemChangedListener].
          */
-        public final void notifyItemChanged() {
-            for (OnItemChangedListener listener : mOnItemChangedListeners) {
-                listener.onItemChanged(this);
+        fun notifyItemChanged() {
+            for (listener in mOnItemChangedListeners) {
+                listener.onItemChanged(this)
             }
         }
 
         /**
-         * Invokes {@link OnItemChangedListener#onItemChanged(ItemHolder, Object)} for all
-         * listeners added via {@link #addOnItemChangedListener(OnItemChangedListener)}.
+         * Invokes [OnItemChangedListener.onItemChanged] for all
+         * listeners added via [.addOnItemChangedListener].
          */
-        public final void notifyItemChanged(Object payload) {
-            for (OnItemChangedListener listener : mOnItemChangedListeners) {
-                listener.onItemChanged(this, payload);
+        fun notifyItemChanged(payload: Any) {
+            for (listener in mOnItemChangedListeners) {
+                listener.onItemChanged(this, payload)
             }
         }
 
         /**
          * Called to retrieve per-instance state when the item may disappear or change so that
-         * state can be restored in {@link #onRestoreInstanceState(Bundle)}.
-         * <p/>
-         * Note: Subclasses must not maintain a reference to the {@link Bundle} as it may be
-         * reused for other items in the {@link ItemHolder}.
+         * state can be restored in [.onRestoreInstanceState].
          *
-         * @param bundle the {@link Bundle} in which to place saved state
+         * Note: Subclasses must not maintain a reference to the [Bundle] as it may be
+         * reused for other items in the [ItemHolder].
+         *
+         * @param bundle the [Bundle] in which to place saved state
          */
-        public void onSaveInstanceState(Bundle bundle) {
+        open fun onSaveInstanceState(bundle: Bundle) {
             // for subclassers
         }
 
         /**
          * Called to restore any per-instance state which was previously saved in
-         * {@link #onSaveInstanceState(Bundle)} for an item with a matching {@link #itemId}.
-         * <p/>
-         * Note: Subclasses must not maintain a reference to the {@link Bundle} as it may be
-         * reused for other items in the {@link ItemHolder}.
+         * [.onSaveInstanceState] for an item with a matching [.itemId].
          *
-         * @param bundle the {@link Bundle} in which to retrieve saved state
+         * Note: Subclasses must not maintain a reference to the [Bundle] as it may be
+         * reused for other items in the [ItemHolder].
+         *
+         * @param bundle the [Bundle] in which to retrieve saved state
          */
-        public void onRestoreInstanceState(Bundle bundle) {
+        open fun onRestoreInstanceState(bundle: Bundle) {
             // for subclassers
         }
     }
 
     /**
-     * Base class for a reusable {@link RecyclerView.ViewHolder} compatible with an
-     * {@link ItemViewHolder}. Provides an interface for binding to an {@link ItemHolder} and later
+     * Base class for a reusable [RecyclerView.ViewHolder] compatible with an
+     * [ItemViewHolder]. Provides an interface for binding to an [ItemHolder] and later
      * being recycled.
      */
-    public static class ItemViewHolder<T extends ItemHolder> extends RecyclerView.ViewHolder {
-
+    open class ItemViewHolder<T : ItemHolder<*>>(itemView: View)
+        : RecyclerView.ViewHolder(itemView) {
         /**
-         * The current {@link ItemHolder} bound to this holder.
+         * The current [ItemHolder] bound to this holder, or `null` if unbound.
          */
-        private T mItemHolder;
+        var itemHolder: T? = null
+            private set
 
         /**
-         * The current {@link OnItemClickedListener} associated with this holder.
+         * The current [OnItemClickedListener] associated with this holder.
          */
-        private OnItemClickedListener mOnItemClickedListener;
+        private var mOnItemClickedListener: OnItemClickedListener? = null
 
         /**
-         * Designated constructor.
+         * Binds the holder's [.itemView] to a particular item.
          *
-         * @param itemView the item {@link View} to associate with this holder
+         * @param itemHolder the [ItemHolder] to bind
          */
-        public ItemViewHolder(View itemView) {
-            super(itemView);
-        }
-
-        /**
-         * @return the current {@link ItemHolder} bound to this holder, or {@code null} if unbound
-         */
-        public final T getItemHolder() {
-            return mItemHolder;
-        }
-
-        /**
-         * Binds the holder's {@link #itemView} to a particular item.
-         *
-         * @param itemHolder the {@link ItemHolder} to bind
-         */
-        public final void bindItemView(T itemHolder) {
-            mItemHolder = itemHolder;
-            onBindItemView(itemHolder);
+        fun bindItemView(itemHolder: T) {
+            this.itemHolder = itemHolder
+            onBindItemView(itemHolder)
         }
 
         /**
          * Called when a new item is bound to the holder. Subclassers should override to bind any
-         * relevant data to their {@link #itemView} in this method.
+         * relevant data to their [.itemView] in this method.
          *
-         * @param itemHolder the {@link ItemHolder} to bind
+         * @param itemHolder the [ItemHolder] to bind
          */
-        protected void onBindItemView(T itemHolder) {
+        protected open fun onBindItemView(itemHolder: T) {
             // for subclassers
         }
 
         /**
          * Recycles the current item view, unbinding the current item holder and state.
          */
-        public final void recycleItemView() {
-            mItemHolder = null;
-            mOnItemClickedListener = null;
+        fun recycleItemView() {
+            itemHolder = null
+            mOnItemClickedListener = null
 
-            onRecycleItemView();
+            onRecycleItemView()
         }
 
         /**
          * Called when the current item view is recycled. Subclassers should override to release
-         * any bound item state and prepare their {@link #itemView} for reuse.
+         * any bound item state and prepare their [.itemView] for reuse.
          */
-        protected void onRecycleItemView() {
+        protected fun onRecycleItemView() {
             // for subclassers
         }
 
         /**
-         * Sets the current {@link OnItemClickedListener} to be invoked via
-         * {@link #notifyItemClicked}.
+         * Sets the current [OnItemClickedListener] to be invoked via
+         * [.notifyItemClicked].
          *
-         * @param listener the new {@link OnItemClickedListener}, or {@code null} to clear
+         * @param listener the new [OnItemClickedListener], or `null` to clear
          */
-        public final void setOnItemClickedListener(OnItemClickedListener listener) {
-            mOnItemClickedListener = listener;
+        fun setOnItemClickedListener(listener: OnItemClickedListener?) {
+            mOnItemClickedListener = listener
         }
 
         /**
-         * Called by subclasses to invoke the current {@link OnItemClickedListener} for a
+         * Called by subclasses to invoke the current [OnItemClickedListener] for a
          * particular click event so it can be handled at a higher level.
          *
          * @param id the unique identifier for the click action that has occurred
          */
-        public final void notifyItemClicked(int id) {
-            if (mOnItemClickedListener != null) {
-                mOnItemClickedListener.onItemClicked(this, id);
-            }
+        fun notifyItemClicked(id: Int) {
+            mOnItemClickedListener?.onItemClicked(this, id)
         }
 
         /**
-         * Factory interface used by {@link ItemAdapter} for creating new {@link ItemViewHolder}.
+         * Factory interface used by [ItemAdapter] for creating new [ItemViewHolder].
          */
-        public interface Factory {
+        interface Factory {
             /**
-             * Used by {@link ItemAdapter#createViewHolder(ViewGroup, int)} to make new
-             * {@link ItemViewHolder} for a given view type.
+             * Used by [ItemAdapter.createViewHolder] to make new
+             * [ItemViewHolder] for a given view type.
              *
-             * @param parent   the {@code ViewGroup} that the {@link ItemViewHolder#itemView} will
-             *                 be attached
+             * @param parent the `ViewGroup` that the [ItemViewHolder.itemView] will be attached
              * @param viewType the unique id of the item view to create
-             * @return a new initialized {@link ItemViewHolder}
+             * @return a new initialized [ItemViewHolder]
              */
-            public ItemViewHolder<?> createViewHolder(ViewGroup parent, int viewType);
+            fun createViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder<*>
         }
     }
 
     /**
      * Callback interface for when an item changes and should be re-bound.
      */
-    public interface OnItemChangedListener {
+    interface OnItemChangedListener {
         /**
-         * Invoked by {@link ItemHolder#notifyItemChanged()}.
+         * Invoked by [ItemHolder.notifyItemChanged].
          *
          * @param itemHolder the item holder that has changed
          */
-        void onItemChanged(ItemHolder<?> itemHolder);
-
+        fun onItemChanged(itemHolder: ItemHolder<*>)
 
         /**
-         * Invoked by {@link ItemHolder#notifyItemChanged(Object payload)}.
+         * Invoked by [ItemHolder.notifyItemChanged].
          *
          * @param itemHolder the item holder that has changed
          * @param payload the payload object
          */
-        void onItemChanged(ItemAdapter.ItemHolder<?> itemHolder, Object payload);
+        fun onItemChanged(itemHolder: ItemHolder<*>, payload: Any)
     }
 
     /**
      * Callback interface for handling when an item is clicked.
      */
-    public interface OnItemClickedListener {
+    interface OnItemClickedListener {
         /**
-         * Invoked by {@link ItemViewHolder#notifyItemClicked(int)}
+         * Invoked by [ItemViewHolder.notifyItemClicked]
          *
-         * @param viewHolder the {@link ItemViewHolder} containing the view that was clicked
-         * @param id         the unique identifier for the click action that has occurred
+         * @param viewHolder the [ItemViewHolder] containing the view that was clicked
+         * @param id the unique identifier for the click action that has occurred
          */
-        void onItemClicked(ItemViewHolder<?> viewHolder, int id);
+        fun onItemClicked(viewHolder: ItemViewHolder<*>, id: Int)
     }
 }
