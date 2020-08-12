@@ -80,6 +80,9 @@ android_app {
         "src/**/deskclock/FabContainer.java",
         "src/**/deskclock/FabController.java",
         "src/**/deskclock/FetchMatchingAlarmsAction.java",
+        "src/**/deskclock/FormattedTextUtils.java",
+        "src/**/deskclock/FragmentTabPagerAdapter.java",
+        "src/**/deskclock/HandleApiCalls.java",
     ],
     product_specific: true,
     static_libs: [
