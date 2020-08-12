@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,87 +14,77 @@
  * limitations under the License.
  */
 
-package com.android.deskclock;
+package com.android.deskclock
 
-import android.content.Context;
-import android.content.res.ColorStateList;
-import android.content.res.TypedArray;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import androidx.annotation.AttrRes;
-import androidx.annotation.ColorInt;
+import android.content.Context
+import android.content.res.TypedArray
+import android.graphics.Color
+import android.graphics.drawable.Drawable
+import androidx.annotation.AttrRes
+import androidx.annotation.ColorInt
 
-public final class ThemeUtils {
-
+object ThemeUtils {
     /** Temporary array used internally to resolve attributes. */
-    private static final int[] TEMP_ATTR = new int[1];
-
-    private ThemeUtils() {
-        // Prevent instantiation.
-    }
+    private val TEMP_ATTR = IntArray(1)
 
     /**
      * Convenience method for retrieving a themed color value.
      *
-     * @param context the {@link Context} to resolve the theme attribute against
-     * @param attr    the attribute corresponding to the color to resolve
+     * @param context the [Context] to resolve the theme attribute against
+     * @param attr the attribute corresponding to the color to resolve
      * @return the color value of the resolved attribute
      */
     @ColorInt
-    public static int resolveColor(Context context, @AttrRes int attr) {
-        return resolveColor(context, attr, null /* stateSet */);
-    }
+    fun resolveColor(context: Context, @AttrRes attr: Int): Int =
+            resolveColor(context, attr, stateSet = null)
 
     /**
      * Convenience method for retrieving a themed color value.
      *
-     * @param context  the {@link Context} to resolve the theme attribute against
-     * @param attr     the attribute corresponding to the color to resolve
-     * @param stateSet an array of {@link android.view.View} states
+     * @param context the [Context] to resolve the theme attribute against
+     * @param attr the attribute corresponding to the color to resolve
+     * @param stateSet an array of [android.view.View] states
      * @return the color value of the resolved attribute
      */
+    @JvmStatic
     @ColorInt
-    public static int resolveColor(Context context, @AttrRes int attr, @AttrRes int[] stateSet) {
-        final TypedArray a;
-        synchronized (TEMP_ATTR) {
-            TEMP_ATTR[0] = attr;
-            a = context.obtainStyledAttributes(TEMP_ATTR);
+    fun resolveColor(context: Context, @AttrRes attr: Int, @AttrRes stateSet: IntArray?): Int {
+        var a: TypedArray
+        synchronized(TEMP_ATTR) {
+            TEMP_ATTR[0] = attr
+            a = context.obtainStyledAttributes(TEMP_ATTR)
         }
 
         try {
             if (stateSet == null) {
-                return a.getColor(0, Color.RED);
+                return a.getColor(0, Color.RED)
             }
-
-            final ColorStateList colorStateList = a.getColorStateList(0);
-            if (colorStateList != null) {
-                return colorStateList.getColorForState(stateSet, Color.RED);
-            }
-            return Color.RED;
+            val colorStateList = a.getColorStateList(0)
+            return colorStateList?.getColorForState(stateSet, Color.RED) ?: Color.RED
         } finally {
-            a.recycle();
+            a.recycle()
         }
     }
 
     /**
      * Convenience method for retrieving a themed drawable.
      *
-     * @param context the {@link Context} to resolve the theme attribute against
-     * @param attr    the attribute corresponding to the drawable to resolve
+     * @param context the [Context] to resolve the theme attribute against
+     * @param attr the attribute corresponding to the drawable to resolve
      * @return the drawable of the resolved attribute
      */
-    public static Drawable resolveDrawable(Context context, @AttrRes int attr) {
-        final TypedArray a;
-        synchronized (TEMP_ATTR) {
-            TEMP_ATTR[0] = attr;
-            a = context.obtainStyledAttributes(TEMP_ATTR);
+    @JvmStatic
+    fun resolveDrawable(context: Context, @AttrRes attr: Int): Drawable? {
+        var a: TypedArray
+        synchronized(TEMP_ATTR) {
+            TEMP_ATTR[0] = attr
+            a = context.obtainStyledAttributes(TEMP_ATTR)
         }
 
-        try {
-            return a.getDrawable(0);
+        return try {
+            a.getDrawable(0)
         } finally {
-            a.recycle();
+            a.recycle()
         }
     }
 }
-

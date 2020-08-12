@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,34 +14,34 @@
  * limitations under the License.
  */
 
-package com.android.deskclock;
+package com.android.deskclock
 
-import android.content.Context;
-import android.net.Uri;
+import android.content.Context
+import android.net.Uri
 
-public final class RingtonePreviewKlaxon {
+import com.android.deskclock.LogUtils.i
 
-    private static AsyncRingtonePlayer sAsyncRingtonePlayer;
+object RingtonePreviewKlaxon {
+    private var sAsyncRingtonePlayer: AsyncRingtonePlayer? = null
 
-    private RingtonePreviewKlaxon() {
+    @JvmStatic
+    fun stop(context: Context) {
+        i("RingtonePreviewKlaxon.stop()")
+        getAsyncRingtonePlayer(context).stop()
     }
 
-    public static void stop(Context context) {
-        LogUtils.i("RingtonePreviewKlaxon.stop()");
-        getAsyncRingtonePlayer(context).stop();
+    @JvmStatic
+    fun start(context: Context, uri: Uri) {
+        stop(context)
+        i("RingtonePreviewKlaxon.start()")
+        getAsyncRingtonePlayer(context).play(uri, 0)
     }
 
-    public static void start(Context context, Uri uri) {
-        stop(context);
-        LogUtils.i("RingtonePreviewKlaxon.start()");
-        getAsyncRingtonePlayer(context).play(uri, 0);
-    }
-
-    private static synchronized AsyncRingtonePlayer getAsyncRingtonePlayer(Context context) {
+    @Synchronized
+    private fun getAsyncRingtonePlayer(context: Context): AsyncRingtonePlayer {
         if (sAsyncRingtonePlayer == null) {
-            sAsyncRingtonePlayer = new AsyncRingtonePlayer(context.getApplicationContext());
+            sAsyncRingtonePlayer = AsyncRingtonePlayer(context.applicationContext)
         }
-
-        return sAsyncRingtonePlayer;
+        return sAsyncRingtonePlayer!!
     }
 }

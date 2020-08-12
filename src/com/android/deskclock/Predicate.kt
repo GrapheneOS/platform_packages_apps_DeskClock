@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,39 +14,35 @@
  * limitations under the License.
  */
 
-package com.android.deskclock;
+package com.android.deskclock
 
 /**
  * A Predicate can determine a true or false value for any input of its
- * parameterized type. For example, a {@code RegexPredicate} might implement
- * {@code Predicate<String>}, and return true for any String that matches its
+ * parameterized type. For example, a `RegexPredicate` might implement
+ * `Predicate<String>`, and return true for any String that matches its
  * given regular expression.
- * <p/>
- * <p/>
+ *
  * Implementors of Predicate which may cause side effects upon evaluation are
  * strongly encouraged to state this fact clearly in their API documentation.
  */
-public interface Predicate<T> {
+interface Predicate<T> {
+    fun apply(t: T): Boolean
 
-    boolean apply(T t);
-
-    /**
-     * An implementation of the predicate interface that always returns true.
-     */
-    Predicate TRUE = new Predicate() {
-        @Override
-        public boolean apply(Object o) {
-            return true;
+    companion object {
+        /**
+         * An implementation of the predicate interface that always returns true.
+         */
+        @JvmField
+        val TRUE: Predicate<*> = object : Predicate<Any> {
+            override fun apply(t: Any): Boolean = true
         }
-    };
 
-    /**
-     * An implementation of the predicate interface that always returns false.
-     */
-    Predicate FALSE = new Predicate() {
-        @Override
-        public boolean apply(Object o) {
-            return false;
+        /**
+         * An implementation of the predicate interface that always returns false.
+         */
+        @JvmField
+        val FALSE: Predicate<*> = object : Predicate<Any> {
+            override fun apply(t: Any): Boolean = false
         }
-    };
+    }
 }
