@@ -14,156 +14,149 @@
  * limitations under the License.
  */
 
-package com.android.deskclock;
+package com.android.deskclock
 
-import static androidx.core.app.NotificationManagerCompat.IMPORTANCE_DEFAULT;
-import static androidx.core.app.NotificationManagerCompat.IMPORTANCE_HIGH;
-import static androidx.core.app.NotificationManagerCompat.IMPORTANCE_LOW;
+import android.app.NotificationChannel
+import android.content.Context
+import android.util.ArraySet
+import android.util.Log
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.app.NotificationManagerCompat.IMPORTANCE_HIGH
+import androidx.core.app.NotificationManagerCompat.IMPORTANCE_LOW
 
-import android.app.NotificationChannel;
-import android.content.Context;
-import android.util.ArraySet;
-import android.util.Log;
-import androidx.core.app.NotificationManagerCompat;
-
-import com.android.deskclock.Utils;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
-public class NotificationUtils {
-
-    private static final String TAG = NotificationUtils.class.getSimpleName();
+object NotificationUtils {
+    private val TAG = NotificationUtils::class.java.simpleName
 
     /**
      * Notification channel containing all missed alarm notifications.
      */
-    public static final String ALARM_MISSED_NOTIFICATION_CHANNEL_ID = "alarmMissedNotification";
+    const val ALARM_MISSED_NOTIFICATION_CHANNEL_ID = "alarmMissedNotification"
 
     /**
      * Notification channel containing all upcoming alarm notifications.
      */
-    public static final String ALARM_UPCOMING_NOTIFICATION_CHANNEL_ID = "alarmUpcomingNotification";
+    const val ALARM_UPCOMING_NOTIFICATION_CHANNEL_ID = "alarmUpcomingNotification"
 
     /**
      * Notification channel containing all snooze notifications.
      */
-    public static final String ALARM_SNOOZE_NOTIFICATION_CHANNEL_ID = "alarmSnoozingNotification";
+    const val ALARM_SNOOZE_NOTIFICATION_CHANNEL_ID = "alarmSnoozingNotification"
 
     /**
      * Notification channel containing all firing alarm and timer notifications.
      */
-    public static final String FIRING_NOTIFICATION_CHANNEL_ID = "firingAlarmsAndTimersNotification";
+    const val FIRING_NOTIFICATION_CHANNEL_ID = "firingAlarmsAndTimersNotification"
 
     /**
      * Notification channel containing all TimerModel notifications.
      */
-    public static final String TIMER_MODEL_NOTIFICATION_CHANNEL_ID = "timerNotification";
+    const val TIMER_MODEL_NOTIFICATION_CHANNEL_ID = "timerNotification"
 
     /**
      * Notification channel containing all stopwatch notifications.
      */
-    public static final String STOPWATCH_NOTIFICATION_CHANNEL_ID = "stopwatchNotification";
+    const val STOPWATCH_NOTIFICATION_CHANNEL_ID = "stopwatchNotification"
 
     /**
      * Values used to bitmask certain channel defaults
      */
-    private static final int PLAY_SOUND = 0x01;
-    private static final int ENABLE_LIGHTS = 0x02;
-    private static final int ENABLE_VIBRATION = 0x04;
+    private const val PLAY_SOUND = 0x01
+    private const val ENABLE_LIGHTS = 0x02
+    private const val ENABLE_VIBRATION = 0x04
 
-    private static Map<String, int[]> CHANNEL_PROPS = new HashMap<String, int[]>();
-    static {
-        CHANNEL_PROPS.put(ALARM_MISSED_NOTIFICATION_CHANNEL_ID, new int[]{
+    private val CHANNEL_PROPS: MutableMap<String, IntArray> = HashMap()
+
+    init {
+        CHANNEL_PROPS[ALARM_MISSED_NOTIFICATION_CHANNEL_ID] = intArrayOf(
                 R.string.alarm_missed_channel,
                 IMPORTANCE_HIGH
-        });
-        CHANNEL_PROPS.put(ALARM_SNOOZE_NOTIFICATION_CHANNEL_ID, new int[]{
+        )
+        CHANNEL_PROPS[ALARM_SNOOZE_NOTIFICATION_CHANNEL_ID] = intArrayOf(
                 R.string.alarm_snooze_channel,
                 IMPORTANCE_LOW
-        });
-        CHANNEL_PROPS.put(ALARM_UPCOMING_NOTIFICATION_CHANNEL_ID, new int[]{
+        )
+        CHANNEL_PROPS[ALARM_UPCOMING_NOTIFICATION_CHANNEL_ID] = intArrayOf(
                 R.string.alarm_upcoming_channel,
                 IMPORTANCE_LOW
-        });
-        CHANNEL_PROPS.put(FIRING_NOTIFICATION_CHANNEL_ID, new int[]{
+        )
+        CHANNEL_PROPS[FIRING_NOTIFICATION_CHANNEL_ID] = intArrayOf(
                 R.string.firing_alarms_timers_channel,
                 IMPORTANCE_HIGH,
                 ENABLE_LIGHTS
-        });
-        CHANNEL_PROPS.put(STOPWATCH_NOTIFICATION_CHANNEL_ID, new int[]{
+        )
+        CHANNEL_PROPS[STOPWATCH_NOTIFICATION_CHANNEL_ID] = intArrayOf(
                 R.string.stopwatch_channel,
                 IMPORTANCE_LOW
-        });
-        CHANNEL_PROPS.put(TIMER_MODEL_NOTIFICATION_CHANNEL_ID, new int[]{
+        )
+        CHANNEL_PROPS[TIMER_MODEL_NOTIFICATION_CHANNEL_ID] = intArrayOf(
                 R.string.timer_channel,
                 IMPORTANCE_LOW
-        });
+        )
     }
 
-    public static void createChannel(Context context, String id) {
+    @JvmStatic
+    fun createChannel(context: Context, id: String) {
         if (!Utils.isOOrLater()) {
-            return;
+            return
         }
 
         if (!CHANNEL_PROPS.containsKey(id)) {
-            Log.e(TAG, "Invalid channel requested: " + id);
-            return;
+            Log.e(TAG, "Invalid channel requested: $id")
+            return
         }
 
-        int[] properties = (int[]) CHANNEL_PROPS.get(id);
-        int nameId = properties[0];
-        int importance = properties[1];
-        NotificationChannel channel = new NotificationChannel(
-                id, context.getString(nameId), importance);
-        if (properties.length >= 3) {
-            int bits = properties[2];
-            channel.enableLights((bits & ENABLE_LIGHTS) != 0);
-            channel.enableVibration((bits & ENABLE_VIBRATION) != 0);
-            if ((bits & PLAY_SOUND) == 0) {
-                channel.setSound(null, null);
+        val properties = CHANNEL_PROPS[id]!!
+        val nameId = properties[0]
+        val importance = properties[1]
+        val channel = NotificationChannel(id, context.getString(nameId), importance)
+        if (properties.size >= 3) {
+            val bits = properties[2]
+            channel.enableLights(bits and ENABLE_LIGHTS != 0)
+            channel.enableVibration(bits and ENABLE_VIBRATION != 0)
+            if (bits and PLAY_SOUND == 0) {
+                channel.setSound(null, null)
             }
         }
-        NotificationManagerCompat nm = NotificationManagerCompat.from(context);
-        nm.createNotificationChannel(channel);
+        val nm: NotificationManagerCompat = NotificationManagerCompat.from(context)
+        nm.createNotificationChannel(channel)
     }
 
-    private static void deleteChannel(NotificationManagerCompat nm, String channelId) {
-        NotificationChannel channel = nm.getNotificationChannel(channelId);
+    private fun deleteChannel(nm: NotificationManagerCompat, channelId: String) {
+        val channel: NotificationChannel? = nm.getNotificationChannel(channelId)
         if (channel != null) {
-            nm.deleteNotificationChannel(channelId);
+            nm.deleteNotificationChannel(channelId)
         }
     }
 
-    private static Set<String> getAllExistingChannelIds(NotificationManagerCompat nm) {
-        Set<String> result = new ArraySet<>();
-        for (NotificationChannel channel : nm.getNotificationChannels()) {
-            result.add(channel.getId());
+    private fun getAllExistingChannelIds(nm: NotificationManagerCompat): Set<String> {
+        val result: MutableSet<String> = ArraySet()
+        for (channel in nm.getNotificationChannels()) {
+            result.add(channel.id)
         }
-        return result;
+        return result
     }
 
-    public static void updateNotificationChannels(Context context) {
+    @JvmStatic
+    fun updateNotificationChannels(context: Context) {
         if (!Utils.isOOrLater()) {
-            return;
+            return
         }
 
-        NotificationManagerCompat nm = NotificationManagerCompat.from(context);
+        val nm: NotificationManagerCompat = NotificationManagerCompat.from(context)
 
         // These channels got a new behavior so we need to recreate them with new ids
-        deleteChannel(nm, "alarmLowPriorityNotification");
-        deleteChannel(nm, "alarmHighPriorityNotification");
-        deleteChannel(nm, "StopwatchNotification");
-        deleteChannel(nm, "alarmNotification");
-        deleteChannel(nm, "TimerModelNotification");
-        deleteChannel(nm, "alarmSnoozeNotification");
+        deleteChannel(nm, "alarmLowPriorityNotification")
+        deleteChannel(nm, "alarmHighPriorityNotification")
+        deleteChannel(nm, "StopwatchNotification")
+        deleteChannel(nm, "alarmNotification")
+        deleteChannel(nm, "TimerModelNotification")
+        deleteChannel(nm, "alarmSnoozeNotification")
 
         // We recreate all existing channels so any language change or our name changes propagate
         // to the actual channels
-        Set<String> existingChannelIds = getAllExistingChannelIds(nm);
-        for (String id : existingChannelIds) {
-            createChannel(context, id);
+        val existingChannelIds = getAllExistingChannelIds(nm)
+        for (id in existingChannelIds) {
+            createChannel(context, id)
         }
     }
 }

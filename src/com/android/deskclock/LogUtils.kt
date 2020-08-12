@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,124 +14,147 @@
  * limitations under the License.
  */
 
-package com.android.deskclock;
+package com.android.deskclock
 
-import android.os.Build;
-import android.util.Log;
+import android.os.Build
+import android.util.Log
 
-public class LogUtils {
+object LogUtils {
+    /** Default logger used for generic logging, i.e TAG. when a specific log tag isn't specified.*/
+    private val DEFAULT_LOGGER = Logger("AlarmClock")
 
-    /**
-     * Default logger used for generic logging, i.eTAG. when a specific log tag isn't specified.
-     */
-    private final static Logger DEFAULT_LOGGER = new Logger("AlarmClock");
-
-    public static void v(String message, Object... args) {
-        DEFAULT_LOGGER.v(message, args);
+    @JvmStatic
+    fun v(message: String, vararg args: Any?) {
+        DEFAULT_LOGGER.v(message, *args)
     }
 
-    public static void d(String message, Object... args) {
-        DEFAULT_LOGGER.d(message, args);
+    @JvmStatic
+    fun d(message: String, vararg args: Any?) {
+        DEFAULT_LOGGER.d(message, *args)
     }
 
-    public static void i(String message, Object... args) {
-        DEFAULT_LOGGER.i(message, args);
+    @JvmStatic
+    fun i(message: String, vararg args: Any?) {
+        DEFAULT_LOGGER.i(message, *args)
     }
 
-    public static void w(String message, Object... args) {
-        DEFAULT_LOGGER.w(message, args);
+    @JvmStatic
+    fun w(message: String, vararg args: Any?) {
+        DEFAULT_LOGGER.w(message, *args)
     }
 
-    public static void e(String message, Object... args) {
-        DEFAULT_LOGGER.e(message, args);
+    fun e(message: String, vararg args: Any?) {
+        DEFAULT_LOGGER.e(message, *args)
     }
 
-    public static void e(String message, Throwable e) {
-        DEFAULT_LOGGER.e(message, e);
+    @JvmStatic
+    fun e(message: String, e: Throwable) {
+        DEFAULT_LOGGER.e(message, e)
     }
 
-    public static void wtf(String message, Object... args) {
-        DEFAULT_LOGGER.wtf(message, args);
+    fun wtf(message: String, vararg args: Any?) {
+        DEFAULT_LOGGER.wtf(message, *args)
     }
 
-    public static void wtf(Throwable e) {
-        DEFAULT_LOGGER.wtf(e);
+    @JvmStatic
+    fun wtf(e: Throwable) {
+        DEFAULT_LOGGER.wtf(e)
     }
 
-    public final static class Logger {
+    class Logger(val logTag: String) {
+        val isVerboseLoggable: Boolean
+            get() = DEBUG || Log.isLoggable(logTag, Log.VERBOSE)
 
-        /**
-         * Log everything for debug builds or if running on a dev device.
-         */
-        public final static boolean DEBUG = BuildConfig.DEBUG
-                || "eng".equals(Build.TYPE)
-                || "userdebug".equals(Build.TYPE);
+        val isDebugLoggable: Boolean
+            get() = DEBUG || Log.isLoggable(logTag, Log.DEBUG)
 
-        public final String logTag;
+        val isInfoLoggable: Boolean
+            get() = DEBUG || Log.isLoggable(logTag, Log.INFO)
 
-        public Logger(String logTag) {
-            this.logTag = logTag;
-        }
+        val isWarnLoggable: Boolean
+            get() = DEBUG || Log.isLoggable(logTag, Log.WARN)
 
-        public boolean isVerboseLoggable() { return DEBUG || Log.isLoggable(logTag, Log.VERBOSE); }
-        public boolean isDebugLoggable() { return DEBUG || Log.isLoggable(logTag, Log.DEBUG); }
-        public boolean isInfoLoggable() { return DEBUG || Log.isLoggable(logTag, Log.INFO); }
-        public boolean isWarnLoggable() { return DEBUG || Log.isLoggable(logTag, Log.WARN); }
-        public boolean isErrorLoggable() { return DEBUG || Log.isLoggable(logTag, Log.ERROR); }
-        public boolean isWtfLoggable() { return DEBUG || Log.isLoggable(logTag, Log.ASSERT); }
+        val isErrorLoggable: Boolean
+            get() = DEBUG || Log.isLoggable(logTag, Log.ERROR)
 
-        public void v(String message, Object... args) {
-            if (isVerboseLoggable()) {
-                Log.v(logTag, args == null || args.length == 0
-                        ? message : String.format(message, args));
+        val isWtfLoggable: Boolean
+            get() = DEBUG || Log.isLoggable(logTag, Log.ASSERT)
+
+        fun v(message: String, vararg args: Any?) {
+            if (isVerboseLoggable) {
+                Log.v(logTag, if (args.isEmpty() || args[0] == null) {
+                    message
+                } else {
+                    String.format(message, *args)
+                })
             }
         }
 
-        public void d(String message, Object... args) {
-            if (isDebugLoggable()) {
-                Log.d(logTag, args == null || args.length == 0 ? message
-                        : String.format(message, args));
+        fun d(message: String, vararg args: Any?) {
+            if (isDebugLoggable) {
+                Log.d(logTag, if (args.isEmpty() || args[0] == null) {
+                    message
+                } else {
+                    String.format(message, *args)
+                })
             }
         }
 
-        public void i(String message, Object... args) {
-            if (isInfoLoggable()) {
-                Log.i(logTag, args == null || args.length == 0 ? message
-                        : String.format(message, args));
+        fun i(message: String, vararg args: Any?) {
+            if (isInfoLoggable) {
+                Log.i(logTag, if (args.isEmpty() || args[0] == null) {
+                    message
+                } else {
+                    String.format(message, *args)
+                })
             }
         }
 
-        public void w(String message, Object... args) {
-            if (isWarnLoggable()) {
-                Log.w(logTag, args == null || args.length == 0 ? message
-                        : String.format(message, args));
+        fun w(message: String, vararg args: Any?) {
+            if (isWarnLoggable) {
+                Log.w(logTag, if (args.isEmpty() || args[0] == null) {
+                    message
+                } else {
+                    String.format(message, *args)
+                })
             }
         }
 
-        public void e(String message, Object... args) {
-            if (isErrorLoggable()) {
-                Log.e(logTag, args == null || args.length == 0 ? message
-                        : String.format(message, args));
+        fun e(message: String, vararg args: Any?) {
+            if (isErrorLoggable) {
+                Log.e(logTag, if (args.isEmpty() || args[0] == null) {
+                    message
+                } else {
+                    String.format(message, *args)
+                })
             }
         }
 
-        public void e(String message, Throwable e) {
-            if (isErrorLoggable()) {
-                Log.e(logTag, message, e);
+        fun e(message: String, e: Throwable) {
+            if (isErrorLoggable) {
+                Log.e(logTag, message, e)
             }
         }
 
-        public void wtf(String message, Object... args) {
-            if (isWtfLoggable()) {
-                Log.wtf(logTag, args == null || args.length == 0 ? message
-                        : String.format(message, args));
+        fun wtf(message: String, vararg args: Any?) {
+            if (isWtfLoggable) {
+                Log.wtf(logTag, if (args.isEmpty() || args[0] == null) {
+                    message
+                } else {
+                    String.format(message, *args)
+                })
             }
         }
 
-        public void wtf(Throwable e) {
-            if (isWtfLoggable()) {
-                Log.wtf(logTag, e);
+        fun wtf(e: Throwable) {
+            if (isWtfLoggable) {
+                Log.wtf(logTag, e)
             }
+        }
+
+        companion object {
+            /** Log everything for debug builds or if running on a dev device. */
+            val DEBUG = (BuildConfig.DEBUG || "eng" == Build.TYPE || "userdebug" == Build.TYPE)
         }
     }
 }
