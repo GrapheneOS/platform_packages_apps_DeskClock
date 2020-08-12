@@ -1,8 +1,11 @@
 android_app {
-    name: "DeskClock",
+    name: "DeskClockJava",
     resource_dirs: ["res"],
     sdk_version: "current",
-    overrides: ["AlarmClock"],
+    overrides: [
+        "AlarmClock",
+        "DeskClock",
+    ],
     srcs: [
         "src/**/*.java",
         "gen/**/*.java",
@@ -31,12 +34,11 @@ android_app {
 }
 
 android_app {
-    name: "DeskClockKotlin",
+    name: "DeskClock",
     resource_dirs: ["res"],
     sdk_version: "current",
     overrides: [
         "AlarmClock",
-        "DeskClock",
     ],
     srcs: [
         "src/**/*.java",
