@@ -689,8 +689,9 @@ class TimerFragment : DeskClockFragment(UiDataModel.Tab.TIMERS) {
          * @return an Intent that selects the timers tab with the
          * setup screen for a new timer in place.
          */
+        @VisibleForTesting
         @JvmStatic
-        fun createTimerSetupIntent(context: Context?): Intent {
+        fun createTimerSetupIntent(context: Context): Intent {
             return Intent(context, DeskClock::class.java).putExtra(EXTRA_TIMER_SETUP, true)
         }
 
