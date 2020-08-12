@@ -76,6 +76,10 @@ android_app {
         "src/**/deskclock/DeskClockApplication.java",
         "src/**/deskclock/DeskClockBackupAgent.java",
         "src/**/deskclock/DeskClockFragment.java",
+        "src/**/deskclock/DropShadowController.java",
+        "src/**/deskclock/FabContainer.java",
+        "src/**/deskclock/FabController.java",
+        "src/**/deskclock/FetchMatchingAlarmsAction.java",
     ],
     product_specific: true,
     static_libs: [
