@@ -82,7 +82,7 @@ internal class RingtoneViewHolder private constructor(itemView: View)
     }
 
     override fun onClick(view: View) {
-        if (itemHolder.hasPermissions()) {
+        if (itemHolder!!.hasPermissions()) {
             notifyItemClicked(CLICK_NORMAL)
         } else {
             notifyItemClicked(CLICK_NO_PERMISSIONS)

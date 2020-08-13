@@ -21,7 +21,7 @@ import androidx.recyclerview.widget.RecyclerView.NO_ID
 
 import com.android.deskclock.ItemAdapter.ItemHolder
 
-internal class AddCustomRingtoneHolder : ItemHolder<Uri>(null, NO_ID) {
+internal class AddCustomRingtoneHolder : ItemHolder<Uri?>(null, NO_ID) {
     override fun getItemViewType(): Int {
         return AddCustomRingtoneViewHolder.VIEW_TYPE_ADD_NEW
     }

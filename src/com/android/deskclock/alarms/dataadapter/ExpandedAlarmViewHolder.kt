@@ -95,39 +95,39 @@ class ExpandedAlarmViewHolder private constructor(itemView: View, private val mH
         // Collapse handler
         itemView.setOnClickListener { _ ->
             Events.sendAlarmEvent(R.string.action_collapse_implied, R.string.label_deskclock)
-            itemHolder.collapse()
+            itemHolder?.collapse()
         }
         arrow.setOnClickListener { _ ->
             Events.sendAlarmEvent(R.string.action_collapse, R.string.label_deskclock)
-            itemHolder.collapse()
+            itemHolder?.collapse()
         }
         // Edit time handler
         clock.setOnClickListener { _ ->
-            alarmTimeClickHandler.onClockClicked(itemHolder.item)
+            alarmTimeClickHandler.onClockClicked(itemHolder!!.item)
         }
         // Edit label handler
         editLabel.setOnClickListener { _ ->
-            alarmTimeClickHandler.onEditLabelClicked(itemHolder.item)
+            alarmTimeClickHandler.onEditLabelClicked(itemHolder!!.item)
         }
         // Vibrator checkbox handler
         vibrate.setOnClickListener { view ->
-            alarmTimeClickHandler.setAlarmVibrationEnabled(itemHolder.item,
+            alarmTimeClickHandler.setAlarmVibrationEnabled(itemHolder!!.item,
                     (view as CheckBox).isChecked)
         }
         // Ringtone editor handler
         ringtone.setOnClickListener { _ ->
-            alarmTimeClickHandler.onRingtoneClicked(context, itemHolder.item)
+            alarmTimeClickHandler.onRingtoneClicked(context, itemHolder!!.item)
         }
         // Delete alarm handler
         delete.setOnClickListener { view ->
-            alarmTimeClickHandler.onDeleteClicked(itemHolder)
+            alarmTimeClickHandler.onDeleteClicked(itemHolder!!)
             view.announceForAccessibility(context.getString(R.string.alarm_deleted))
         }
         // Repeat checkbox handler
         repeat.setOnClickListener { view ->
             val checked: Boolean = (view as CheckBox).isChecked
-            alarmTimeClickHandler.setAlarmRepeatEnabled(itemHolder.item, checked)
-            itemHolder.notifyItemChanged(ANIMATE_REPEAT_DAYS)
+            alarmTimeClickHandler.setAlarmRepeatEnabled(itemHolder!!.item, checked)
+            itemHolder?.notifyItemChanged(ANIMATE_REPEAT_DAYS)
         }
         // Day buttons handler
         for (i in dayButtons.indices) {
@@ -208,7 +208,7 @@ class ExpandedAlarmViewHolder private constructor(itemView: View, private val mH
     }
 
     private val alarmTimeClickHandler: AlarmTimeClickHandler
-        get() = itemHolder.alarmTimeClickHandler
+        get() = itemHolder!!.alarmTimeClickHandler
 
     override fun onAnimateChange(
         payloads: List<Any>?,

@@ -140,7 +140,7 @@ class AlarmClockFragment : DeskClockFragment(UiDataModel.Tab.ALARMS),
                 }
             }
 
-            override fun onItemChanged(holder: ItemHolder<*>?, payload: Any) {
+            override fun onItemChanged(holder: ItemHolder<*>, payload: Any) {
                 /* No additional work to do */
             }
         })
@@ -324,7 +324,7 @@ class AlarmClockFragment : DeskClockFragment(UiDataModel.Tab.ALARMS),
         }
 
         if (alarmPosition >= 0) {
-            mItemAdapter.findItemById(alarmId).expand()
+            mItemAdapter.findItemById(alarmId)?.expand()
             smoothScrollTo(alarmPosition)
         } else {
             // Trying to display a deleted alarm should only happen from a missed notification for
