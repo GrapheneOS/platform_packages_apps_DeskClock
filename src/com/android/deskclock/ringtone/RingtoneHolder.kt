@@ -27,7 +27,7 @@ internal abstract class RingtoneHolder @JvmOverloads constructor(
     uri: Uri,
     private val mName: String?,
     private val mHasPermissions: Boolean = true
-) : ItemHolder<Uri>(uri, NO_ID) {
+) : ItemHolder<Uri?>(uri, NO_ID) {
     var isSelected = false
     var isPlaying = false
 
@@ -39,7 +39,7 @@ internal abstract class RingtoneHolder @JvmOverloads constructor(
     }
 
     val uri: Uri
-        get() = item
+        get() = item!!
 
     val isSilent: Boolean
         get() = Utils.RINGTONE_SILENT == uri
