@@ -25,7 +25,7 @@ import com.android.deskclock.ItemAdapter.ItemHolder
 internal class HeaderHolder(
     @field:StringRes @get:StringRes
     @param:StringRes val textResId: Int
-) : ItemHolder<Uri>(null, NO_ID) {
+) : ItemHolder<Uri?>(null, NO_ID) {
 
     override fun getItemViewType(): Int {
         return HeaderViewHolder.VIEW_TYPE_ITEM_HEADER
