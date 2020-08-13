@@ -26,7 +26,7 @@ import com.android.deskclock.ItemAdapter.ItemViewHolder
 import com.android.deskclock.R
 
 internal class AddCustomRingtoneViewHolder private constructor(itemView: View)
-    : ItemViewHolder<AddCustomRingtoneHolder?>(itemView), View.OnClickListener {
+    : ItemViewHolder<AddCustomRingtoneHolder>(itemView), View.OnClickListener {
 
     init {
         itemView.setOnClickListener(this)
