@@ -68,7 +68,7 @@ import com.android.deskclock.provider.Alarm
  *
  */
 // TODO(b/157255731) Replace deprecated Fragment and Loader related calls
-class RingtonePickerActivity : BaseActivity(), LoaderCallbacks<List<ItemHolder<Uri>>> {
+class RingtonePickerActivity : BaseActivity(), LoaderCallbacks<List<ItemHolder<Uri?>>> {
     /** The controller that shows the drop shadow when content is not scrolled to the top.  */
     private var mDropShadowController: DropShadowController? = null
 
@@ -79,7 +79,7 @@ class RingtonePickerActivity : BaseActivity(), LoaderCallbacks<List<ItemHolder<U
     private lateinit var mRecyclerView: RecyclerView
 
     /** Stores the set of ItemHolders that wrap the selectable ringtones.  */
-    private lateinit var mRingtoneAdapter: ItemAdapter<ItemHolder<Uri>>
+    private lateinit var mRingtoneAdapter: ItemAdapter<ItemHolder<Uri?>>
 
     /** The title of the default ringtone.  */
     private var mDefaultRingtoneTitle: String? = null
@@ -232,14 +232,14 @@ class RingtonePickerActivity : BaseActivity(), LoaderCallbacks<List<ItemHolder<U
                 super.onOptionsItemSelected(item)
     }
 
-    override fun onCreateLoader(id: Int, args: Bundle): Loader<List<ItemHolder<Uri>>> {
+    override fun onCreateLoader(id: Int, args: Bundle): Loader<List<ItemHolder<Uri?>>> {
         return RingtoneLoader(getApplicationContext(), mDefaultRingtoneUri!!,
                 mDefaultRingtoneTitle!!)
     }
 
     override fun onLoadFinished(
-        loader: Loader<List<ItemHolder<Uri>>>,
-        itemHolders: List<ItemHolder<Uri>>
+        loader: Loader<List<ItemHolder<Uri?>>>,
+        itemHolders: List<ItemHolder<Uri?>>
     ) {
         // Update the adapter with fresh data.
         mRingtoneAdapter.setItems(itemHolders)
@@ -263,7 +263,7 @@ class RingtonePickerActivity : BaseActivity(), LoaderCallbacks<List<ItemHolder<U
         }
     }
 
-    override fun onLoaderReset(loader: Loader<List<ItemHolder<Uri>>>) {
+    override fun onLoaderReset(loader: Loader<List<ItemHolder<Uri?>>>) {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -286,7 +286,7 @@ class RingtonePickerActivity : BaseActivity(), LoaderCallbacks<List<ItemHolder<U
     override fun onContextItemSelected(item: MenuItem): Boolean {
         // Find the ringtone to be removed.
         val items = mRingtoneAdapter.items
-        val toRemove = items[mIndexOfRingtoneToRemove] as RingtoneHolder
+        val toRemove = items!![mIndexOfRingtoneToRemove] as RingtoneHolder
         mIndexOfRingtoneToRemove = RecyclerView.NO_POSITION
 
         // Launch the confirmation dialog.
@@ -297,7 +297,7 @@ class RingtonePickerActivity : BaseActivity(), LoaderCallbacks<List<ItemHolder<U
     }
 
     private fun getRingtoneHolder(uri: Uri?): RingtoneHolder? {
-        for (itemHolder in mRingtoneAdapter.items) {
+        for (itemHolder in mRingtoneAdapter.items!!) {
             if (itemHolder is RingtoneHolder) {
                 if (itemHolder.uri == uri) {
                     return itemHolder

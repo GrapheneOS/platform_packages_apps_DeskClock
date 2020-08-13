@@ -87,6 +87,8 @@ android_app {
         "src/**/deskclock/FormattedTextUtils.java",
         "src/**/deskclock/FragmentTabPagerAdapter.java",
         "src/**/deskclock/HandleApiCalls.java",
+        "src/**/deskclock/ItemAdapter.java",
+        "src/**/deskclock/ItemAnimator.java",
     ],
     product_specific: true,
     static_libs: [
