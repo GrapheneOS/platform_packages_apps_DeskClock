@@ -97,6 +97,8 @@ android_app {
         "src/**/deskclock/Predicate.java",
         "src/**/deskclock/RingtonePreviewKlaxon.java",
         "src/**/deskclock/ThemeUtils.java",
+        "src/**/deskclock/Screensaver.java",
+        "src/**/deskclock/ScreensaverActivity.java",
     ],
     product_specific: true,
     static_libs: [

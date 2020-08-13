@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,199 +14,187 @@
  * limitations under the License.
  */
 
-package com.android.deskclock;
+package com.android.deskclock
 
-import android.app.AlarmManager;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.res.Configuration;
-import android.database.ContentObserver;
-import android.net.Uri;
-import android.os.Handler;
-import android.provider.Settings;
-import android.service.dreams.DreamService;
-import android.view.View;
-import android.view.ViewTreeObserver.OnPreDrawListener;
-import android.widget.TextClock;
+import android.app.AlarmManager
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.content.res.Configuration
+import android.database.ContentObserver
+import android.os.Handler
+import android.provider.Settings
+import android.service.dreams.DreamService
+import android.view.View
+import android.view.ViewTreeObserver.OnPreDrawListener
+import android.widget.TextClock
 
-import com.android.deskclock.data.DataModel;
-import com.android.deskclock.uidata.UiDataModel;
+import com.android.deskclock.data.DataModel
+import com.android.deskclock.uidata.UiDataModel
 
-public final class Screensaver extends DreamService {
+class Screensaver : DreamService() {
+    private val mStartPositionUpdater: OnPreDrawListener = StartPositionUpdater()
+    private var mPositionUpdater: MoveScreensaverRunnable? = null
 
-    private static final LogUtils.Logger LOGGER = new LogUtils.Logger("Screensaver");
+    private var mDateFormat: String? = null
+    private var mDateFormatForAccessibility: String? = null
 
-    private final OnPreDrawListener mStartPositionUpdater = new StartPositionUpdater();
-    private MoveScreensaverRunnable mPositionUpdater;
-
-    private String mDateFormat;
-    private String mDateFormatForAccessibility;
-
-    private View mContentView;
-    private View mMainClockView;
-    private TextClock mDigitalClock;
-    private AnalogClock mAnalogClock;
+    private var mContentView: View? = null
+    private var mMainClockView: View? = null
+    private var mDigitalClock: TextClock? = null
+    private var mAnalogClock: AnalogClock? = null
 
     /* Register ContentObserver to see alarm changes for pre-L */
-    private final ContentObserver mSettingsContentObserver =
-            Utils.isLOrLater() ? null : new ContentObserver(new Handler()) {
-                @Override
-                public void onChange(boolean selfChange) {
-                    Utils.refreshAlarm(Screensaver.this, mContentView);
-                }
-            };
+    private val mSettingsContentObserver: ContentObserver? = if (Utils.isLOrLater()) {
+        null
+    } else {
+        object : ContentObserver(Handler()) {
+            override fun onChange(selfChange: Boolean) {
+                Utils.refreshAlarm(this@Screensaver, mContentView)
+            }
+        }
+    }
 
     // Runs every midnight or when the time changes and refreshes the date.
-    private final Runnable mMidnightUpdater = new Runnable() {
-        @Override
-        public void run() {
-            Utils.updateDate(mDateFormat, mDateFormatForAccessibility, mContentView);
-        }
-    };
+    private val mMidnightUpdater = Runnable {
+        Utils.updateDate(mDateFormat, mDateFormatForAccessibility, mContentView)
+    }
 
     /**
      * Receiver to alarm clock changes.
      */
-    private final BroadcastReceiver mAlarmChangedReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Utils.refreshAlarm(Screensaver.this, mContentView);
+    private val mAlarmChangedReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            Utils.refreshAlarm(this@Screensaver, mContentView)
         }
-    };
-
-    @Override
-    public void onCreate() {
-        LOGGER.v("Screensaver created");
-
-        setTheme(R.style.Theme_DeskClock);
-        super.onCreate();
-
-        mDateFormat = getString(R.string.abbrev_wday_month_day_no_year);
-        mDateFormatForAccessibility = getString(R.string.full_wday_month_day_no_year);
     }
 
-    @Override
-    public void onAttachedToWindow() {
-        LOGGER.v("Screensaver attached to window");
-        super.onAttachedToWindow();
+    override fun onCreate() {
+        LOGGER.v("Screensaver created")
 
-        setContentView(R.layout.desk_clock_saver);
+        setTheme(R.style.Theme_DeskClock)
+        super.onCreate()
 
-        mContentView = findViewById(R.id.saver_container);
-        mMainClockView = mContentView.findViewById(R.id.main_clock);
-        mDigitalClock = (TextClock) mMainClockView.findViewById(R.id.digital_clock);
-        mAnalogClock = (AnalogClock) mMainClockView.findViewById(R.id.analog_clock);
+        mDateFormat = getString(R.string.abbrev_wday_month_day_no_year)
+        mDateFormatForAccessibility = getString(R.string.full_wday_month_day_no_year)
+    }
 
-        setClockStyle();
-        Utils.setClockIconTypeface(mContentView);
-        Utils.setTimeFormat(mDigitalClock, false);
-        mAnalogClock.enableSeconds(false);
+    override fun onAttachedToWindow() {
+        LOGGER.v("Screensaver attached to window")
+        super.onAttachedToWindow()
 
-        mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
-                | View.SYSTEM_UI_FLAG_IMMERSIVE
-                | View.SYSTEM_UI_FLAG_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+        setContentView(R.layout.desk_clock_saver)
 
-        mPositionUpdater = new MoveScreensaverRunnable(mContentView, mMainClockView);
+        mContentView = findViewById(R.id.saver_container)
+        mMainClockView = mContentView?.findViewById(R.id.main_clock)
+        mDigitalClock = mMainClockView?.findViewById<View>(R.id.digital_clock) as TextClock
+        mAnalogClock = mMainClockView?.findViewById<View>(R.id.analog_clock) as AnalogClock
+
+        setClockStyle()
+        Utils.setClockIconTypeface(mContentView)
+        Utils.setTimeFormat(mDigitalClock, false)
+        mAnalogClock?.enableSeconds(false)
+
+        mContentView?.systemUiVisibility = (View.SYSTEM_UI_FLAG_LOW_PROFILE
+                or View.SYSTEM_UI_FLAG_IMMERSIVE
+                or View.SYSTEM_UI_FLAG_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
+
+        mPositionUpdater = MoveScreensaverRunnable(mContentView!!, mMainClockView!!)
 
         // We want the screen saver to exit upon user interaction.
-        setInteractive(false);
-        setFullscreen(true);
+        isInteractive = false
+        isFullscreen = true
 
         // Setup handlers for time reference changes and date updates.
         if (Utils.isLOrLater()) {
             registerReceiver(mAlarmChangedReceiver,
-                    new IntentFilter(AlarmManager.ACTION_NEXT_ALARM_CLOCK_CHANGED));
+                    IntentFilter(AlarmManager.ACTION_NEXT_ALARM_CLOCK_CHANGED))
         }
 
-        if (mSettingsContentObserver != null) {
-            @SuppressWarnings("deprecation")
-            final Uri uri = Settings.System.getUriFor(Settings.System.NEXT_ALARM_FORMATTED);
-            getContentResolver().registerContentObserver(uri, false, mSettingsContentObserver);
+        mSettingsContentObserver?.let {
+            val uri = Settings.System.getUriFor(Settings.System.NEXT_ALARM_FORMATTED)
+            contentResolver.registerContentObserver(uri, false, it)
         }
 
-        Utils.updateDate(mDateFormat, mDateFormatForAccessibility, mContentView);
-        Utils.refreshAlarm(this, mContentView);
+        Utils.updateDate(mDateFormat, mDateFormatForAccessibility, mContentView)
+        Utils.refreshAlarm(this, mContentView)
 
-        startPositionUpdater();
-        UiDataModel.getUiDataModel().addMidnightCallback(mMidnightUpdater);
+        startPositionUpdater()
+        UiDataModel.uiDataModel.addMidnightCallback(mMidnightUpdater)
     }
 
-    @Override
-    public void onDetachedFromWindow() {
-        LOGGER.v("Screensaver detached from window");
-        super.onDetachedFromWindow();
+    override fun onDetachedFromWindow() {
+        LOGGER.v("Screensaver detached from window")
+        super.onDetachedFromWindow()
 
-        if (mSettingsContentObserver != null) {
-            getContentResolver().unregisterContentObserver(mSettingsContentObserver);
+        mSettingsContentObserver?.let {
+            contentResolver.unregisterContentObserver(it)
         }
 
-        UiDataModel.getUiDataModel().removePeriodicCallback(mMidnightUpdater);
-        stopPositionUpdater();
+        UiDataModel.uiDataModel.removePeriodicCallback(mMidnightUpdater)
+        stopPositionUpdater()
 
         // Tear down handlers for time reference changes and date updates.
         if (Utils.isLOrLater()) {
-            unregisterReceiver(mAlarmChangedReceiver);
+            unregisterReceiver(mAlarmChangedReceiver)
         }
     }
 
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        LOGGER.v("Screensaver configuration changed");
-        super.onConfigurationChanged(newConfig);
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        LOGGER.v("Screensaver configuration changed")
+        super.onConfigurationChanged(newConfig)
 
-        startPositionUpdater();
+        startPositionUpdater()
     }
 
-    private void setClockStyle() {
-        Utils.setScreensaverClockStyle(mDigitalClock, mAnalogClock);
-        final boolean dimNightMode = DataModel.getDataModel().getScreensaverNightModeOn();
-        Utils.dimClockView(dimNightMode, mMainClockView);
-        setScreenBright(!dimNightMode);
+    private fun setClockStyle() {
+        Utils.setScreensaverClockStyle(mDigitalClock, mAnalogClock)
+        val dimNightMode: Boolean = DataModel.dataModel.screensaverNightModeOn
+        Utils.dimClockView(dimNightMode, mMainClockView)
+        isScreenBright = !dimNightMode
     }
 
     /**
-     * The {@link #mContentView} will be drawn shortly. When that draw occurs, the position updater
+     * The [.mContentView] will be drawn shortly. When that draw occurs, the position updater
      * callback will also be executed to choose a random position for the time display as well as
      * schedule future callbacks to move the time display each minute.
      */
-    private void startPositionUpdater() {
-        if (mContentView != null) {
-            mContentView.getViewTreeObserver().addOnPreDrawListener(mStartPositionUpdater);
-        }
+    private fun startPositionUpdater() {
+        mContentView?.viewTreeObserver?.addOnPreDrawListener(mStartPositionUpdater)
     }
 
     /**
      * This activity is no longer in the foreground; position callbacks should be removed.
      */
-    private void stopPositionUpdater() {
-        if (mContentView != null) {
-            mContentView.getViewTreeObserver().removeOnPreDrawListener(mStartPositionUpdater);
-        }
-        mPositionUpdater.stop();
+    private fun stopPositionUpdater() {
+        mContentView?.viewTreeObserver?.removeOnPreDrawListener(mStartPositionUpdater)
+        mPositionUpdater?.stop()
     }
 
-    private final class StartPositionUpdater implements OnPreDrawListener {
+    private inner class StartPositionUpdater : OnPreDrawListener {
         /**
          * This callback occurs after initial layout has completed. It is an appropriate place to
-         * select a random position for {@link #mMainClockView} and schedule future callbacks to update
+         * select a random position for [.mMainClockView] and schedule future callbacks to update
          * its position.
          *
-         * @return {@code true} to continue with the drawing pass
+         * @return `true` to continue with the drawing pass
          */
-        @Override
-        public boolean onPreDraw() {
-            if (mContentView.getViewTreeObserver().isAlive()) {
+        override fun onPreDraw(): Boolean {
+            if (mContentView!!.viewTreeObserver.isAlive) {
                 // (Re)start the periodic position updater.
-                mPositionUpdater.start();
+                mPositionUpdater?.start()
 
                 // This listener must now be removed to avoid starting the position updater again.
-                mContentView.getViewTreeObserver().removeOnPreDrawListener(mStartPositionUpdater);
+                mContentView?.viewTreeObserver?.removeOnPreDrawListener(mStartPositionUpdater)
             }
-            return true;
+            return true
         }
+    }
+
+    companion object {
+        private val LOGGER = LogUtils.Logger("Screensaver")
     }
 }
