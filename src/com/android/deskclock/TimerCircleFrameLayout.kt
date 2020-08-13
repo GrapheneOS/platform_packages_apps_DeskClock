@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,61 +14,61 @@
  * limitations under the License.
  */
 
-package com.android.deskclock;
+package com.android.deskclock
 
-import android.content.Context;
-import android.util.AttributeSet;
-import android.widget.FrameLayout;
+import android.content.Context
+import android.util.AttributeSet
+import android.widget.FrameLayout
+
+import kotlin.math.min
 
 /**
  * A container that frames a timer circle of some sort. The circle is allowed to grow naturally
- * according to its layout constraints up to the {@link R.dimen#max_timer_circle_size largest}
+ * according to its layout constraints up to the [largest][R.dimen.max_timer_circle_size]
  * allowable size.
  */
-public class TimerCircleFrameLayout extends FrameLayout {
+class TimerCircleFrameLayout : FrameLayout {
+    constructor(context: Context) : super(context)
 
-    public TimerCircleFrameLayout(Context context) {
-        super(context);
-    }
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
 
-    public TimerCircleFrameLayout(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-    public TimerCircleFrameLayout(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-    }
+    constructor(
+        context: Context,
+        attrs: AttributeSet?,
+        defStyleAttr: Int
+    ) : super(context, attrs, defStyleAttr)
 
     /**
-     * Note: this method assumes the parent container will specify {@link MeasureSpec#EXACTLY exact}
+     * Note: this method assumes the parent container will specify [exact][MeasureSpec.EXACTLY]
      * width and height values.
      *
      * @param widthMeasureSpec horizontal space requirements as imposed by the parent
      * @param heightMeasureSpec vertical space requirements as imposed by the parent
      */
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        final int paddingLeft = getPaddingLeft();
-        final int paddingRight = getPaddingRight();
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        var variableWidthMeasureSpec = widthMeasureSpec
+        var variableHeightMeasureSpec = heightMeasureSpec
+        val paddingLeft = paddingLeft
+        val paddingRight = paddingRight
 
-        final int paddingTop = getPaddingTop();
-        final int paddingBottom = getPaddingBottom();
+        val paddingTop = paddingTop
+        val paddingBottom = paddingBottom
 
         // Fetch the exact sizes imposed by the parent container.
-        final int width = MeasureSpec.getSize(widthMeasureSpec) - paddingLeft - paddingRight;
-        final int height = MeasureSpec.getSize(heightMeasureSpec) - paddingTop - paddingBottom;
-        final int smallestDimension = Math.min(width, height);
+        val width = MeasureSpec.getSize(variableWidthMeasureSpec) - paddingLeft - paddingRight
+        val height = MeasureSpec.getSize(variableHeightMeasureSpec) - paddingTop - paddingBottom
+        val smallestDimension = min(width, height)
 
         // Fetch the absolute maximum circle size allowed.
-        final int maxSize = getResources().getDimensionPixelSize(R.dimen.max_timer_circle_size);
-        final int size = Math.min(smallestDimension, maxSize);
+        val maxSize = resources.getDimensionPixelSize(R.dimen.max_timer_circle_size)
+        val size = min(smallestDimension, maxSize)
 
         // Set the size of this container.
-        widthMeasureSpec = MeasureSpec.makeMeasureSpec(size + paddingLeft + paddingRight,
-                MeasureSpec.EXACTLY);
-        heightMeasureSpec = MeasureSpec.makeMeasureSpec(size + paddingTop + paddingBottom,
-                MeasureSpec.EXACTLY);
+        variableWidthMeasureSpec = MeasureSpec.makeMeasureSpec(size + paddingLeft + paddingRight,
+                MeasureSpec.EXACTLY)
+        variableHeightMeasureSpec = MeasureSpec.makeMeasureSpec(size + paddingTop + paddingBottom,
+                MeasureSpec.EXACTLY)
 
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        super.onMeasure(variableWidthMeasureSpec, variableHeightMeasureSpec)
     }
 }

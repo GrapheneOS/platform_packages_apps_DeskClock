@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,59 +14,50 @@
  * limitations under the License.
  */
 
-package com.android.deskclock;
+package com.android.deskclock
 
-import android.widget.TextView;
-
-import static android.text.format.DateUtils.HOUR_IN_MILLIS;
-import static android.text.format.DateUtils.MINUTE_IN_MILLIS;
-import static android.text.format.DateUtils.SECOND_IN_MILLIS;
+import android.text.format.DateUtils
+import android.widget.TextView
 
 /**
  * A controller which will format a provided time in millis to display as a timer.
  */
-public final class TimerTextController {
-
-    private final TextView mTextView;
-
-    public TimerTextController(TextView textView) {
-        mTextView = textView;
-    }
-
-    public void setTimeString(long remainingTime) {
-        boolean isNegative = false;
-        if (remainingTime < 0) {
-            remainingTime = -remainingTime;
-            isNegative = true;
+class TimerTextController(private val mTextView: TextView) {
+    fun setTimeString(remainingTime: Long) {
+        var variableRemainingTime = remainingTime
+        var isNegative = false
+        if (variableRemainingTime < 0) {
+            variableRemainingTime = -variableRemainingTime
+            isNegative = true
         }
 
-        int hours = (int) (remainingTime / HOUR_IN_MILLIS);
-        int remainder = (int) (remainingTime % HOUR_IN_MILLIS);
+        var hours = (variableRemainingTime / DateUtils.HOUR_IN_MILLIS).toInt()
+        var remainder = (variableRemainingTime % DateUtils.HOUR_IN_MILLIS).toInt()
 
-        int minutes = (int) (remainder / MINUTE_IN_MILLIS);
-        remainder = (int) (remainder % MINUTE_IN_MILLIS);
+        var minutes = (remainder / DateUtils.MINUTE_IN_MILLIS).toInt()
+        remainder = (remainder % DateUtils.MINUTE_IN_MILLIS).toInt()
 
-        int seconds = (int) (remainder / SECOND_IN_MILLIS);
-        remainder = (int) (remainder % SECOND_IN_MILLIS);
+        var seconds = (remainder / DateUtils.SECOND_IN_MILLIS).toInt()
+        remainder = (remainder % DateUtils.SECOND_IN_MILLIS).toInt()
 
         // Round up to the next second
         if (!isNegative && remainder != 0) {
-            seconds++;
+            seconds++
             if (seconds == 60) {
-                seconds = 0;
-                minutes++;
+                seconds = 0
+                minutes++
                 if (minutes == 60) {
-                    minutes = 0;
-                    hours++;
+                    minutes = 0
+                    hours++
                 }
             }
         }
 
-        String time = Utils.getTimeString(mTextView.getContext(), hours, minutes, seconds);
+        var time = Utils.getTimeString(mTextView.context, hours, minutes, seconds)
         if (isNegative && !(hours == 0 && minutes == 0 && seconds == 0)) {
-            time = "\u2212" + time;
+            time = "\u2212" + time
         }
 
-        mTextView.setText(time);
+        mTextView.text = time
     }
 }

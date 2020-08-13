@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,58 +14,48 @@
  * limitations under the License.
  */
 
-package com.android.deskclock;
+package com.android.deskclock
 
-import android.content.Context;
-import android.widget.TextView;
+import android.text.format.DateUtils
+import android.widget.TextView
 
-import com.android.deskclock.uidata.UiDataModel;
-
-import static android.text.format.DateUtils.HOUR_IN_MILLIS;
-import static android.text.format.DateUtils.MINUTE_IN_MILLIS;
-import static android.text.format.DateUtils.SECOND_IN_MILLIS;
+import com.android.deskclock.uidata.UiDataModel
 
 /**
  * A controller which will format a provided time in millis to display as a stopwatch.
  */
-public final class StopwatchTextController {
+class StopwatchTextController(
+    private val mMainTextView: TextView,
+    private val mHundredthsTextView: TextView
+) {
+    private var mLastTime = Long.MIN_VALUE
 
-    private final TextView mMainTextView;
-    private final TextView mHundredthsTextView;
-
-    private long mLastTime = Long.MIN_VALUE;
-
-    public StopwatchTextController(TextView mainTextView, TextView hundredthsTextView) {
-        mMainTextView = mainTextView;
-        mHundredthsTextView = hundredthsTextView;
-    }
-
-    public void setTimeString(long accumulatedTime) {
+    fun setTimeString(accumulatedTime: Long) {
         // Since time is only displayed to centiseconds, if there is a change at the milliseconds
         // level but not the centiseconds level, we can avoid unnecessary work.
-        if ((mLastTime / 10) == (accumulatedTime / 10)) {
-            return;
+        if (mLastTime / 10 == accumulatedTime / 10) {
+            return
         }
 
-        final int hours = (int) (accumulatedTime / HOUR_IN_MILLIS);
-        int remainder = (int) (accumulatedTime % HOUR_IN_MILLIS);
+        val hours = (accumulatedTime / DateUtils.HOUR_IN_MILLIS).toInt()
+        var remainder = (accumulatedTime % DateUtils.HOUR_IN_MILLIS).toInt()
 
-        final int minutes = (int) (remainder / MINUTE_IN_MILLIS);
-        remainder = (int) (remainder % MINUTE_IN_MILLIS);
+        val minutes = (remainder / DateUtils.MINUTE_IN_MILLIS).toInt()
+        remainder = (remainder % DateUtils.MINUTE_IN_MILLIS).toInt()
 
-        final int seconds = (int) (remainder / SECOND_IN_MILLIS);
-        remainder = (int) (remainder % SECOND_IN_MILLIS);
+        val seconds = (remainder / DateUtils.SECOND_IN_MILLIS).toInt()
+        remainder = (remainder % DateUtils.SECOND_IN_MILLIS).toInt()
 
-        mHundredthsTextView.setText(UiDataModel.getUiDataModel().getFormattedNumber(
-                remainder / 10, 2));
+        mHundredthsTextView.text = UiDataModel.uiDataModel.getFormattedNumber(remainder / 10, 2)
 
         // Avoid unnecessary computations and garbage creation if seconds have not changed since
         // last layout pass.
-        if ((mLastTime / SECOND_IN_MILLIS) != (accumulatedTime / SECOND_IN_MILLIS)) {
-            final Context context = mMainTextView.getContext();
-            final String time = Utils.getTimeString(context, hours, minutes, seconds);
-            mMainTextView.setText(time);
+        if (mLastTime / DateUtils.SECOND_IN_MILLIS !=
+                accumulatedTime / DateUtils.SECOND_IN_MILLIS) {
+            val context = mMainTextView.context
+            val time = Utils.getTimeString(context, hours, minutes, seconds)
+            mMainTextView.text = time
         }
-        mLastTime = accumulatedTime;
+        mLastTime = accumulatedTime
     }
 }
