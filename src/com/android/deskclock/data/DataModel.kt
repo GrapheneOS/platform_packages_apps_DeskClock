@@ -93,7 +93,7 @@ class DataModel private constructor() {
         val actionListener: View.OnClickListener?
             get() = mActionListener
 
-        fun isActionEnabled(context: Context?): Boolean {
+        fun isActionEnabled(context: Context): Boolean {
             return labelResId != 0 && mActionEnabled.apply(context)
         }
 
