@@ -129,7 +129,7 @@ class ClockProvider : ContentProvider() {
     override fun onCreate(): Boolean {
         val context: Context = getContext()!!
         val storageContext: Context
-        if (Utils.isNOrLater()) {
+        if (Utils.isNOrLater) {
             // All N devices have split storage areas, but we may need to
             // migrate existing database into the new device encrypted
             // storage area, which is where our data lives from now on.

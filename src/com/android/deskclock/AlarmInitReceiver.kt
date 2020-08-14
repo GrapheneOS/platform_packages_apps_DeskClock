@@ -96,7 +96,7 @@ class AlarmInitReceiver : BroadcastReceiver() {
          * while the user is still locked, so that we can schedule alarms.
          */
         @SuppressLint("InlinedApi")
-        private val ACTION_BOOT_COMPLETED = if (Utils.isNOrLater()) {
+        private val ACTION_BOOT_COMPLETED = if (Utils.isNOrLater) {
             Intent.ACTION_LOCKED_BOOT_COMPLETED
         } else {
             Intent.ACTION_BOOT_COMPLETED

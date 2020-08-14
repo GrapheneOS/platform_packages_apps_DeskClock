@@ -79,7 +79,7 @@ internal class SilentSettingsModel(
         val contentChangeWatcher: ContentObserver = ContentChangeWatcher()
         cr.registerContentObserver(VOLUME_URI, false, contentChangeWatcher)
         cr.registerContentObserver(DEFAULT_ALARM_ALERT_URI, false, contentChangeWatcher)
-        if (Utils.isMOrLater()) {
+        if (Utils.isMOrLater) {
             val filter = IntentFilter(ACTION_INTERRUPTION_FILTER_CHANGED)
             mContext.registerReceiver(DoNotDisturbChangeReceiver(), filter)
         }
@@ -163,7 +163,7 @@ internal class SilentSettingsModel(
 
         @get:TargetApi(Build.VERSION_CODES.M)
         private val isDoNotDisturbBlockingAlarms: Boolean
-            get() = if (!Utils.isMOrLater()) {
+            get() = if (!Utils.isMOrLater) {
                 false
             } else try {
                 val interruptionFilter: Int = mNotificationManager.getCurrentInterruptionFilter()

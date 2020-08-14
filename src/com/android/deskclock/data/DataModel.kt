@@ -126,7 +126,7 @@ class DataModel private constructor() {
         private class ChangeAppNotificationSettingsListener : View.OnClickListener {
             override fun onClick(v: View) {
                 val context: Context = v.context
-                if (Utils.isLOrLater()) {
+                if (Utils.isLOrLater) {
                     try {
                         // Attempt to open the notification settings for this app.
                         context.startActivity(
@@ -1069,6 +1069,7 @@ class DataModel private constructor() {
         val sDataModel = DataModel()
 
         @get:JvmStatic
+        @get:Keep
         val dataModel
             get() = sDataModel
     }

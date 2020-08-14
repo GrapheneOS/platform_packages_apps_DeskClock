@@ -172,7 +172,7 @@ internal class TimerNotificationBuilder {
             notification.addAction(action)
         }
 
-        if (Utils.isNOrLater()) {
+        if (Utils.isNOrLater) {
             notification.setCustomContentView(buildChronometer(pname, base, running, stateText))
                     .setGroup(nm.timerNotificationGroupKey)
         } else {
@@ -285,7 +285,7 @@ internal class TimerNotificationBuilder {
             notification.addAction(action)
         }
 
-        if (Utils.isNOrLater()) {
+        if (Utils.isNOrLater) {
             notification.setCustomContentView(buildChronometer(pname, base, true, stateText))
         } else {
             val contentTextPreN: CharSequence = if (count == 1) {
@@ -370,7 +370,7 @@ internal class TimerNotificationBuilder {
                 .addAction(action)
                 .setColor(ContextCompat.getColor(context, R.color.default_background))
 
-        if (Utils.isNOrLater()) {
+        if (Utils.isNOrLater) {
             notification.setCustomContentView(buildChronometer(pname, base, true, stateText))
                     .setGroup(nm.timerNotificationGroupKey)
         } else {
