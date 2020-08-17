@@ -267,7 +267,7 @@ class TimerFragment : DeskClockFragment(UiDataModel.Tab.TIMERS) {
 
     override fun onMorphFab(fab: ImageView) {
         // Update the fab's drawable to match the current timer state.
-        updateFab(fab, Utils.isNOrLater())
+        updateFab(fab, Utils.isNOrLater)
         // Animate the drawable.
         AnimatorUtils.startDrawableAnimation(fab)
     }

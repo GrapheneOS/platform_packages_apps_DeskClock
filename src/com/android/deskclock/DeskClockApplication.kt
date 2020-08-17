@@ -48,7 +48,7 @@ class DeskClockApplication : Application() {
         @TargetApi(Build.VERSION_CODES.N)
         private fun getDefaultSharedPreferences(context: Context): SharedPreferences {
             val storageContext: Context
-            if (Utils.isNOrLater()) {
+            if (Utils.isNOrLater) {
                 // All N devices have split storage areas. Migrate the existing preferences
                 // into the new device encrypted storage area if that has not yet occurred.
                 val name = PreferenceManager.getDefaultSharedPreferencesName(context)

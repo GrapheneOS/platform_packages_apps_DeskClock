@@ -63,7 +63,7 @@ class DropShadowController private constructor(
     constructor(
         dropShadowView: View,
         uiDataModel: UiDataModel,
-        hairlineView: View?
+        hairlineView: View
     ) : this(dropShadowView) {
         mUiDataModel = uiDataModel
         mUiDataModel?.addTabScrollListener(mScrollChangeWatcher)
@@ -75,7 +75,7 @@ class DropShadowController private constructor(
      * @param dropShadowView to be hidden/shown as `listView` reports scrolling changes
      * @param listView a scrollable view that dictates the visibility of `dropShadowView`
      */
-    constructor(dropShadowView: View, listView: ListView?) : this(dropShadowView) {
+    constructor(dropShadowView: View, listView: ListView) : this(dropShadowView) {
         mListView = listView
         mListView?.setOnScrollListener(mScrollChangeWatcher)
         updateDropShadow(!Utils.isScrolledToTop(listView))

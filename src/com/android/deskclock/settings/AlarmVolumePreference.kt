@@ -112,7 +112,7 @@ class AlarmVolumePreference(context: Context?, attrs: AttributeSet?) : Preferenc
     }
 
     private fun doesDoNotDisturbAllowAlarmPlayback(): Boolean {
-        return !Utils.isNOrLater() || doesDoNotDisturbAllowAlarmPlaybackNPlus()
+        return !Utils.isNOrLater || doesDoNotDisturbAllowAlarmPlaybackNPlus()
     }
 
     @TargetApi(Build.VERSION_CODES.N)
