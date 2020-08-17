@@ -46,7 +46,7 @@ class Screensaver : DreamService() {
     private var mAnalogClock: AnalogClock? = null
 
     /* Register ContentObserver to see alarm changes for pre-L */
-    private val mSettingsContentObserver: ContentObserver? = if (Utils.isLOrLater()) {
+    private val mSettingsContentObserver: ContentObserver? = if (Utils.isLOrLater) {
         null
     } else {
         object : ContentObserver(Handler()) {
@@ -109,7 +109,7 @@ class Screensaver : DreamService() {
         isFullscreen = true
 
         // Setup handlers for time reference changes and date updates.
-        if (Utils.isLOrLater()) {
+        if (Utils.isLOrLater) {
             registerReceiver(mAlarmChangedReceiver,
                     IntentFilter(AlarmManager.ACTION_NEXT_ALARM_CLOCK_CHANGED))
         }
@@ -138,7 +138,7 @@ class Screensaver : DreamService() {
         stopPositionUpdater()
 
         // Tear down handlers for time reference changes and date updates.
-        if (Utils.isLOrLater()) {
+        if (Utils.isLOrLater) {
             unregisterReceiver(mAlarmChangedReceiver)
         }
     }
@@ -151,9 +151,9 @@ class Screensaver : DreamService() {
     }
 
     private fun setClockStyle() {
-        Utils.setScreensaverClockStyle(mDigitalClock, mAnalogClock)
+        Utils.setScreensaverClockStyle(mDigitalClock!!, mAnalogClock!!)
         val dimNightMode: Boolean = DataModel.dataModel.screensaverNightModeOn
-        Utils.dimClockView(dimNightMode, mMainClockView)
+        Utils.dimClockView(dimNightMode, mMainClockView!!)
         isScreenBright = !dimNightMode
     }
 

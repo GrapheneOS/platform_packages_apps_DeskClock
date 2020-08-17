@@ -55,7 +55,7 @@ class ScreensaverActivity : BaseActivity() {
     }
 
     /* Register ContentObserver to see alarm changes for pre-L */
-    private val mSettingsContentObserver: ContentObserver? = if (Utils.isPreL()) {
+    private val mSettingsContentObserver: ContentObserver? = if (Utils.isPreL) {
         object : ContentObserver(Handler()) {
             override fun onChange(selfChange: Boolean) {
                 Utils.refreshAlarm(this@ScreensaverActivity, mContentView)
@@ -119,7 +119,7 @@ class ScreensaverActivity : BaseActivity() {
         filter.addAction(Intent.ACTION_POWER_CONNECTED)
         filter.addAction(Intent.ACTION_POWER_DISCONNECTED)
         filter.addAction(Intent.ACTION_USER_PRESENT)
-        if (Utils.isLOrLater()) {
+        if (Utils.isLOrLater) {
             filter.addAction(AlarmManager.ACTION_NEXT_ALARM_CLOCK_CHANGED)
         }
         registerReceiver(mIntentReceiver, filter)

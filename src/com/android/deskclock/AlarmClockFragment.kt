@@ -108,7 +108,7 @@ class AlarmClockFragment : DeskClockFragment(UiDataModel.Tab.ALARMS),
         mMainLayout = v.findViewById<View>(R.id.main) as ViewGroup
         mAlarmUpdateHandler = AlarmUpdateHandler(context, this, mMainLayout)
         val emptyView = v.findViewById<View>(R.id.alarms_empty_view) as TextView
-        val noAlarms: Drawable = Utils.getVectorDrawable(context, R.drawable.ic_noalarms)
+        val noAlarms: Drawable? = Utils.getVectorDrawable(context, R.drawable.ic_noalarms)
         emptyView.setCompoundDrawablesWithIntrinsicBounds(null, noAlarms, null, null)
         mEmptyViewController = EmptyViewController(mMainLayout, mRecyclerView, emptyView)
         mAlarmTimeClickHandler = AlarmTimeClickHandler(this, savedState, mAlarmUpdateHandler, this)
