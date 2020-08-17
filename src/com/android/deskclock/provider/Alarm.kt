@@ -20,7 +20,6 @@ import android.content.ContentResolver
 import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
-import android.content.CursorLoader
 import android.content.Intent
 import android.database.Cursor
 import android.media.RingtoneManager
@@ -28,6 +27,7 @@ import android.net.Uri
 import android.os.Parcel
 import android.os.Parcelable
 import android.provider.BaseColumns
+import androidx.loader.content.CursorLoader
 
 import com.android.deskclock.R
 import com.android.deskclock.data.DataModel
@@ -39,7 +39,6 @@ import com.android.deskclock.provider.ClockContract.InstancesColumns
 import java.util.Calendar
 import java.util.LinkedList
 
-// TODO(colinmarsch) Replace deprecated CursorLoader usages here
 class Alarm : Parcelable, AlarmsColumns {
     // Public fields
     // TODO: Refactor instance names
@@ -360,7 +359,7 @@ class Alarm : Parcelable, AlarmsColumns {
          * @return cursor loader with all the alarms.
          */
         @JvmStatic
-        fun getAlarmsCursorLoader(context: Context?): CursorLoader {
+        fun getAlarmsCursorLoader(context: Context): CursorLoader {
             return object : CursorLoader(context, AlarmsColumns.ALARMS_WITH_INSTANCES_URI,
                     QUERY_ALARMS_WITH_INSTANCES_COLUMNS, null, null, DEFAULT_SORT_ORDER) {
 
@@ -378,7 +377,7 @@ class Alarm : Parcelable, AlarmsColumns {
                     }
                 }
 
-                override fun loadInBackground(): Cursor {
+                override fun loadInBackground(): Cursor? {
                     // Prime the ringtone title cache for later access. Most alarms will refer to
                     // system ringtones.
                     DataModel.dataModel.loadRingtoneTitles()

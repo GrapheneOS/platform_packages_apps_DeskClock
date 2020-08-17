@@ -17,14 +17,10 @@
 package com.android.deskclock.ringtone
 
 import android.app.Dialog
-import android.app.DialogFragment
-import android.app.FragmentManager
-import android.app.LoaderManager.LoaderCallbacks
 import android.content.Context
 import android.content.ContentResolver
 import android.content.DialogInterface
 import android.content.Intent
-import android.content.Loader
 import android.media.AudioManager
 import android.media.RingtoneManager
 import android.net.Uri
@@ -39,6 +35,11 @@ import android.view.View
 import androidx.annotation.Keep
 import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.FragmentManager
+import androidx.loader.app.LoaderManager
+import androidx.loader.app.LoaderManager.LoaderCallbacks
+import androidx.loader.content.Loader
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
@@ -67,7 +68,6 @@ import com.android.deskclock.provider.Alarm
  *  * user-selected audio files available as ringtones
  *
  */
-// TODO(b/157255731) Replace deprecated Fragment and Loader related calls
 class RingtonePickerActivity : BaseActivity(), LoaderCallbacks<List<ItemHolder<Uri?>>> {
     /** The controller that shows the drop shadow when content is not scrolled to the top.  */
     private var mDropShadowController: DropShadowController? = null
@@ -155,7 +155,8 @@ class RingtonePickerActivity : BaseActivity(), LoaderCallbacks<List<ItemHolder<U
         val titleResourceId = intent.getIntExtra(EXTRA_TITLE, 0)
         setTitle(context.getString(titleResourceId))
 
-        getLoaderManager().initLoader(0 /* id */, Bundle.EMPTY /* args */, this /* callback */)
+        LoaderManager.getInstance(this).initLoader(0 /* id */, Bundle.EMPTY /* args */,
+                this /* callback */)
 
         registerForContextMenu(mRecyclerView)
     }
@@ -232,7 +233,7 @@ class RingtonePickerActivity : BaseActivity(), LoaderCallbacks<List<ItemHolder<U
                 super.onOptionsItemSelected(item)
     }
 
-    override fun onCreateLoader(id: Int, args: Bundle): Loader<List<ItemHolder<Uri?>>> {
+    override fun onCreateLoader(id: Int, args: Bundle?): Loader<List<ItemHolder<Uri?>>> {
         return RingtoneLoader(getApplicationContext(), mDefaultRingtoneUri!!,
                 mDefaultRingtoneTitle!!)
     }
@@ -290,7 +291,7 @@ class RingtonePickerActivity : BaseActivity(), LoaderCallbacks<List<ItemHolder<U
         mIndexOfRingtoneToRemove = RecyclerView.NO_POSITION
 
         // Launch the confirmation dialog.
-        val manager: FragmentManager = getFragmentManager()
+        val manager: FragmentManager = supportFragmentManager
         val hasPermissions = toRemove.hasPermissions()
         ConfirmRemoveCustomRingtoneDialogFragment.show(manager, toRemove.uri, hasPermissions)
         return true
@@ -366,8 +367,8 @@ class RingtonePickerActivity : BaseActivity(), LoaderCallbacks<List<ItemHolder<U
      * it is in use by alarms and/or timers and prompts them to confirm the removal.
      */
     class ConfirmRemoveCustomRingtoneDialogFragment : DialogFragment() {
-        override fun onCreateDialog(savedInstanceState: Bundle): Dialog {
-            val arguments = arguments
+        override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+            val arguments = requireArguments()
             val toRemove = arguments.getParcelable<Uri>(ARG_RINGTONE_URI_TO_REMOVE)
 
             val okListener = DialogInterface.OnClickListener { _, _ ->
@@ -375,13 +376,13 @@ class RingtonePickerActivity : BaseActivity(), LoaderCallbacks<List<ItemHolder<U
             }
 
             return if (arguments.getBoolean(ARG_RINGTONE_HAS_PERMISSIONS)) {
-                AlertDialog.Builder(activity)
+                AlertDialog.Builder(requireActivity())
                         .setPositiveButton(R.string.remove_sound, okListener)
                         .setNegativeButton(android.R.string.cancel, null /* listener */)
                         .setMessage(R.string.confirm_remove_custom_ringtone)
                         .create()
             } else {
-                AlertDialog.Builder(activity)
+                AlertDialog.Builder(requireActivity())
                         .setPositiveButton(R.string.remove_sound, okListener)
                         .setMessage(R.string.custom_ringtone_lost_permissions)
                         .create()
@@ -444,7 +445,7 @@ class RingtonePickerActivity : BaseActivity(), LoaderCallbacks<List<ItemHolder<U
                     mIndexOfRingtoneToRemove = viewHolder.getAdapterPosition()
                 }
                 RingtoneViewHolder.CLICK_NO_PERMISSIONS -> {
-                    ConfirmRemoveCustomRingtoneDialogFragment.show(getFragmentManager(),
+                    ConfirmRemoveCustomRingtoneDialogFragment.show(supportFragmentManager,
                             (viewHolder.itemHolder as RingtoneHolder).uri, false)
                 }
             }
@@ -504,8 +505,8 @@ class RingtonePickerActivity : BaseActivity(), LoaderCallbacks<List<ItemHolder<U
             mIsPlaying = true
 
             // Reload the data to reflect the change in the UI.
-            getLoaderManager().restartLoader(0 /* id */, null /* args */,
-                    this@RingtonePickerActivity /* callback */)
+            LoaderManager.getInstance(this@RingtonePickerActivity).restartLoader(0 /* id */,
+                    null /* args */, this@RingtonePickerActivity /* callback */)
         }
     }
 

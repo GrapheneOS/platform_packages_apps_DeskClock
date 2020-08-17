@@ -16,12 +16,12 @@
 
 package com.android.deskclock.ringtone
 
-import android.content.AsyncTaskLoader
 import android.content.Context
 import android.database.MatrixCursor
 import android.media.AudioManager
 import android.media.RingtoneManager
 import android.net.Uri
+import androidx.loader.content.AsyncTaskLoader
 
 import com.android.deskclock.ItemAdapter.ItemHolder
 import com.android.deskclock.LogUtils
@@ -34,7 +34,7 @@ import com.android.deskclock.data.DataModel
  * Assembles the list of ItemHolders that back the RecyclerView used to choose a ringtone.
  */
 internal class RingtoneLoader(
-    context: Context?,
+    context: Context,
     private val mDefaultRingtoneUri: Uri,
     private val mDefaultRingtoneTitle: String
 ) : AsyncTaskLoader<List<ItemHolder<Uri?>>>(context) {

@@ -17,15 +17,15 @@
 package com.android.deskclock.alarms
 
 import android.app.Dialog
-import android.app.DialogFragment
-import android.app.Fragment
-import android.app.FragmentManager
 import android.app.TimePickerDialog
 import android.content.Context
 import android.os.Bundle
 import android.text.format.DateFormat
 import android.widget.TimePicker
 import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 
 import com.android.deskclock.Utils
 
@@ -34,23 +34,22 @@ import java.util.Calendar
 /**
  * DialogFragment used to show TimePicker.
  */
-// TODO(b/157255731) Replace deprecated Fragment related calls with AndroidX equivalent
 class TimePickerDialogFragment : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val listener = getParentFragment() as OnTimeSetListener
 
         val now = Calendar.getInstance()
-        val args: Bundle = if (getArguments() == null) Bundle.EMPTY else getArguments()
+        val args: Bundle = arguments ?: Bundle.EMPTY
         val hour: Int = args.getInt(ARG_HOUR, now[Calendar.HOUR_OF_DAY])
         val minute: Int = args.getInt(ARG_MINUTE, now[Calendar.MINUTE])
         return if (Utils.isLOrLater) {
-            val context: Context = getActivity()
+            val context: Context = requireActivity()
             TimePickerDialog(context, { _, hourOfDay, minuteOfHour ->
                 listener.onTimeSet(this@TimePickerDialogFragment, hourOfDay, minuteOfHour)
             }, hour, minute, DateFormat.is24HourFormat(context))
         } else {
-            val builder: AlertDialog.Builder = AlertDialog.Builder(getActivity())
+            val builder: AlertDialog.Builder = AlertDialog.Builder(requireActivity())
             val context: Context = builder.getContext()
 
             val timePicker = TimePicker(context)

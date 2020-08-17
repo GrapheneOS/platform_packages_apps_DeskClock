@@ -89,11 +89,11 @@ class ClockFragment : DeskClockFragment(UiDataModel.Tab.CLOCKS) {
         mDateFormat = getString(R.string.abbrev_wday_month_day_no_year)
         mDateFormatForAccessibility = getString(R.string.full_wday_month_day_no_year)
 
-        mCityAdapter = SelectedCitiesAdapter(activity, mDateFormat,
+        mCityAdapter = SelectedCitiesAdapter(requireActivity(), mDateFormat,
                 mDateFormatForAccessibility)
 
         mCityList = fragmentView.findViewById<View>(R.id.cities) as RecyclerView
-        mCityList.setLayoutManager(LinearLayoutManager(activity))
+        mCityList.setLayoutManager(LinearLayoutManager(requireActivity()))
         mCityList.setAdapter(mCityAdapter)
         mCityList.setItemAnimator(null)
         DataModel.dataModel.addCityListener(mCityAdapter)
@@ -126,7 +126,7 @@ class ClockFragment : DeskClockFragment(UiDataModel.Tab.CLOCKS) {
     override fun onResume() {
         super.onResume()
 
-        val activity = activity
+        val activity = requireActivity()
 
         mDateFormat = getString(R.string.abbrev_wday_month_day_no_year)
         mDateFormatForAccessibility = getString(R.string.full_wday_month_day_no_year)
@@ -165,7 +165,7 @@ class ClockFragment : DeskClockFragment(UiDataModel.Tab.CLOCKS) {
     override fun onPause() {
         super.onPause()
 
-        val activity = activity
+        val activity = requireActivity()
         if (mAlarmChangeReceiver != null) {
             activity.unregisterReceiver(mAlarmChangeReceiver)
         }
@@ -181,7 +181,7 @@ class ClockFragment : DeskClockFragment(UiDataModel.Tab.CLOCKS) {
     }
 
     override fun onFabClick(fab: ImageView) {
-        startActivity(Intent(activity, CitySelectionActivity::class.java))
+        startActivity(Intent(requireActivity(), CitySelectionActivity::class.java))
     }
 
     override fun onUpdateFab(fab: ImageView) {
@@ -200,7 +200,7 @@ class ClockFragment : DeskClockFragment(UiDataModel.Tab.CLOCKS) {
      */
     private fun refreshAlarm() {
         if (mClockFrame != null) {
-            Utils.refreshAlarm(activity, mClockFrame)
+            Utils.refreshAlarm(requireActivity(), mClockFrame)
         } else {
             mCityAdapter.refreshAlarm()
         }
@@ -211,7 +211,7 @@ class ClockFragment : DeskClockFragment(UiDataModel.Tab.CLOCKS) {
      */
     private inner class StartScreenSaverListener : View.OnLongClickListener {
         override fun onLongClick(view: View): Boolean {
-            startActivity(Intent(activity, ScreensaverActivity::class.java)
+            startActivity(Intent(requireActivity(), ScreensaverActivity::class.java)
                     .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     .putExtra(Events.EXTRA_EVENT_LABEL, R.string.label_deskclock))
             return true

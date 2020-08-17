@@ -56,7 +56,6 @@ import kotlin.math.min
 /**
  * Displays a vertical list of timers in all states.
  */
-// TODO(b/157255731) Replace the deprecated Fragment related calls
 class TimerFragment : DeskClockFragment(UiDataModel.Tab.TIMERS) {
     /** Notified when the user swipes vertically to change the visible timer.  */
     private val mTimerPageChangeListener = TimerPageChangeListener()
@@ -86,7 +85,7 @@ class TimerFragment : DeskClockFragment(UiDataModel.Tab.TIMERS) {
     ): View? {
         val view = inflater.inflate(R.layout.timer_fragment, container, false)
 
-        mAdapter = TimerPagerAdapter(fragmentManager)
+        mAdapter = TimerPagerAdapter(parentFragmentManager)
         mViewPager = view.findViewById<View>(R.id.vertical_view_pager) as ViewPager
         mViewPager.setAdapter(mAdapter)
         mViewPager.addOnPageChangeListener(mTimerPageChangeListener)
@@ -121,7 +120,7 @@ class TimerFragment : DeskClockFragment(UiDataModel.Tab.TIMERS) {
         var showTimerId = -1
 
         // Examine the intent of the parent activity to determine which view to display.
-        val intent = activity.intent
+        val intent = requireActivity().intent
         intent?.let {
             // These extras are single-use; remove them after honoring them.
             createTimer = it.getBooleanExtra(EXTRA_TIMER_SETUP, false)
@@ -169,7 +168,7 @@ class TimerFragment : DeskClockFragment(UiDataModel.Tab.TIMERS) {
         super.onResume()
 
         // We may have received a new intent while paused.
-        val intent = activity.intent
+        val intent = requireActivity().intent
         if (intent != null && intent.hasExtra(TimerService.EXTRA_TIMER_ID)) {
             // This extra is single-use; remove after honoring it.
             val showTimerId = intent.getIntExtra(TimerService.EXTRA_TIMER_ID, -1)
@@ -357,14 +356,14 @@ class TimerFragment : DeskClockFragment(UiDataModel.Tab.TIMERS) {
                 animateToView(mCreateTimerView, timer, false)
             }
 
-            left.announceForAccessibility(activity.getString(R.string.timer_deleted))
+            left.announceForAccessibility(requireActivity().getString(R.string.timer_deleted))
         } else if (mCurrentView === mCreateTimerView) {
             // Clicking the "cancel" button on the timer creation page returns to the timers list.
             mCreateTimerView.reset()
 
             animateToView(mTimersView, null, false)
 
-            left.announceForAccessibility(activity.getString(R.string.timer_canceled))
+            left.announceForAccessibility(requireActivity().getString(R.string.timer_canceled))
         }
     }
 
