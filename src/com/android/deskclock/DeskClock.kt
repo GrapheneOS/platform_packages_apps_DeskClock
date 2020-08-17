@@ -19,7 +19,6 @@ package com.android.deskclock
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.AnimatorSet
-import android.app.Fragment
 import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -34,6 +33,7 @@ import android.widget.TextView
 import androidx.annotation.StringRes
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.widget.Toolbar
+import androidx.fragment.app.Fragment
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
 import androidx.viewpager.widget.ViewPager.SCROLL_STATE_DRAGGING
@@ -352,7 +352,7 @@ class DeskClock : BaseActivity(), FabContainer, AlarmLabelDialogHandler {
      * Called by the LabelDialogFormat class after the dialog is finished.
      */
     override fun onDialogLabelSet(alarm: Alarm, label: String, tag: String) {
-        val frag: Fragment = getFragmentManager().findFragmentByTag(tag)
+        val frag: Fragment? = supportFragmentManager.findFragmentByTag(tag)
         if (frag is AlarmClockFragment) {
             frag.setLabel(alarm, label)
         }

@@ -72,7 +72,6 @@ import kotlin.math.roundToInt
 /**
  * Fragment that shows the stopwatch and recorded laps.
  */
-// TODO(colinmarsch) Replace deprecated Fragment related calls
 class StopwatchFragment : DeskClockFragment(UiDataModel.Tab.STOPWATCH) {
 
     /** Keep the screen on when this tab is selected.  */
@@ -116,9 +115,9 @@ class StopwatchFragment : DeskClockFragment(UiDataModel.Tab.STOPWATCH) {
         container: ViewGroup?,
         state: Bundle?
     ): View {
-        mLapsAdapter = LapsAdapter(getActivity())
-        mLapsLayoutManager = LinearLayoutManager(getActivity())
-        mGradientItemDecoration = GradientItemDecoration(getActivity())
+        mLapsAdapter = LapsAdapter(requireActivity())
+        mLapsLayoutManager = LinearLayoutManager(requireActivity())
+        mGradientItemDecoration = GradientItemDecoration(requireActivity())
 
         val v: View = inflater.inflate(R.layout.stopwatch_fragment, container, false)
         mTime = v.findViewById(R.id.stopwatch_circle)
@@ -129,7 +128,7 @@ class StopwatchFragment : DeskClockFragment(UiDataModel.Tab.STOPWATCH) {
 
         // In landscape layouts, the laps list can reach the top of the screen and thus can cause
         // a drop shadow to appear. The same is not true for portrait landscapes.
-        if (Utils.isLandscape(getActivity())) {
+        if (Utils.isLandscape(requireActivity())) {
             val scrollPositionWatcher = ScrollPositionWatcher()
             mLapsList.addOnLayoutChangeListener(scrollPositionWatcher)
             mLapsList.addOnScrollListener(scrollPositionWatcher)
@@ -168,7 +167,7 @@ class StopwatchFragment : DeskClockFragment(UiDataModel.Tab.STOPWATCH) {
     override fun onStart() {
         super.onStart()
 
-        val activity: Activity = getActivity()
+        val activity: Activity = requireActivity()
         val intent: Intent? = activity.getIntent()
         if (intent != null) {
             val action: String? = intent.getAction()
@@ -353,7 +352,7 @@ class StopwatchFragment : DeskClockFragment(UiDataModel.Tab.STOPWATCH) {
                 .putExtra(Intent.EXTRA_TEXT, text)
                 .setType("text/plain")
 
-        val context: Context = getActivity()
+        val context: Context = requireActivity()
         val title: String = context.getString(R.string.sw_share_button)
         val shareChooserIntent: Intent = Intent.createChooser(shareIntent, title)
         try {
@@ -408,7 +407,7 @@ class StopwatchFragment : DeskClockFragment(UiDataModel.Tab.STOPWATCH) {
         val lapsVisible = mLapsAdapter.getItemCount() > 0
         mLapsList.setVisibility(if (lapsVisible) VISIBLE else GONE)
 
-        if (Utils.isPortrait(getActivity())) {
+        if (Utils.isPortrait(requireActivity())) {
             // When the lap list is visible, it includes the bottom padding. When it is absent the
             // appropriate bottom padding must be applied to the container.
             val res: Resources = getResources()
@@ -423,14 +422,14 @@ class StopwatchFragment : DeskClockFragment(UiDataModel.Tab.STOPWATCH) {
     private fun adjustWakeLock() {
         val appInForeground = DataModel.dataModel.isApplicationInForeground
         if (stopwatch.isRunning && isTabSelected && appInForeground) {
-            getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            requireActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         } else {
             releaseWakeLock()
         }
     }
 
     private fun releaseWakeLock() {
-        getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        requireActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
 
     /**
