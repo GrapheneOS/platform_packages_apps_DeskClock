@@ -16,16 +16,15 @@
 
 package com.android.deskclock
 
-import android.app.Fragment
 import android.view.KeyEvent
 import android.widget.Button
 import android.widget.ImageView
 import androidx.annotation.ColorInt
+import androidx.fragment.app.Fragment
 
 import com.android.deskclock.FabContainer.UpdateFabFlag
 import com.android.deskclock.uidata.UiDataModel
 
-// TODO(b/157255731) Replace deprecated Fragment usage with AndroidX equivalent
 abstract class DeskClockFragment(
     /** The tab associated with this fragment.  */
     private val mTab: UiDataModel.Tab

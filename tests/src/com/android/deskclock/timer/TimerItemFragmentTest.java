@@ -50,7 +50,7 @@ public class TimerItemFragmentTest {
     public void ensureTimerIsHeldSuccessfully_whenOneTimerIsRunning() {
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         final TimerFragment timerFragment = new TimerFragment();
-        rule.getActivity().getFragmentManager()
+        rule.getActivity().getSupportFragmentManager()
                 .beginTransaction().add(timerFragment, null).commit();
         Runnable selectTabRunnable = () -> {
             timerFragment.selectTab();

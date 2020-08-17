@@ -50,7 +50,6 @@ import com.android.deskclock.R
 import com.android.deskclock.Utils
 
 import java.util.Calendar
-import java.util.Collections
 
 /**
  * This class handles all the state changes for alarm instances. You need to
