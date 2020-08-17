@@ -100,6 +100,7 @@ android_app {
         "src/**/deskclock/StopwatchTextController.java",
         "src/**/deskclock/TimerCircleFrameLayout.java",
         "src/**/deskclock/TimerTextController.java",
+        "src/**/deskclock/Utils.java",
     ],
     product_specific: true,
     static_libs: [
