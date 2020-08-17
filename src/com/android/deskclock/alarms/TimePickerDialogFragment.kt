@@ -44,7 +44,7 @@ class TimePickerDialogFragment : DialogFragment() {
         val args: Bundle = if (getArguments() == null) Bundle.EMPTY else getArguments()
         val hour: Int = args.getInt(ARG_HOUR, now[Calendar.HOUR_OF_DAY])
         val minute: Int = args.getInt(ARG_MINUTE, now[Calendar.MINUTE])
-        return if (Utils.isLOrLater()) {
+        return if (Utils.isLOrLater) {
             val context: Context = getActivity()
             TimePickerDialog(context, { _, hourOfDay, minuteOfHour ->
                 listener.onTimeSet(this@TimePickerDialogFragment, hourOfDay, minuteOfHour)

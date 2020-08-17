@@ -121,7 +121,7 @@ object AnimatorUtils {
 
     @JvmStatic
     fun setAnimatedFraction(animator: ValueAnimator, fraction: Float) {
-        if (Utils.isLMR1OrLater()) {
+        if (Utils.isLMR1OrLater) {
             animator.setCurrentFraction(fraction)
             return
         }

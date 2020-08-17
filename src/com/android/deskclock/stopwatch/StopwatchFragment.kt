@@ -256,7 +256,7 @@ class StopwatchFragment : DeskClockFragment(UiDataModel.Tab.STOPWATCH) {
 
     override fun onMorphFab(fab: ImageView) {
         // Update the fab's drawable to match the current timer state.
-        updateFab(fab, Utils.isNOrLater())
+        updateFab(fab, Utils.isNOrLater)
         // Animate the drawable.
         AnimatorUtils.startDrawableAnimation(fab)
     }
@@ -344,7 +344,7 @@ class StopwatchFragment : DeskClockFragment(UiDataModel.Tab.STOPWATCH) {
 
         @SuppressLint("InlinedApi")
         val shareIntent: Intent = Intent(Intent.ACTION_SEND)
-                .addFlags(if (Utils.isLOrLater()) {
+                .addFlags(if (Utils.isLOrLater) {
                     Intent.FLAG_ACTIVITY_NEW_DOCUMENT
                 } else {
                     Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET

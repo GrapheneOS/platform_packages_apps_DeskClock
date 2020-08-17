@@ -167,7 +167,7 @@ class AsyncRingtonePlayer(private val mContext: Context) {
         get() {
             checkAsyncRingtonePlayerThread()
             if (mPlaybackDelegate == null) {
-                mPlaybackDelegate = if (Utils.isMOrLater()) {
+                mPlaybackDelegate = if (Utils.isMOrLater) {
                     // Use the newer Ringtone-based playback delegate because it does not require
                     // any permissions to read from the SD card. (M+)
                     RingtonePlaybackDelegate()
@@ -286,7 +286,7 @@ class AsyncRingtonePlayer(private val mContext: Context) {
             }
 
             // Indicate the ringtone should be played via the alarm stream.
-            if (Utils.isLOrLater()) {
+            if (Utils.isLOrLater) {
                 mMediaPlayer!!.setAudioAttributes(AudioAttributes.Builder()
                         .setUsage(AudioAttributes.USAGE_ALARM)
                         .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
@@ -481,7 +481,7 @@ class AsyncRingtonePlayer(private val mContext: Context) {
          */
         private fun startPlayback(inTelephoneCall: Boolean): Boolean {
             // Indicate the ringtone should be played via the alarm stream.
-            if (Utils.isLOrLater()) {
+            if (Utils.isLOrLater) {
                 mRingtone!!.audioAttributes = AudioAttributes.Builder()
                         .setUsage(AudioAttributes.USAGE_ALARM)
                         .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
