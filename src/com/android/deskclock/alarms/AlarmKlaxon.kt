@@ -62,7 +62,7 @@ internal object AlarmKlaxon {
 
         if (instance.mVibrate) {
             val vibrator: Vibrator = getVibrator(context)
-            if (Utils.isLOrLater()) {
+            if (Utils.isLOrLater) {
                 vibrateLOrLater(vibrator)
             } else {
                 vibrator.vibrate(VIBRATE_PATTERN, 0)

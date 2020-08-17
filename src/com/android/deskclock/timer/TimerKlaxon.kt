@@ -65,7 +65,7 @@ object TimerKlaxon {
 
         if (DataModel.dataModel.timerVibrate) {
             val vibrator = getVibrator(context)
-            if (Utils.isLOrLater()) {
+            if (Utils.isLOrLater) {
                 vibrateLOrLater(vibrator)
             } else {
                 vibrator.vibrate(VIBRATE_PATTERN, 0)

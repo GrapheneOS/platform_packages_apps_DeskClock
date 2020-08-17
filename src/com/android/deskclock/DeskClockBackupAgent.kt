@@ -84,7 +84,7 @@ class DeskClockBackupAgent : BackupAgent() {
      * in the execution of [.processRestoredData].
      */
     override fun onRestoreFinished() {
-        if (Utils.isNOrLater()) {
+        if (Utils.isNOrLater) {
             // TODO: migrate restored database and preferences over into
             // the device-encrypted storage area
         }

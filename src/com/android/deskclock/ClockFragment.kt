@@ -73,8 +73,8 @@ class ClockFragment : DeskClockFragment(UiDataModel.Tab.CLOCKS) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        mAlarmObserver = if (Utils.isPreL()) AlarmObserverPreL() else null
-        mAlarmChangeReceiver = if (Utils.isLOrLater()) AlarmChangedBroadcastReceiver() else null
+        mAlarmObserver = if (Utils.isPreL) AlarmObserverPreL() else null
+        mAlarmChangeReceiver = if (Utils.isLOrLater) AlarmChangedBroadcastReceiver() else null
     }
 
     override fun onCreateView(
@@ -113,8 +113,8 @@ class ClockFragment : DeskClockFragment(UiDataModel.Tab.CLOCKS) {
             mAnalogClock = mClockFrame!!.findViewById<View>(R.id.analog_clock) as AnalogClock
             Utils.setClockIconTypeface(mClockFrame)
             Utils.updateDate(mDateFormat, mDateFormatForAccessibility, mClockFrame)
-            Utils.setClockStyle(mDigitalClock, mAnalogClock)
-            Utils.setClockSecondsEnabled(mDigitalClock, mAnalogClock)
+            Utils.setClockStyle(mDigitalClock!!, mAnalogClock!!)
+            Utils.setClockSecondsEnabled(mDigitalClock!!, mAnalogClock!!)
         }
 
         // Schedule a runnable to update the date every quarter hour.
@@ -139,8 +139,8 @@ class ClockFragment : DeskClockFragment(UiDataModel.Tab.CLOCKS) {
 
         // Resume can be invoked after changing the clock style or seconds display.
         if (mDigitalClock != null && mAnalogClock != null) {
-            Utils.setClockStyle(mDigitalClock, mAnalogClock)
-            Utils.setClockSecondsEnabled(mDigitalClock, mAnalogClock)
+            Utils.setClockStyle(mDigitalClock!!, mAnalogClock!!)
+            Utils.setClockSecondsEnabled(mDigitalClock!!, mAnalogClock!!)
         }
 
         val view = view

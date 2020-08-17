@@ -87,9 +87,9 @@ class ExpandedAlarmViewHolder private constructor(itemView: View, private val mH
         }
 
         // Cannot set in xml since we need compat functionality for API < 21
-        val labelIcon: Drawable = Utils.getVectorDrawable(context, R.drawable.ic_label)
+        val labelIcon: Drawable? = Utils.getVectorDrawable(context, R.drawable.ic_label)
         editLabel.setCompoundDrawablesRelativeWithIntrinsicBounds(labelIcon, null, null, null)
-        val deleteIcon: Drawable = Utils.getVectorDrawable(context, R.drawable.ic_delete_small)
+        val deleteIcon: Drawable? = Utils.getVectorDrawable(context, R.drawable.ic_delete_small)
         delete.setCompoundDrawablesRelativeWithIntrinsicBounds(deleteIcon, null, null, null)
 
         // Collapse handler
@@ -160,7 +160,7 @@ class ExpandedAlarmViewHolder private constructor(itemView: View, private val mH
         ringtone.setContentDescription("$description $title")
 
         val silent: Boolean = Utils.RINGTONE_SILENT == alarm.alert
-        val icon: Drawable = Utils.getVectorDrawable(context,
+        val icon: Drawable? = Utils.getVectorDrawable(context,
                 if (silent) R.drawable.ic_ringtone_silent else R.drawable.ic_ringtone)
         ringtone.setCompoundDrawablesRelativeWithIntrinsicBounds(icon, null, null, null)
     }
