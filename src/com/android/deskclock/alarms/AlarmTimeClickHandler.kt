@@ -16,11 +16,11 @@
 
 package com.android.deskclock.alarms
 
-import android.app.Fragment
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Vibrator
+import androidx.fragment.app.Fragment
 
 import com.android.deskclock.AlarmClockFragment
 import com.android.deskclock.LabelDialogFragment
@@ -40,7 +40,6 @@ import java.util.Calendar
 /**
  * Click handler for an alarm time item.
  */
-// TODO(b/157255731) Replace deprecated Fragment related calls with AndroidX equivalent
 class AlarmTimeClickHandler(
     private val mFragment: Fragment,
     savedState: Bundle?,
@@ -48,7 +47,7 @@ class AlarmTimeClickHandler(
     private val mScrollHandler: ScrollHandler
 ) {
 
-    private val mContext: Context = mFragment.getActivity().getApplicationContext()
+    private val mContext: Context = mFragment.requireActivity().getApplicationContext()
     private var mSelectedAlarm: Alarm? = null
     private var mPreviousDaysOfWeekMap: Bundle? = null
 

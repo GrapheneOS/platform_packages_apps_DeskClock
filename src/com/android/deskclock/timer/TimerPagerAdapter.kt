@@ -17,13 +17,12 @@
 package com.android.deskclock.timer
 
 import android.annotation.SuppressLint
-import android.app.Fragment
-import android.app.FragmentManager
-import android.app.FragmentTransaction
 import android.util.ArrayMap
 import android.view.View
 import android.view.ViewGroup
-import androidx.legacy.app.FragmentCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentTransaction
 import androidx.viewpager.widget.PagerAdapter
 
 import com.android.deskclock.data.DataModel
@@ -33,7 +32,6 @@ import com.android.deskclock.data.TimerListener
 /**
  * This adapter produces a [TimerItemFragment] for each timer.
  */
-// TODO(b/157255731) Replace deprecated Fragment related calls
 internal class TimerPagerAdapter(
     private val mFragmentManager: FragmentManager
 ) : PagerAdapter(), TimerListener {
@@ -106,14 +104,14 @@ internal class TimerPagerAdapter(
     override fun setPrimaryItem(container: ViewGroup, position: Int, any: Any) {
         val fragment = any as Fragment
         if (fragment !== mCurrentPrimaryItem) {
-            if (mCurrentPrimaryItem != null) {
-                setItemVisible(mCurrentPrimaryItem, false)
+            mCurrentPrimaryItem?.let {
+                setItemVisible(it, false)
             }
 
             mCurrentPrimaryItem = fragment
 
-            if (mCurrentPrimaryItem != null) {
-                setItemVisible(mCurrentPrimaryItem, true)
+            mCurrentPrimaryItem?.let {
+                setItemVisible(it, true)
             }
         }
     }
@@ -161,9 +159,9 @@ internal class TimerPagerAdapter(
         get() = DataModel.dataModel.timers
 
     companion object {
-        private fun setItemVisible(item: Fragment?, visible: Boolean) {
-            FragmentCompat.setMenuVisibility(item, visible)
-            FragmentCompat.setUserVisibleHint(item, visible)
+        private fun setItemVisible(item: Fragment, visible: Boolean) {
+            item.setMenuVisibility(visible)
+            item.setUserVisibleHint(visible)
         }
     }
 }

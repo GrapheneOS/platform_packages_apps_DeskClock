@@ -17,8 +17,6 @@
 package com.android.deskclock
 
 import android.app.Dialog
-import android.app.DialogFragment
-import android.app.FragmentManager
 import android.content.Context
 import android.content.DialogInterface
 import android.content.res.ColorStateList
@@ -35,6 +33,8 @@ import android.widget.TextView
 import android.widget.TextView.OnEditorActionListener
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatEditText
+import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.FragmentManager
 
 import com.android.deskclock.data.DataModel
 import com.android.deskclock.data.Timer
@@ -43,7 +43,6 @@ import com.android.deskclock.provider.Alarm
 /**
  * DialogFragment to edit label.
  */
-// TODO(b/157255731) Replace deprecated Fragment usages with AndroidX equivalents
 class LabelDialogFragment : DialogFragment() {
     private var mLabelBox: AppCompatEditText? = null
     private var mAlarm: Alarm? = null
@@ -69,7 +68,7 @@ class LabelDialogFragment : DialogFragment() {
             label = it.getString(ARG_LABEL, label)
         }
 
-        val dialog: AlertDialog = AlertDialog.Builder(activity)
+        val dialog: AlertDialog = AlertDialog.Builder(requireActivity())
                 .setPositiveButton(android.R.string.ok, OkListener())
                 .setNegativeButton(android.R.string.cancel, null)
                 .setMessage(R.string.label)
