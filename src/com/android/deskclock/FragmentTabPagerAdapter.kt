@@ -16,13 +16,12 @@
 
 package com.android.deskclock
 
-import android.app.Fragment
-import android.app.FragmentManager
-import android.app.FragmentTransaction
 import android.util.ArrayMap
 import android.view.View
 import android.view.ViewGroup
-import androidx.legacy.app.FragmentCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentTransaction
 import androidx.viewpager.widget.PagerAdapter
 
 import com.android.deskclock.uidata.UiDataModel
@@ -34,11 +33,10 @@ import com.android.deskclock.uidata.UiDataModel
  * with the manager using position-independent tags, which is an important departure from
  * FragmentPagerAdapter.
  */
-// TODO(b/157255731) Replace deprecated Fragment related calls with AndroidX equivalents
 internal class FragmentTabPagerAdapter(private val mDeskClock: DeskClock) : PagerAdapter() {
 
     /** The manager into which fragments are added.  */
-    private val mFragmentManager: FragmentManager = mDeskClock.fragmentManager
+    private val mFragmentManager: FragmentManager = mDeskClock.supportFragmentManager
 
     /** A fragment cache that can be accessed before [.instantiateItem] is called.  */
     private val mFragmentCache: MutableMap<UiDataModel.Tab, DeskClockFragment?> =
@@ -104,8 +102,8 @@ internal class FragmentTabPagerAdapter(private val mDeskClock: DeskClock) : Page
         }
 
         if (fragment !== mCurrentPrimaryItem) {
-            FragmentCompat.setMenuVisibility(fragment, false)
-            FragmentCompat.setUserVisibleHint(fragment, false)
+            fragment.setMenuVisibility(false)
+            fragment.setUserVisibleHint(false)
         }
 
         return fragment
@@ -123,12 +121,12 @@ internal class FragmentTabPagerAdapter(private val mDeskClock: DeskClock) : Page
     override fun setPrimaryItem(container: ViewGroup, position: Int, any: Any) {
         val fragment = any as Fragment
         if (fragment !== mCurrentPrimaryItem) {
-            if (mCurrentPrimaryItem != null) {
-                FragmentCompat.setMenuVisibility(mCurrentPrimaryItem, false)
-                FragmentCompat.setUserVisibleHint(mCurrentPrimaryItem, false)
+            mCurrentPrimaryItem?.let {
+                it.setMenuVisibility(false)
+                it.setUserVisibleHint(false)
             }
-            FragmentCompat.setMenuVisibility(fragment, true)
-            FragmentCompat.setUserVisibleHint(fragment, true)
+            fragment.setMenuVisibility(true)
+            fragment.setUserVisibleHint(true)
             mCurrentPrimaryItem = fragment
         }
     }
