@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Handler;
+import android.os.Looper;
 import androidx.annotation.VisibleForTesting;
 
 import com.android.deskclock.LogUtils;
@@ -175,7 +176,7 @@ final class PeriodicCallbackModel {
     private static Handler getHandler() {
         enforceMainLooper();
         if (sHandler == null) {
-            sHandler = new Handler();
+            sHandler = new Handler(Looper.myLooper());
         }
         return sHandler;
     }
