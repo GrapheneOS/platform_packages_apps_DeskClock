@@ -21,6 +21,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Handler
+import android.os.Looper
 import android.text.format.DateUtils
 import androidx.annotation.VisibleForTesting
 
@@ -204,12 +205,11 @@ internal class PeriodicCallbackModel(context: Context) {
             }
         }
 
-        // TODO(b/157255731) Replace deprecated Handler call here
         private val handler: Handler
             get() {
                 Utils.enforceMainLooper()
                 if (sHandler == null) {
-                    sHandler = Handler()
+                    sHandler = Handler(Looper.myLooper()!!)
                 }
                 return sHandler!!
             }
