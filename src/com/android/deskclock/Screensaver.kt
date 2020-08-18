@@ -24,6 +24,7 @@ import android.content.IntentFilter
 import android.content.res.Configuration
 import android.database.ContentObserver
 import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import android.service.dreams.DreamService
 import android.view.View
@@ -49,7 +50,7 @@ class Screensaver : DreamService() {
     private val mSettingsContentObserver: ContentObserver? = if (Utils.isLOrLater) {
         null
     } else {
-        object : ContentObserver(Handler()) {
+        object : ContentObserver(Handler(Looper.myLooper()!!)) {
             override fun onChange(selfChange: Boolean) {
                 Utils.refreshAlarm(this@Screensaver, mContentView)
             }
