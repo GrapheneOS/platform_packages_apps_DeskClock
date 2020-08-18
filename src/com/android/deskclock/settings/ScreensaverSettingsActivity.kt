@@ -19,11 +19,11 @@ package com.android.deskclock.settings
 import android.annotation.TargetApi
 import android.os.Build
 import android.os.Bundle
-import android.preference.ListPreference
-import android.preference.Preference
-import android.preference.PreferenceFragment
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.preference.ListPreference
+import androidx.preference.Preference
+import androidx.preference.PreferenceFragmentCompat
 
 import com.android.deskclock.R
 import com.android.deskclock.Utils
@@ -50,8 +50,7 @@ class ScreensaverSettingsActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    // TODO(colinmarsch) Replace all deprecated Preference usage with AndroidX equivalents
-    class PrefsFragment : PreferenceFragment(), Preference.OnPreferenceChangeListener {
+    class PrefsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChangeListener {
 
         @TargetApi(Build.VERSION_CODES.N)
         override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,6 +58,9 @@ class ScreensaverSettingsActivity : AppCompatActivity() {
             if (Utils.isNOrLater) {
                 getPreferenceManager().setStorageDeviceProtected()
             }
+        }
+
+        override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String) {
             addPreferencesFromResource(R.xml.screensaver_settings)
         }
 
@@ -77,7 +79,7 @@ class ScreensaverSettingsActivity : AppCompatActivity() {
         }
 
         private fun refresh() {
-            val clockStylePref = findPreference(KEY_CLOCK_STYLE) as ListPreference
+            val clockStylePref = findPreference<ListPreference>(KEY_CLOCK_STYLE) as ListPreference
             clockStylePref.setSummary(clockStylePref.getEntry())
             clockStylePref.setOnPreferenceChangeListener(this)
         }

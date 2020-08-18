@@ -192,9 +192,8 @@ class SettingsActivity : BaseActivity() {
         }
 
         private fun showDialog(fragment: PreferenceDialogFragmentCompat) {
-            // TODO(colinmarsch) Replace deprecated getFragmentManager with AndroidX equivalent
             // Don't show dialog if one is already shown.
-            if (getFragmentManager()?.findFragmentByTag(PREFERENCE_DIALOG_FRAGMENT_TAG) != null) {
+            if (parentFragmentManager.findFragmentByTag(PREFERENCE_DIALOG_FRAGMENT_TAG) != null) {
                 return
             }
             // Always set the target fragment, this is required by PreferenceDialogFragment
@@ -202,7 +201,7 @@ class SettingsActivity : BaseActivity() {
             fragment.setTargetFragment(this, 0)
             // Don't use getChildFragmentManager(), it causes issues on older platforms when the
             // target fragment is being restored after an orientation change.
-            fragment.show(getFragmentManager()!!, PREFERENCE_DIALOG_FRAGMENT_TAG)
+            fragment.show(parentFragmentManager, PREFERENCE_DIALOG_FRAGMENT_TAG)
         }
 
         /**
