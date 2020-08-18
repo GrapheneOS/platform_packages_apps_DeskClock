@@ -114,8 +114,7 @@ class CitySelectionActivity : BaseActivity() {
                 .addMenuItemController(mSearchMenuItemController)
                 .addMenuItemController(SortOrderMenuItemController())
                 .addMenuItemController(SettingsMenuItemController(this))
-                .addMenuItemController(*MenuItemControllerFactory.getInstance()
-                        .buildMenuItemControllers(this))
+                .addMenuItemController(*MenuItemControllerFactory.buildMenuItemControllers(this))
         mCitiesList = findViewById(R.id.cities_list) as ListView
         mCitiesList.adapter = mCitiesAdapter
 
