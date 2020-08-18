@@ -36,7 +36,7 @@ internal class VoiceController {
      * @param message to be spoken to the user to indicate success
      */
     fun notifyVoiceSuccess(activity: Activity, message: String) {
-        if (!Utils.isMOrLater()) {
+        if (!Utils.isMOrLater) {
             return
         }
 
@@ -55,7 +55,7 @@ internal class VoiceController {
      * @param message to be spoken to the user to indicate failure
      */
     fun notifyVoiceFailure(activity: Activity, message: String) {
-        if (!Utils.isMOrLater()) {
+        if (!Utils.isMOrLater) {
             return
         }
 

@@ -96,7 +96,7 @@ object NotificationUtils {
 
     @JvmStatic
     fun createChannel(context: Context, id: String) {
-        if (!Utils.isOOrLater()) {
+        if (!Utils.isOOrLater) {
             return
         }
 
@@ -138,7 +138,7 @@ object NotificationUtils {
 
     @JvmStatic
     fun updateNotificationChannels(context: Context) {
-        if (!Utils.isOOrLater()) {
+        if (!Utils.isOOrLater) {
             return
         }
 

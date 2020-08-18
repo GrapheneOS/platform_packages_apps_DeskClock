@@ -75,7 +75,8 @@ public class TimerSetupViewTest {
         Locale.setDefault(new Locale("en", "US"));
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         final TimerFragment fragment = new TimerFragment();
-        rule.getActivity().getFragmentManager().beginTransaction().add(fragment, null).commit();
+        rule.getActivity().getSupportFragmentManager()
+                .beginTransaction().add(fragment, null).commit();
         Runnable selectTabRunnable = () -> {
             fragment.selectTab();
             fabContainer = new MockFabContainer(fragment, context);

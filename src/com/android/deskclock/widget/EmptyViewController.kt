@@ -73,6 +73,6 @@ class EmptyViewController(
 
     companion object {
         private const val ANIMATION_DURATION = 300
-        private val USE_TRANSITION_FRAMEWORK = Utils.isLOrLater()
+        private val USE_TRANSITION_FRAMEWORK = Utils.isLOrLater
     }
 }

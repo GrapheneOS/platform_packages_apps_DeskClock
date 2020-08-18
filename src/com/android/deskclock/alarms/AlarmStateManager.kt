@@ -50,7 +50,6 @@ import com.android.deskclock.R
 import com.android.deskclock.Utils
 
 import java.util.Calendar
-import java.util.Collections
 
 /**
  * This class handles all the state changes for alarm instances. You need to
@@ -124,7 +123,7 @@ class AlarmStateManager : BroadcastReceiver() {
                     stateChangeIntent, PendingIntent.FLAG_UPDATE_CURRENT)
 
             val am: AlarmManager = context.getSystemService(ALARM_SERVICE) as AlarmManager
-            if (Utils.isMOrLater()) {
+            if (Utils.isMOrLater) {
                 // Ensure the alarm fires even if the device is dozing.
                 am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent)
             } else {
@@ -210,7 +209,7 @@ class AlarmStateManager : BroadcastReceiver() {
         private fun updateNextAlarm(context: Context) {
             val nextAlarm = getNextFiringAlarm(context)
 
-            if (Utils.isPreL()) {
+            if (Utils.isPreL) {
                 updateNextAlarmInSystemSettings(context, nextAlarm)
             } else {
                 updateNextAlarmInAlarmManager(context, nextAlarm)

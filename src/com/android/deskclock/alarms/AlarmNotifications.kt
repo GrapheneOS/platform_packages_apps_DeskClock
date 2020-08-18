@@ -132,7 +132,7 @@ internal object AlarmNotifications {
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setLocalOnly(true)
 
-        if (Utils.isNOrLater()) {
+        if (Utils.isNOrLater) {
             builder.setGroup(UPCOMING_GROUP_KEY)
         }
 
@@ -194,7 +194,7 @@ internal object AlarmNotifications {
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setLocalOnly(true)
 
-        if (Utils.isNOrLater()) {
+        if (Utils.isNOrLater) {
             builder.setGroup(UPCOMING_GROUP_KEY)
         }
 
@@ -286,7 +286,7 @@ internal object AlarmNotifications {
         canceledNotificationId: Int,
         postedNotification: Notification?
     ) {
-        if (!Utils.isNOrLater()) {
+        if (!Utils.isNOrLater) {
             return
         }
 
@@ -330,7 +330,7 @@ internal object AlarmNotifications {
         canceledNotificationId: Int,
         postedNotification: Notification?
     ) {
-        if (!Utils.isNOrLater()) {
+        if (!Utils.isNOrLater) {
             return
         }
 
@@ -399,7 +399,7 @@ internal object AlarmNotifications {
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setLocalOnly(true)
 
-        if (Utils.isNOrLater()) {
+        if (Utils.isNOrLater) {
             builder.setGroup(UPCOMING_GROUP_KEY)
         }
 
@@ -457,7 +457,7 @@ internal object AlarmNotifications {
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setLocalOnly(true)
 
-        if (Utils.isNOrLater()) {
+        if (Utils.isNOrLater) {
             builder.setGroup(MISSED_GROUP_KEY)
         }
 

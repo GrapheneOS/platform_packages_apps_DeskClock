@@ -16,9 +16,7 @@
 
 package com.android.deskclock
 
-import android.app.LoaderManager.LoaderCallbacks
 import android.content.Context
-import android.content.Loader
 import android.database.Cursor
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -30,6 +28,8 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.loader.app.LoaderManager.LoaderCallbacks
+import androidx.loader.content.Loader
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
@@ -93,7 +93,7 @@ class AlarmClockFragment : DeskClockFragment(UiDataModel.Tab.ALARMS),
     ): View? {
         // Inflate the layout for this fragment
         val v = inflater.inflate(R.layout.alarm_clock, container, false)
-        val context: Context = activity
+        val context: Context = requireActivity()
 
         mRecyclerView = v.findViewById<View>(R.id.alarms_recycler_view) as RecyclerView
         mLayoutManager = object : LinearLayoutManager(context) {
@@ -108,7 +108,7 @@ class AlarmClockFragment : DeskClockFragment(UiDataModel.Tab.ALARMS),
         mMainLayout = v.findViewById<View>(R.id.main) as ViewGroup
         mAlarmUpdateHandler = AlarmUpdateHandler(context, this, mMainLayout)
         val emptyView = v.findViewById<View>(R.id.alarms_empty_view) as TextView
-        val noAlarms: Drawable = Utils.getVectorDrawable(context, R.drawable.ic_noalarms)
+        val noAlarms: Drawable? = Utils.getVectorDrawable(context, R.drawable.ic_noalarms)
         emptyView.setCompoundDrawablesWithIntrinsicBounds(null, noAlarms, null, null)
         mEmptyViewController = EmptyViewController(mMainLayout, mRecyclerView, emptyView)
         mAlarmTimeClickHandler = AlarmTimeClickHandler(this, savedState, mAlarmUpdateHandler, this)
@@ -159,7 +159,7 @@ class AlarmClockFragment : DeskClockFragment(UiDataModel.Tab.ALARMS),
         super.onStart()
 
         if (!isTabSelected) {
-            TimePickerDialogFragment.removeTimeEditDialog(fragmentManager)
+            TimePickerDialogFragment.removeTimeEditDialog(parentFragmentManager)
         }
     }
 
@@ -171,7 +171,7 @@ class AlarmClockFragment : DeskClockFragment(UiDataModel.Tab.ALARMS),
         UiDataModel.uiDataModel.addMidnightCallback(mMidnightUpdater)
 
         // Check if another app asked us to create a blank new alarm.
-        val intent = activity.intent ?: return
+        val intent = requireActivity().intent ?: return
 
         if (intent.hasExtra(ALARM_CREATE_NEW_INTENT_EXTRA)) {
             UiDataModel.uiDataModel.selectedTab = UiDataModel.Tab.ALARMS
@@ -231,8 +231,8 @@ class AlarmClockFragment : DeskClockFragment(UiDataModel.Tab.ALARMS),
         mAlarmUpdateHandler.asyncUpdateAlarm(alarm, popToast = false, minorUpdate = true)
     }
 
-    override fun onCreateLoader(id: Int, args: Bundle): Loader<Cursor> {
-        return Alarm.getAlarmsCursorLoader(activity)
+    override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> {
+        return Alarm.getAlarmsCursorLoader(requireActivity())
     }
 
     override fun onLoadFinished(cursorLoader: Loader<Cursor>, data: Cursor) {
