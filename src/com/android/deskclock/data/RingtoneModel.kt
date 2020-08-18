@@ -32,6 +32,7 @@ import android.media.RingtoneManager
 import android.media.RingtoneManager.TITLE_COLUMN_INDEX
 import android.net.Uri
 import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import android.util.ArrayMap
 import android.util.ArraySet
@@ -193,8 +194,8 @@ internal class RingtoneModel(private val mContext: Context, private val mPrefs: 
      * This receiver is notified when system settings change. Cached information built on
      * those system settings must be cleared.
      */
-    // TODO(b/157255731) Replace Handler with non-deprecated constructor call
-    private inner class SystemAlarmAlertChangeObserver : ContentObserver(Handler()) {
+    private inner class SystemAlarmAlertChangeObserver
+        : ContentObserver(Handler(Looper.myLooper()!!)) {
         override fun onChange(selfChange: Boolean) {
             super.onChange(selfChange)
 
