@@ -39,6 +39,7 @@ import android.media.AudioManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
@@ -68,8 +69,7 @@ import kotlin.math.max
 import kotlin.math.sqrt
 
 class AlarmActivity : BaseActivity(), View.OnClickListener, View.OnTouchListener {
-    // TODO(b/157255731) Replace Handler with non-deprecated constructor call
-    private val mHandler: Handler = Handler()
+    private val mHandler: Handler = Handler(Looper.myLooper()!!)
 
     private val mReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
