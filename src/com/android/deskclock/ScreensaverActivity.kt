@@ -25,6 +25,7 @@ import android.database.ContentObserver
 import android.os.BatteryManager
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import android.view.View
 import android.view.View.OnSystemUiVisibilityChangeListener
@@ -56,7 +57,7 @@ class ScreensaverActivity : BaseActivity() {
 
     /* Register ContentObserver to see alarm changes for pre-L */
     private val mSettingsContentObserver: ContentObserver? = if (Utils.isPreL) {
-        object : ContentObserver(Handler()) {
+        object : ContentObserver(Handler(Looper.myLooper()!!)) {
             override fun onChange(selfChange: Boolean) {
                 Utils.refreshAlarm(this@ScreensaverActivity, mContentView)
             }
