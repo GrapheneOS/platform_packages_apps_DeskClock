@@ -36,6 +36,7 @@ import android.net.Uri
 import android.os.AsyncTask
 import android.os.Build
 import android.os.Handler
+import android.os.Looper
 import android.provider.Settings.System.CONTENT_URI
 import android.provider.Settings.System.DEFAULT_ALARM_ALERT_URI
 import androidx.core.app.NotificationManagerCompat
@@ -201,8 +202,7 @@ internal class SilentSettingsModel(
     /**
      * Observe changes to specific URI for settings that can silence firing alarms.
      */
-    // TODO(b/157255731) Replace Handler with non-deprecated constructor call
-    private inner class ContentChangeWatcher : ContentObserver(Handler()) {
+    private inner class ContentChangeWatcher : ContentObserver(Handler(Looper.myLooper()!!)) {
         override fun onChange(selfChange: Boolean) {
             updateSilentState()
         }

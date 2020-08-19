@@ -21,6 +21,7 @@ import android.content.Context
 import android.database.ContentObserver
 import android.net.Uri
 import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 
 import com.android.deskclock.provider.ClockContract.AlarmSettingColumns
@@ -77,8 +78,8 @@ internal class AlarmModel(
      * This receiver is notified when system settings change. Cached information built on
      * those system settings must be cleared.
      */
-    // TODO(b/157255731) Replace Handler with non-deprecated constructor call
-    private inner class SystemAlarmAlertChangeObserver : ContentObserver(Handler()) {
+    private inner class SystemAlarmAlertChangeObserver
+        : ContentObserver(Handler(Looper.myLooper()!!)) {
         override fun onChange(selfChange: Boolean) {
             super.onChange(selfChange)
             mDefaultAlarmRingtoneUri = null
