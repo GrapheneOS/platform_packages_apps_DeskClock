@@ -47,7 +47,6 @@ import kotlin.math.roundToInt
 /**
  * All application-wide data is accessible through this singleton.
  */
-// TODO(b/157255731) DataModel can be converted to an object after no Java code depends on it
 class DataModel private constructor() {
 
     /** Indicates the display style of clocks.  */

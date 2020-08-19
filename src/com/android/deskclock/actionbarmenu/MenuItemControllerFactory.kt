@@ -23,8 +23,7 @@ import kotlin.collections.ArrayList
 /**
  * Factory that builds optional [MenuItemController] instances.
  */
-// TODO(b/157255731) This class can be made an object once the Java code relying on it is Kotlin
-class MenuItemControllerFactory private constructor() {
+object MenuItemControllerFactory {
     private val mMenuItemProviders: MutableList<MenuItemProvider> = ArrayList()
 
     fun buildMenuItemControllers(activity: Activity?): Array<MenuItemController?> {
@@ -34,10 +33,5 @@ class MenuItemControllerFactory private constructor() {
             controllers[i] = mMenuItemProviders[i].provide(activity)
         }
         return controllers
-    }
-
-    companion object {
-        @JvmStatic
-        fun getInstance() = MenuItemControllerFactory()
     }
 }
