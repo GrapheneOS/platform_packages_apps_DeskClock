@@ -20,6 +20,7 @@ import android.content.Context
 import android.database.ContentObserver
 import android.net.Uri
 import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import android.text.format.DateFormat
 import android.util.AttributeSet
@@ -50,7 +51,8 @@ class TextTime @JvmOverloads constructor(
     private var mHour = 0
     private var mMinute = 0
 
-    private val mFormatChangeObserver: ContentObserver = object : ContentObserver(Handler()) {
+    private val mFormatChangeObserver: ContentObserver =
+            object : ContentObserver(Handler(Looper.myLooper()!!)) {
         override fun onChange(selfChange: Boolean) {
             chooseFormat()
             updateTime()

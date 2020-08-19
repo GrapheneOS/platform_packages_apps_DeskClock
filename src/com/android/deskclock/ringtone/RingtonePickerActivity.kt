@@ -106,8 +106,7 @@ class RingtonePickerActivity : BaseActivity(), LoaderCallbacks<List<ItemHolder<U
 
         mOptionsMenuManager = OptionsMenuManager()
         mOptionsMenuManager.addMenuItemController(NavUpMenuItemController(this))
-                .addMenuItemController(*MenuItemControllerFactory.getInstance()
-                        .buildMenuItemControllers(this))
+                .addMenuItemController(*MenuItemControllerFactory.buildMenuItemControllers(this))
 
         val context: Context = getApplicationContext()
         val intent: Intent = getIntent()
