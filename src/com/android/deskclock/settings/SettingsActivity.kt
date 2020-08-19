@@ -57,8 +57,7 @@ class SettingsActivity : BaseActivity() {
         setContentView(R.layout.settings)
 
         mOptionsMenuManager.addMenuItemController(NavUpMenuItemController(this))
-                .addMenuItemController(*MenuItemControllerFactory.getInstance()
-                        .buildMenuItemControllers(this))
+                .addMenuItemController(*MenuItemControllerFactory.buildMenuItemControllers(this))
 
         // Create the prefs fragment in code to ensure it's created before PreferenceDialogFragment
         if (savedInstanceState == null) {
