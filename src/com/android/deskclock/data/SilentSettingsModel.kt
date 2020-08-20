@@ -133,7 +133,7 @@ internal class SilentSettingsModel(
      * associated ringtone from playing. If any of them would prevent an alarm from firing or
      * making noise, a description of the setting is reported to this model on the main thread.
      */
-    // TODO(b/157255731) Replace deprecated AsyncTask calls
+    // TODO(b/165664115) Replace deprecated AsyncTask calls
     private inner class CheckSilenceSettingsTask : AsyncTask<Void?, Void?, SilentSetting?>() {
         override fun doInBackground(vararg parameters: Void?): SilentSetting? {
             if (!isCancelled() && isDoNotDisturbBlockingAlarms) {

@@ -68,6 +68,7 @@ import com.android.deskclock.provider.Alarm
  *  * user-selected audio files available as ringtones
  *
  */
+// TODO(b/165664115) Replace deprecated AsyncTask calls
 class RingtonePickerActivity : BaseActivity(), LoaderCallbacks<List<ItemHolder<Uri?>>> {
     /** The controller that shows the drop shadow when content is not scrolled to the top.  */
     private var mDropShadowController: DropShadowController? = null
