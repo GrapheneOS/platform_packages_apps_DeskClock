@@ -53,6 +53,7 @@ import java.util.Date
  * that apply to alarms and timers. Its definition in AndroidManifest.xml requires callers to hold
  * the com.android.alarm.permission.SET_ALARM permission to complete the requested action.
  */
+// TODO(b/165664115) Replace deprecated AsyncTask calls
 class HandleApiCalls : Activity() {
     private lateinit var mAppContext: Context
 
