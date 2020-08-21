@@ -148,7 +148,7 @@ class DeskClock : BaseActivity(), FabContainer, AlarmLabelDialogHandler {
         mOptionsMenuManager.addMenuItemController(
                 NightModeMenuItemController(this), SettingsMenuItemController(this))
         mOptionsMenuManager.addMenuItemController(
-                *MenuItemControllerFactory.getInstance().buildMenuItemControllers(this))
+                *MenuItemControllerFactory.buildMenuItemControllers(this))
 
         // Inflate the menu during creation to avoid a double layout pass. Otherwise, the menu
         // inflation occurs *after* the initial draw and a second layout pass adds in the menu.
