@@ -47,4 +47,16 @@ android_app {
     ],
 
     aaptflags: ["--legacy"],
+
+    required: [
+        "whitelist_com.android.deskclock"
+    ],
+}
+
+prebuilt_etc {
+    name: "whitelist_com.android.deskclock",
+    product_specific: true,
+    sub_dir: "sysconfig",
+    src: "whitelist_com.android.deskclock.xml",
+    filename_from_src: true,
 }
