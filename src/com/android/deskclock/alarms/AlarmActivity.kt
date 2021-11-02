@@ -238,7 +238,7 @@ class AlarmActivity : BaseActivity(), View.OnClickListener, View.OnTouchListener
             val filter = IntentFilter(AlarmService.ALARM_DONE_ACTION)
             filter.addAction(AlarmService.ALARM_SNOOZE_ACTION)
             filter.addAction(AlarmService.ALARM_DISMISS_ACTION)
-            registerReceiver(mReceiver, filter)
+            registerReceiver(mReceiver, filter, Context.RECEIVER_EXPORTED)
             mReceiverRegistered = true
         }
         bindAlarmService()
