@@ -64,6 +64,7 @@
             android:name=".DeskClock"
             android:label="@string/app_label"
             android:launchMode="singleTask"
+            android:exported="true"
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -114,6 +115,7 @@
             android:launchMode="singleInstance"
             android:showWhenLocked="true"
             android:taskAffinity=""
+            android:exported="true"
             android:theme="@android:style/Theme.NoDisplay">
             <intent-filter>
                 <action android:name="android.intent.action.DISMISS_ALARM" />
@@ -130,6 +132,7 @@
         <activity-alias
             android:name=".HandleSetAlarmApiCalls"
             android:permission="com.android.alarm.permission.SET_ALARM"
+            android:exported="true"
             android:targetActivity=".HandleApiCalls">
             <intent-filter>
                 <action android:name="android.intent.action.SET_ALARM" />
@@ -167,6 +170,7 @@
 
         <receiver
             android:name=".AlarmInitReceiver"
+            android:exported="true"
             android:directBootAware="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
@@ -244,6 +248,7 @@
         <service
             android:name=".Screensaver"
             android:label="@string/app_label"
+            android:exported="true"
             android:permission="android.permission.BIND_DREAM_SERVICE">
             <intent-filter>
                 <action android:name="android.service.dreams.DreamService" />
@@ -262,6 +267,7 @@
 
         <receiver
             android:name="com.android.alarmclock.AnalogAppWidgetProvider"
+            android:exported="true"
             android:label="@string/analog_gadget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -277,6 +283,7 @@
 
         <receiver
             android:name="com.android.alarmclock.DigitalAppWidgetProvider"
+            android:exported="true"
             android:label="@string/digital_gadget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
