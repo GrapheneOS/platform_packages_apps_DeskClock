@@ -69,12 +69,12 @@ class AlarmVolumePreference(context: Context?, attrs: AttributeSet?) : Preferenc
         }
 
         mSeekbar.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
-            override fun onViewAttachedToWindow(v: View?) {
+            override fun onViewAttachedToWindow(v: View) {
                 context.getContentResolver().registerContentObserver(Settings.System.CONTENT_URI,
                         true, volumeObserver)
             }
 
-            override fun onViewDetachedFromWindow(v: View?) {
+            override fun onViewDetachedFromWindow(v: View) {
                 context.getContentResolver().unregisterContentObserver(volumeObserver)
             }
         })
