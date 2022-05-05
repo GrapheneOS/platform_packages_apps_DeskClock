@@ -38,7 +38,7 @@ import com.android.deskclock.RingtonePreviewKlaxon
 import com.android.deskclock.Utils
 import com.android.deskclock.data.DataModel
 
-class AlarmVolumePreference(context: Context?, attrs: AttributeSet?) : Preference(context, attrs) {
+class AlarmVolumePreference(context: Context?, attrs: AttributeSet?) : Preference(context!!, attrs) {
     private lateinit var mSeekbar: SeekBar
 
     private var mPreviewPlaying = false
