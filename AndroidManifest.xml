@@ -43,7 +43,7 @@
 
     <application
         android:name=".DeskClockApplication"
-        android:allowBackup="false"
+        android:allowBackup="true"
         android:backupAgent="DeskClockBackupAgent"
         android:fullBackupContent="@xml/backup_scheme"
         android:fullBackupOnly="true"
