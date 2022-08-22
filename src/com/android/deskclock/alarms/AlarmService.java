@@ -40,19 +40,6 @@ import com.android.deskclock.provider.AlarmInstance;
  * exits early if AlarmActivity is bound to prevent double-processing of the snooze/dismiss intents.
  */
 public class AlarmService extends Service {
-    /**
-     * AlarmActivity and AlarmService (when unbound) listen for this broadcast intent
-     * so that other applications can snooze the alarm (after ALARM_ALERT_ACTION and before
-     * ALARM_DONE_ACTION).
-     */
-    public static final String ALARM_SNOOZE_ACTION = "com.android.deskclock.ALARM_SNOOZE";
-
-    /**
-     * AlarmActivity and AlarmService listen for this broadcast intent so that other
-     * applications can dismiss the alarm (after ALARM_ALERT_ACTION and before ALARM_DONE_ACTION).
-     */
-    public static final String ALARM_DISMISS_ACTION = "com.android.deskclock.ALARM_DISMISS";
-
     /** A public action sent by AlarmService when the alarm has started. */
     public static final String ALARM_ALERT_ACTION = "com.android.deskclock.ALARM_ALERT";
 
@@ -70,9 +57,6 @@ public class AlarmService extends Service {
 
     /** Listener for changes in phone state. */
     private final PhoneStateChangeListener mPhoneStateListener = new PhoneStateChangeListener();
-
-    /** Whether the receiver is currently registered */
-    private boolean mIsRegistered = false;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -139,48 +123,10 @@ public class AlarmService extends Service {
         AlarmAlertWakeLock.releaseCpuLock();
     }
 
-    private final BroadcastReceiver mActionsReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-            LogUtils.i("AlarmService received intent %s", action);
-            if (mCurrentAlarm == null || mCurrentAlarm.mAlarmState != AlarmInstance.FIRED_STATE) {
-                LogUtils.i("No valid firing alarm");
-                return;
-            }
-
-            if (mIsBound) {
-                LogUtils.i("AlarmActivity bound; AlarmService no-op");
-                return;
-            }
-
-            switch (action) {
-                case ALARM_SNOOZE_ACTION:
-                    // Set the alarm state to snoozed.
-                    // If this broadcast receiver is handling the snooze intent then AlarmActivity
-                    // must not be showing, so always show snooze toast.
-                    AlarmStateManager.setSnoozeState(context, mCurrentAlarm, true /* showToast */);
-                    Events.sendAlarmEvent(R.string.action_snooze, R.string.label_intent);
-                    break;
-                case ALARM_DISMISS_ACTION:
-                    // Set the alarm state to dismissed.
-                    AlarmStateManager.deleteInstanceAndUpdateParent(context, mCurrentAlarm);
-                    Events.sendAlarmEvent(R.string.action_dismiss, R.string.label_intent);
-                    break;
-            }
-        }
-    };
-
     @Override
     public void onCreate() {
         super.onCreate();
         mTelephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-
-        // Register the broadcast receiver
-        final IntentFilter filter = new IntentFilter(ALARM_SNOOZE_ACTION);
-        filter.addAction(ALARM_DISMISS_ACTION);
-        registerReceiver(mActionsReceiver, filter);
-        mIsRegistered = true;
     }
 
     @Override
@@ -235,11 +181,6 @@ public class AlarmService extends Service {
         super.onDestroy();
         if (mCurrentAlarm != null) {
             stopCurrentAlarm();
-        }
-
-        if (mIsRegistered) {
-            unregisterReceiver(mActionsReceiver);
-            mIsRegistered = false;
         }
     }
 
