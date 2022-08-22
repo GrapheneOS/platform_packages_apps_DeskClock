@@ -25,6 +25,8 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import androidx.annotation.StringRes;
+
+import android.provider.Settings;
 import android.view.View;
 
 import com.android.deskclock.Predicate;
@@ -38,6 +40,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import static android.content.Context.AUDIO_SERVICE;
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.media.AudioManager.FLAG_SHOW_UI;
 import static android.media.AudioManager.STREAM_ALARM;
@@ -132,24 +135,13 @@ public final class DataModel {
             @Override
             public void onClick(View v) {
                 final Context context = v.getContext();
-                if (Utils.isLOrLater()) {
-                    try {
-                        // Attempt to open the notification settings for this app.
-                        context.startActivity(
-                                new Intent("android.settings.APP_NOTIFICATION_SETTINGS")
-                                .putExtra("app_package", context.getPackageName())
-                                .putExtra("app_uid", context.getApplicationInfo().uid)
-                                .addFlags(FLAG_ACTIVITY_NEW_TASK));
-                        return;
-                    } catch (Exception ignored) {
-                        // best attempt only; recovery code below
-                    }
-                }
 
-                // Fall back to opening the app settings page.
-                context.startActivity(new Intent(ACTION_APPLICATION_DETAILS_SETTINGS)
-                        .setData(Uri.fromParts("package", context.getPackageName(), null))
-                        .addFlags(FLAG_ACTIVITY_NEW_TASK));
+                Intent i = new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
+                i.putExtra(Settings.EXTRA_APP_PACKAGE, context.getPackageName());
+                // CLEAR_TASK to make sure the right screen is shown, an existing Settings activity
+                // may be shown in some cases otherwise
+                i.addFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TASK);
+                context.startActivity(i);
             }
         }
     }
