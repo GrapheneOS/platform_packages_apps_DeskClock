@@ -29,7 +29,9 @@ import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+import android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS
 import android.provider.Settings.ACTION_SOUND_SETTINGS
+import android.provider.Settings.EXTRA_APP_PACKAGE
 import android.view.View
 import androidx.annotation.Keep
 import androidx.annotation.StringRes
@@ -124,14 +126,13 @@ class DataModel private constructor() {
 
         private class ChangeAppNotificationSettingsListener : View.OnClickListener {
             override fun onClick(v: View) {
-                val context: Context = v.context
+                val context: Context = v.context.applicationContext
                 if (Utils.isLOrLater) {
                     try {
                         // Attempt to open the notification settings for this app.
                         context.startActivity(
-                                Intent("android.settings.APP_NOTIFICATION_SETTINGS")
-                                        .putExtra("app_package", context.packageName)
-                                        .putExtra("app_uid", context.applicationInfo.uid)
+                                Intent(ACTION_APP_NOTIFICATION_SETTINGS)
+                                        .putExtra(EXTRA_APP_PACKAGE, context.packageName)
                                         .addFlags(FLAG_ACTIVITY_NEW_TASK))
                         return
                     } catch (ignored: Exception) {
