@@ -39,6 +39,10 @@ import com.android.deskclock.LogUtils;
 import com.android.deskclock.R;
 import com.android.deskclock.provider.Alarm;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
@@ -53,12 +57,16 @@ import static android.media.RingtoneManager.TITLE_COLUMN_INDEX;
  */
 final class RingtoneModel {
 
+    private static final String CUSTOM_RINGTONE_DIRECTORY_NAME = "ringtones";
+
     private final Context mContext;
 
     private final SharedPreferences mPrefs;
 
     /** Maps ringtone uri to ringtone title; looking up a title from scratch is expensive. */
     private final Map<Uri, String> mRingtoneTitles = new ArrayMap<>(16);
+
+    private final File mCustomRingtoneDirectory;
 
     /** Clears data structures containing data that is locale-sensitive. */
     @SuppressWarnings("FieldCanBeLocal")
@@ -79,17 +87,42 @@ final class RingtoneModel {
         // Clear caches affected by locale when locale changes.
         final IntentFilter localeBroadcastFilter = new IntentFilter(Intent.ACTION_LOCALE_CHANGED);
         mContext.registerReceiver(mLocaleChangedReceiver, localeBroadcastFilter);
+
+        // Create device-protected folder for custom ringtones so they are accessible after reboot
+        mCustomRingtoneDirectory = new File(
+                mContext.createDeviceProtectedStorageContext().getFilesDir(),
+                CUSTOM_RINGTONE_DIRECTORY_NAME);
+        mCustomRingtoneDirectory.mkdirs();
     }
 
-    CustomRingtone addCustomRingtone(Uri uri, String title) {
-        // If the uri is already present in an existing ringtone, do nothing.
-        final CustomRingtone existing = getCustomRingtone(uri);
-        if (existing != null) {
-            return existing;
+    boolean isInCustomRingtoneDirectory(Uri uri) {
+        String scheme = uri.getScheme();
+        if (scheme == null) {
+            return false;
         }
 
-        final CustomRingtone ringtone = CustomRingtoneDAO.addCustomRingtone(mPrefs, uri, title);
+        File parent = new File(uri.getPath()).getParentFile();
+
+        return scheme.equals(ContentResolver.SCHEME_FILE)
+                && parent.equals(mCustomRingtoneDirectory);
+    }
+
+    CustomRingtone addCustomRingtone(Uri uri, Uri originalUri, String title) {
+        final CustomRingtone ringtone = CustomRingtoneDAO.addCustomRingtone(mPrefs, uri,
+                originalUri, title);
         getMutableCustomRingtones().add(ringtone);
+        Collections.sort(getMutableCustomRingtones());
+        return ringtone;
+    }
+
+    CustomRingtone updateCustomRingtone(CustomRingtone existing, Uri uri, String title) {
+        final CustomRingtone ringtone = CustomRingtoneDAO.updateCustomRingtone(mPrefs,
+                existing.getId(), uri,  existing.getOriginalUri(), title);
+
+        final List<CustomRingtone> ringtones = getMutableCustomRingtones();
+        ringtones.remove(existing);
+        ringtones.add(ringtone);
+
         Collections.sort(getMutableCustomRingtones());
         return ringtone;
     }
@@ -105,9 +138,9 @@ final class RingtoneModel {
         }
     }
 
-    private CustomRingtone getCustomRingtone(Uri uri) {
+    CustomRingtone getCustomRingtone(Uri originalUri) {
         for (CustomRingtone ringtone : getMutableCustomRingtones()) {
-            if (ringtone.getUri().equals(uri)) {
+            if (ringtone.getOriginalUri().equals(originalUri)) {
                 return ringtone;
             }
         }
@@ -135,7 +168,9 @@ final class RingtoneModel {
 
         for (ListIterator<CustomRingtone> i = ringtones.listIterator(); i.hasNext();) {
             final CustomRingtone ringtone = i.next();
-            i.set(ringtone.setHasPermissions(permissions.contains(ringtone.getUri())));
+            final boolean hasPermissions = permissions.contains(ringtone.getUri())
+                    || isInCustomRingtoneDirectory(ringtone.getUri());
+            i.set(ringtone.setHasPermissions(hasPermissions));
         }
     }
 
@@ -189,6 +224,28 @@ final class RingtoneModel {
             mRingtoneTitles.put(uri, title);
         }
         return title;
+    }
+
+    Uri copyRingtoneDeviceProtectedStorage(Uri originalUri) {
+        ContentResolver contentResolver = mContext.getContentResolver();
+
+        try {
+            File ringtoneFile = File.createTempFile("ringtone", "", mCustomRingtoneDirectory);
+            Uri playbackUri = Uri.fromFile(ringtoneFile);
+            try (InputStream fis = contentResolver.openInputStream(originalUri);
+                 OutputStream fos = contentResolver.openOutputStream(playbackUri)) {
+                if (fis != null) {
+                    fis.transferTo(fos);
+                    return playbackUri;
+                }
+            } catch (IOException e) {
+                // TODO log
+            }
+        } catch (IOException e) {
+            // TODO log
+        }
+
+        return null;
     }
 
     private List<CustomRingtone> getMutableCustomRingtones() {

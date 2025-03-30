@@ -875,6 +875,15 @@ public final class DataModel {
         mRingtoneModel.loadRingtonePermissions();
     }
 
+    public Uri copyRingtoneDeviceProtectedStorage(Uri originalUri) {
+        enforceNotMainLooper();
+        return mRingtoneModel.copyRingtoneDeviceProtectedStorage(originalUri);
+    }
+
+    public boolean isInCustomRingtoneDirectory(Uri uri) {
+        return mRingtoneModel.isInCustomRingtoneDirectory(uri);
+    }
+
     /**
      * @param uri the uri of a ringtone
      * @return the title of the ringtone with the {@code uri}; {@code null} if it cannot be fetched
@@ -885,21 +894,36 @@ public final class DataModel {
     }
 
     /**
+     * TODO docs
      * @param uri the uri of an audio file to use as a ringtone
      * @param title the title of the audio content at the given {@code uri}
      * @return the ringtone instance created for the audio file
      */
-    public CustomRingtone addCustomRingtone(Uri uri, String title) {
+    public CustomRingtone addCustomRingtone(Uri uri, Uri originalUri, String title) {
         enforceMainLooper();
-        return mRingtoneModel.addCustomRingtone(uri, title);
+        return mRingtoneModel.addCustomRingtone(uri, originalUri, title);
+    }
+
+    public CustomRingtone updateCustomRingtone(CustomRingtone existing, Uri uri, String title) {
+        enforceMainLooper();
+        return mRingtoneModel.updateCustomRingtone(existing, uri, title);
     }
 
     /**
      * @param uri identifies the ringtone to remove
+     *            TODO CHANGE USAGE
      */
     public void removeCustomRingtone(Uri uri) {
         enforceMainLooper();
         mRingtoneModel.removeCustomRingtone(uri);
+    }
+
+    /** TODO DOCS
+     * @return all available custom ringtones
+     */
+    public CustomRingtone getCustomRingtone(Uri originalUri) {
+        enforceMainLooper();
+        return mRingtoneModel.getCustomRingtone(originalUri);
     }
 
     /**

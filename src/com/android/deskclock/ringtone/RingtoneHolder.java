@@ -44,6 +44,7 @@ abstract class RingtoneHolder extends ItemAdapter.ItemHolder<Uri> {
     long getId() { return itemId; }
     boolean hasPermissions() { return mHasPermissions; }
     Uri getUri() { return item; }
+    Uri getOriginalUri() { return item; }
 
     boolean isSilent() { return Utils.RINGTONE_SILENT.equals(getUri()); }
 

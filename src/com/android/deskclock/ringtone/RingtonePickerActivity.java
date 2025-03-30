@@ -52,9 +52,11 @@ import com.android.deskclock.actionbarmenu.MenuItemControllerFactory;
 import com.android.deskclock.actionbarmenu.NavUpMenuItemController;
 import com.android.deskclock.actionbarmenu.OptionsMenuManager;
 import com.android.deskclock.alarms.AlarmUpdateHandler;
+import com.android.deskclock.data.CustomRingtone;
 import com.android.deskclock.data.DataModel;
 import com.android.deskclock.provider.Alarm;
 
+import java.io.File;
 import java.util.List;
 
 import static android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION;
@@ -526,11 +528,28 @@ public class RingtonePickerActivity extends BaseActivity
         }
     }
 
+    // TODO docs
+    private final class AddCustomRingtoneResult {
+
+        private final Uri mPlaybackUri;
+
+        private final String mTitle;
+
+        AddCustomRingtoneResult(Uri playbackUri, String title) {
+            mPlaybackUri = playbackUri;
+            mTitle = title;
+        }
+
+        Uri getPlaybackUri() { return mPlaybackUri; }
+        String getTitle() { return mTitle; }
+    }
+
     /**
+     * TODO change docs
      * This task locates a displayable string in the background that is fit for use as the title of
      * the audio content. It adds a custom ringtone using the uri and title on the main thread.
      */
-    private final class AddCustomRingtoneTask extends AsyncTask<Void, Void, String> {
+    private final class AddCustomRingtoneTask extends AsyncTask<Void, Void, AddCustomRingtoneResult> {
 
         private final Uri mUri;
         private final Context mContext;
@@ -541,29 +560,27 @@ public class RingtonePickerActivity extends BaseActivity
         }
 
         @Override
-        protected String doInBackground(Void... voids) {
+        protected AddCustomRingtoneResult doInBackground(Void... voids) {
             final ContentResolver contentResolver = mContext.getContentResolver();
 
-            // Take the long-term permission to read (playback) the audio at the uri.
-            contentResolver.takePersistableUriPermission(mUri, FLAG_GRANT_READ_URI_PERMISSION);
-
+            String title = mContext.getString(R.string.unknown_ringtone_title);
             try (Cursor cursor = contentResolver.query(mUri, null, null, null, null)) {
                 if (cursor != null && cursor.moveToFirst()) {
                     // If the file was a media file, return its title.
                     final int titleIndex = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
                     if (titleIndex != -1) {
-                        return cursor.getString(titleIndex);
+                        title = cursor.getString(titleIndex);
                     }
 
                     // If the file was a simple openable, return its display name.
                     final int displayNameIndex = cursor.getColumnIndex(DISPLAY_NAME);
                     if (displayNameIndex != -1) {
-                        String title = cursor.getString(displayNameIndex);
-                        final int dotIndex = title.lastIndexOf(".");
+                        String filename = cursor.getString(displayNameIndex);
+                        final int dotIndex = filename.lastIndexOf(".");
                         if (dotIndex > 0) {
-                            title = title.substring(0, dotIndex);
+                            filename = filename.substring(0, dotIndex);
                         }
-                        return title;
+                        title = filename;
                     }
                 } else {
                     LogUtils.e("No ringtone for uri: %s", mUri);
@@ -572,16 +589,38 @@ public class RingtonePickerActivity extends BaseActivity
                 LogUtils.e("Unable to locate title for custom ringtone: " + mUri, e);
             }
 
-            return mContext.getString(R.string.unknown_ringtone_title);
+            Uri playbackUri = DataModel.getDataModel().copyRingtoneDeviceProtectedStorage(mUri);
+            if (playbackUri == null) {
+                // Copying to DP storage failed. Instead, take the long-term permission to read
+                // (playback) the audio at the uri.
+                contentResolver.takePersistableUriPermission(mUri, FLAG_GRANT_READ_URI_PERMISSION);
+                playbackUri = mUri;
+            }
+
+            return new AddCustomRingtoneResult(playbackUri, title);
         }
 
         @Override
-        protected void onPostExecute(String title) {
-            // Add the new custom ringtone to the data model.
-            DataModel.getDataModel().addCustomRingtone(mUri, title);
+        protected void onPostExecute(AddCustomRingtoneResult result) {
+            CustomRingtone existing = DataModel.getDataModel().getCustomRingtone(mUri);
+            if (existing == null) {
+                // Add the new custom ringtone to the data model.
+                DataModel.getDataModel().addCustomRingtone(result.getPlaybackUri(), mUri, result.getTitle());
+            } else {
+                // Update the existing custom ringtone in the data model.
+                DataModel.getDataModel().updateCustomRingtone(existing, result.getPlaybackUri(), result.getTitle());
+
+                // If applicable, delete the old device-encrypted copy.
+                if (DataModel.getDataModel().isInCustomRingtoneDirectory(existing.getUri())) {
+                    File toDelete = new File(existing.getUri().getPath());
+                    if (!toDelete.delete()) {
+                        // TODO LOG
+                    }
+                }
+            }
 
             // When the loader completes, it must play the new ringtone.
-            mSelectedRingtoneUri = mUri;
+            mSelectedRingtoneUri = result.getPlaybackUri();
             mIsPlaying = true;
 
             // Reload the data to reflect the change in the UI.
@@ -629,6 +668,14 @@ public class RingtonePickerActivity extends BaseActivity
                 // If the file was already deleted from the file system, a SecurityException is
                 // thrown indicating this app did not hold the read permission being released.
                 LogUtils.w("SecurityException while releasing read permission for " + mRemoveUri);
+            }
+
+            // If applicable, delete the device-encrypted copy.
+            if (DataModel.getDataModel().isInCustomRingtoneDirectory(mRemoveUri)) {
+                File toDelete = new File(mRemoveUri.getPath());
+                if (!toDelete.delete()) {
+                    // TODO LOG
+                }
             }
 
             return null;
