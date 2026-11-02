@@ -60,11 +60,12 @@ public final class AsyncRingtonePlayer {
     private static final int EVENT_VOLUME = 3;
     private static final String RINGTONE_URI_KEY = "RINGTONE_URI_KEY";
     private static final String CRESCENDO_DURATION_KEY = "CRESCENDO_DURATION_KEY";
+    private static final String LOCAL_PLAYBACK_KEY = "LOCAL_PLAYBACK_KEY";
 
     /** Handler running on the ringtone thread. */
     private Handler mHandler;
 
-    /** {@link MediaPlayerPlaybackDelegate} on pre M; {@link RingtonePlaybackDelegate} on M+ */
+    /** MediaPlayer for Direct Boot/local playback or pre M; Ringtone otherwise. */
     private PlaybackDelegate mPlaybackDelegate;
 
     /** The context. */
@@ -76,8 +77,13 @@ public final class AsyncRingtonePlayer {
 
     /** Plays the ringtone. */
     public void play(Uri ringtoneUri, long crescendoDuration) {
+        play(ringtoneUri, crescendoDuration, false);
+    }
+
+    /** Direct Boot copies are private files; use local playback with an explicit app fallback. */
+    public void play(Uri ringtoneUri, long crescendoDuration, boolean localPlayback) {
         LOGGER.d("Posting play.");
-        postMessage(EVENT_PLAY, ringtoneUri, crescendoDuration, 0);
+        postMessage(EVENT_PLAY, ringtoneUri, crescendoDuration, 0, localPlayback);
     }
 
     /** Stops playing the ringtone. */
@@ -107,16 +113,22 @@ public final class AsyncRingtonePlayer {
      */
     private void postMessage(int messageCode, Uri ringtoneUri, long crescendoDuration,
             long delayMillis) {
+        postMessage(messageCode, ringtoneUri, crescendoDuration, delayMillis, false);
+    }
+
+    private void postMessage(int messageCode, Uri ringtoneUri, long crescendoDuration,
+            long delayMillis, boolean localPlayback) {
         synchronized (this) {
             if (mHandler == null) {
                 mHandler = getNewHandler();
             }
 
             final Message message = mHandler.obtainMessage(messageCode);
-            if (ringtoneUri != null) {
+            if (messageCode == EVENT_PLAY) {
                 final Bundle bundle = new Bundle();
                 bundle.putParcelable(RINGTONE_URI_KEY, ringtoneUri);
                 bundle.putLong(CRESCENDO_DURATION_KEY, crescendoDuration);
+                bundle.putBoolean(LOCAL_PLAYBACK_KEY, localPlayback);
                 message.setData(bundle);
             }
 
@@ -140,6 +152,13 @@ public final class AsyncRingtonePlayer {
                         final Bundle data = msg.getData();
                         final Uri ringtoneUri = data.getParcelable(RINGTONE_URI_KEY);
                         final long crescendoDuration = data.getLong(CRESCENDO_DURATION_KEY);
+                        if (mPlaybackDelegate != null) {
+                            mPlaybackDelegate.stop(mContext);
+                        }
+                        mHandler.removeMessages(EVENT_VOLUME);
+                        mPlaybackDelegate = (data.getBoolean(LOCAL_PLAYBACK_KEY)
+                                || !Utils.isMOrLater()) ? new MediaPlayerPlaybackDelegate()
+                                : new RingtonePlaybackDelegate();
                         if (getPlaybackDelegate().play(mContext, ringtoneUri, crescendoDuration)) {
                             scheduleVolumeAdjustment();
                         }

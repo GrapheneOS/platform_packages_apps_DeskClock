@@ -96,6 +96,9 @@ public class AlarmInitReceiver extends BroadcastReceiver {
                         // Update all the alarm instances on time change event
                         AlarmStateManager.fixAlarmInstances(context);
                     }
+                    if (AlarmRingtoneCache.isUserUnlocked(context)) {
+                        AlarmRingtoneCache.refresh(context);
+                    }
                 } finally {
                     result.finish();
                     wl.release();

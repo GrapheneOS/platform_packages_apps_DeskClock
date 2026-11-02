@@ -19,11 +19,14 @@ package com.android.deskclock.alarms;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.media.AudioAttributes;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Vibrator;
 
 import com.android.deskclock.AsyncRingtonePlayer;
+import com.android.deskclock.AlarmRingtoneCache;
 import com.android.deskclock.LogUtils;
+import com.android.deskclock.R;
 import com.android.deskclock.Utils;
 import com.android.deskclock.data.DataModel;
 import com.android.deskclock.provider.AlarmInstance;
@@ -56,7 +59,16 @@ final class AlarmKlaxon {
 
         if (!AlarmInstance.NO_RINGTONE_URI.equals(instance.mRingtone)) {
             final long crescendoDuration = DataModel.getDataModel().getAlarmCrescendoDuration();
-            getAsyncRingtonePlayer(context).play(instance.mRingtone, crescendoDuration);
+            final boolean directBoot = !AlarmRingtoneCache.isUserUnlocked(context);
+            Uri ringtone = instance.mRingtone;
+            if (directBoot) {
+                ringtone = new AlarmRingtoneCache(context).getPlaybackUri(ringtone);
+                if (ringtone == null && instance.mRingtone != null) {
+                    LogUtils.w("No Direct Boot copy of the selected alarm sound; using fallback");
+                    ringtone = Utils.getResourceUri(context, R.raw.alarm_expire);
+                }
+            }
+            getAsyncRingtonePlayer(context).play(ringtone, crescendoDuration, directBoot);
         }
 
         if (instance.mVibrate) {

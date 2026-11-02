@@ -1,0 +1,14 @@
+android_test {
+    name: "DeskClockDirectBootTests",
+    srcs: ["src/**/*.java"],
+    sdk_version: "current",
+    instrumentation_for: "DeskClock",
+    libs: ["android.test.mock"],
+    static_libs: [
+        "androidx.test.core",
+        "androidx.test.runner",
+        "androidx.test.rules",
+        "androidx.test.ext.junit",
+    ],
+    test_suites: ["device-tests"],
+}

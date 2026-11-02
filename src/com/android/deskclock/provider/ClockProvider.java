@@ -28,14 +28,20 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
 import androidx.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.ArrayMap;
 
 import com.android.deskclock.LogUtils;
+import com.android.deskclock.AlarmRingtoneCache;
 import com.android.deskclock.Utils;
 
 import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 import static com.android.deskclock.provider.ClockContract.AlarmsColumns;
 import static com.android.deskclock.provider.ClockContract.InstancesColumns;
@@ -45,6 +51,66 @@ import static com.android.deskclock.provider.ClockDatabaseHelper.INSTANCES_TABLE
 public class ClockProvider extends ContentProvider {
 
     private ClockDatabaseHelper mOpenHelper;
+
+    private AlarmRingtoneCache mRingtoneCache;
+    private Handler mRingtoneCacheHandler;
+    private boolean mRefreshRingtones;
+
+    private final Runnable mUpdateRingtones = new Runnable() {
+        @Override
+        public void run() {
+            if (!AlarmRingtoneCache.isUserUnlocked(getContext())) {
+                return;
+            }
+            final Set<Uri> referenced;
+            final boolean refresh;
+            synchronized (ClockProvider.this) {
+                referenced = getReferencedRingtones();
+                refresh = mRefreshRingtones;
+                mRefreshRingtones = false;
+            }
+            // Opening a user-selected document can be slow. Never hold the provider lock, block
+            // the alarm state machine or do this I/O on the main thread.
+            for (Uri uri : referenced) {
+                mRingtoneCache.cache(uri, refresh);
+            }
+            synchronized (ClockProvider.this) {
+                // Re-query after copying: alarms/instances may have changed while I/O was running.
+                mRingtoneCache.retain(getReferencedRingtones());
+            }
+        }
+    };
+
+    private synchronized void updateRingtones(boolean refresh) {
+        mRefreshRingtones |= refresh;
+        mRingtoneCacheHandler.removeCallbacks(mUpdateRingtones);
+        mRingtoneCacheHandler.post(mUpdateRingtones);
+    }
+
+    private Set<Uri> getReferencedRingtones() {
+        final Set<Uri> referenced = new HashSet<>();
+        final SQLiteDatabase db = mOpenHelper.getReadableDatabase();
+        for (String table : new String[] {ALARMS_TABLE_NAME, INSTANCES_TABLE_NAME}) {
+            try (Cursor cursor = db.query(true, table, new String[] {AlarmsColumns.RINGTONE},
+                    null, null, null, null, null, null)) {
+                while (cursor.moveToNext()) {
+                    if (!cursor.isNull(0)) {
+                        referenced.add(Uri.parse(cursor.getString(0)));
+                    }
+                }
+            }
+        }
+        return referenced;
+    }
+
+    @Override
+    public Bundle call(String method, String arg, Bundle extras) {
+        if (AlarmRingtoneCache.REFRESH_METHOD.equals(method)) {
+            updateRingtones(true);
+            return Bundle.EMPTY;
+        }
+        return super.call(method, arg, extras);
+    }
 
     private static final int ALARMS = 1;
     private static final int ALARMS_ID = 2;
@@ -141,6 +207,10 @@ public class ClockProvider extends ContentProvider {
         }
 
         mOpenHelper = new ClockDatabaseHelper(storageContext);
+        mRingtoneCache = new AlarmRingtoneCache(context);
+        final HandlerThread thread = new HandlerThread("AlarmRingtoneCache");
+        thread.start();
+        mRingtoneCacheHandler = new Handler(thread.getLooper());
         return true;
     }
 
@@ -207,7 +277,8 @@ public class ClockProvider extends ContentProvider {
     }
 
     @Override
-    public int update(@NonNull Uri uri, ContentValues values, String where, String[] whereArgs) {
+    public synchronized int update(@NonNull Uri uri, ContentValues values, String where,
+            String[] whereArgs) {
         int count;
         String alarmId;
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
@@ -229,12 +300,13 @@ public class ClockProvider extends ContentProvider {
             }
         }
         LogUtils.v("*** notifyChange() id: " + alarmId + " url " + uri);
+        updateRingtones(false);
         notifyChange(getContext().getContentResolver(), uri);
         return count;
     }
 
     @Override
-    public Uri insert(@NonNull Uri uri, ContentValues initialValues) {
+    public synchronized Uri insert(@NonNull Uri uri, ContentValues initialValues) {
         long rowId;
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         switch (sURIMatcher.match(uri)) {
@@ -249,12 +321,13 @@ public class ClockProvider extends ContentProvider {
         }
 
         Uri uriResult = ContentUris.withAppendedId(uri, rowId);
+        updateRingtones(false);
         notifyChange(getContext().getContentResolver(), uriResult);
         return uriResult;
     }
 
     @Override
-    public int delete(@NonNull Uri uri, String where, String[] whereArgs) {
+    public synchronized int delete(@NonNull Uri uri, String where, String[] whereArgs) {
         int count;
         String primaryKey;
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
@@ -287,6 +360,7 @@ public class ClockProvider extends ContentProvider {
                 throw new IllegalArgumentException("Cannot delete from URI: " + uri);
         }
 
+        updateRingtones(false);
         notifyChange(getContext().getContentResolver(), uri);
         return count;
     }
